@@ -1,5 +1,5 @@
 Package: GICHighDimension
-Title: GIC Model Selection with Hopfield Network Optimization
+Title: GIC Variable Selection with Hopfield Network Optimization
 Description: An R package for performing GIC-based variable selection with Hopfield network optimization that is written in Julia.
 Version: 0.1.0
 Authors@R: person("Yuchen", "Xiao", email = "xiao.jack@utexas.edu", role = c("aut", "cre"))

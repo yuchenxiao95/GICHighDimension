@@ -29,63 +29,63 @@ julia_setup_once <- function() {
 }
 
 # Generic calculation function
-.calculate_criterion <- function(func_name, Y, X) {
+.Calculate_Criterion <- function(func_name, Y, X) {
   julia_setup_once()
   result <- JuliaCall::julia_call(func_name, as.vector(Y), as.matrix(X))
-  names(result) <- c(toupper(func_name), "Inverse")
+  names(result) <- c(func_name, "Inverse")
   result
 }
 
 #' @rdname information_criteria
 #' @export
-calculate_aic <- function(Y, X) .calculate_criterion("Calculate_AIC", Y, X)
+Calculate_AIC <- function(Y, X) .Calculate_Criterion("Calculate_AIC", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_aicc <- function(Y, X) .calculate_criterion("Calculate_AIC_c", Y, X)
+Calculate_AICc <- function(Y, X) .Calculate_Criterion("Calculate_AIC_c", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_att <- function(Y, X) .calculate_criterion("Calculate_AttIC", Y, X)
+Calculate_AttIC <- function(Y, X) .Calculate_Criterion("Calculate_AttIC", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_sic <- function(Y, X) .calculate_criterion("Calculate_SIC", Y, X)
+Calculate_SIC <- function(Y, X) .Calculate_Criterion("Calculate_SIC", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_bic <- function(Y, X) .calculate_criterion("Calculate_BIC", Y, X)
+Calculate_BIC <- function(Y, X) .Calculate_Criterion("Calculate_BIC", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_caic <- function(Y, X) .calculate_criterion("Calculate_CAIC", Y, X)
+Calculate_CAIC <- function(Y, X) .Calculate_Criterion("Calculate_CAIC", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_caicf <- function(Y, X) .calculate_criterion("Calculate_CAICF", Y, X)
+Calculate_CAICF <- function(Y, X) .Calculate_Criterion("Calculate_CAICF", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic2 <- function(Y, X) .calculate_criterion("Calculate_GIC2", Y, X)
+Calculate_GIC2 <- function(Y, X) .Calculate_Criterion("Calculate_GIC2", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic3 <- function(Y, X) .calculate_criterion("Calculate_GIC3", Y, X)
+Calculate_GIC3 <- function(Y, X) .Calculate_Criterion("Calculate_GIC3", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic4 <- function(Y, X) .calculate_criterion("Calculate_GIC4", Y, X)
+Calculate_GIC4 <- function(Y, X) .Calculate_Criterion("Calculate_GIC4", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic5 <- function(Y, X) .calculate_criterion("Calculate_GIC5", Y, X)
+Calculate_GIC5 <- function(Y, X) .Calculate_Criterion("Calculate_GIC5", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic6 <- function(Y, X) .calculate_criterion("Calculate_GIC6", Y, X)
+Calculate_GIC6 <- function(Y, X) .Calculate_Criterion("Calculate_GIC6", Y, X)
 
 # Short versions (when inverse matrix is already available)
-.calculate_criterion_short <- function(func_name, Y, X, Inverse) {
+.Calculate_Criterion_Short <- function(func_name, Y, X, Inverse) {
   julia_setup_once()
   JuliaCall::julia_call(paste0(func_name, "_short"),
                         as.vector(Y), as.matrix(X), as.matrix(Inverse))
@@ -93,48 +93,48 @@ calculate_gic6 <- function(Y, X) .calculate_criterion("Calculate_GIC6", Y, X)
 
 #' @rdname information_criteria
 #' @export
-calculate_aic_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_AIC", Y, X, Inverse)
+Calculate_AIC_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_AIC", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_aicc_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_AIC_c", Y, X, Inverse)
+Calculate_AICc_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_AIC_c", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_att_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_AttIC", Y, X, Inverse)
+Calculate_AttIC_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_AttIC", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_sic_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_SIC", Y, X, Inverse)
+Calculate_SIC_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_SIC", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_bic_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_BIC", Y, X, Inverse)
+Calculate_BIC_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_BIC", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_caic_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_CAIC", Y, X, Inverse)
+Calculate_CAIC_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_CAIC", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_caicf_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_CAICF", Y, X, Inverse)
+Calculate_CAICF_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_CAICF", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic2_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_GIC2", Y, X, Inverse)
+Calculate_GIC2_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_GIC2", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic3_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_GIC3", Y, X, Inverse)
+Calculate_GIC3_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_GIC3", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic4_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_GIC4", Y, X, Inverse)
+Calculate_GIC4_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_GIC4", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic5_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_GIC5", Y, X, Inverse)
+Calculate_GIC5_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_GIC5", Y, X, Inverse)
 
 #' @rdname information_criteria
 #' @export
-calculate_gic6_short <- function(Y, X, Inverse) .calculate_criterion_short("Calculate_GIC6", Y, X, Inverse)
+Calculate_GIC6_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short("Calculate_GIC6", Y, X, Inverse)
