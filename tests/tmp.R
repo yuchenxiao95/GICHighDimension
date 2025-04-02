@@ -25,7 +25,7 @@ devtools::test()
 # Check package integrity
 devtools::check()  # Fix any ERRORs/WARNINGs
 
-# installing a custom-built R package
+#Purpose: Installs the package locally from source.
 devtools::install(build_vignettes = FALSE, force = TRUE)
 
 # verify the julia script paths
@@ -69,7 +69,6 @@ init_cols = init_cols <- seq(1,P)
 time <- system.time(result1 <- GICSelection(X, Y, init_cols, "Calculate_SIC", "Calculate_SIC_short", Nsim = 1))["elapsed"]
 time
 
-calculate_aic()
 
 
 

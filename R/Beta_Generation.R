@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' # Example of generating a beta vector with 50 predictors and 10 non-zero coefficients
-#' beta <- generate_beta(P = 50, k = 10, type = 1)
+#' beta <- Beta_Generation(P = 50, k = 10, type = 1)
 #' print(beta)
 #'
 #' @export
