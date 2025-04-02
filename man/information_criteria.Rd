@@ -2,79 +2,79 @@
 % Please edit documentation in R/penalty_selection.R
 \name{information_criteria}
 \alias{information_criteria}
-\alias{calculate_aic}
-\alias{calculate_aicc}
-\alias{calculate_att}
-\alias{calculate_sic}
-\alias{calculate_bic}
-\alias{calculate_caic}
-\alias{calculate_caicf}
-\alias{calculate_gic2}
-\alias{calculate_gic3}
-\alias{calculate_gic4}
-\alias{calculate_gic5}
-\alias{calculate_gic6}
-\alias{calculate_aic_short}
-\alias{calculate_aicc_short}
-\alias{calculate_att_short}
-\alias{calculate_sic_short}
-\alias{calculate_bic_short}
-\alias{calculate_caic_short}
-\alias{calculate_caicf_short}
-\alias{calculate_gic2_short}
-\alias{calculate_gic3_short}
-\alias{calculate_gic4_short}
-\alias{calculate_gic5_short}
-\alias{calculate_gic6_short}
+\alias{Calculate_AIC}
+\alias{Calculate_AICc}
+\alias{Calculate_AttIC}
+\alias{Calculate_SIC}
+\alias{Calculate_BIC}
+\alias{Calculate_CAIC}
+\alias{Calculate_CAICF}
+\alias{Calculate_GIC2}
+\alias{Calculate_GIC3}
+\alias{Calculate_GIC4}
+\alias{Calculate_GIC5}
+\alias{Calculate_GIC6}
+\alias{Calculate_AIC_Short}
+\alias{Calculate_AICc_Short}
+\alias{Calculate_AttIC_Short}
+\alias{Calculate_SIC_Short}
+\alias{Calculate_BIC_Short}
+\alias{Calculate_CAIC_Short}
+\alias{Calculate_CAICF_Short}
+\alias{Calculate_GIC2_Short}
+\alias{Calculate_GIC3_Short}
+\alias{Calculate_GIC4_Short}
+\alias{Calculate_GIC5_Short}
+\alias{Calculate_GIC6_Short}
 \title{Information Criteria Calculations via Julia}
 \usage{
-calculate_aic(Y, X)
+Calculate_AIC(Y, X)
 
-calculate_aicc(Y, X)
+Calculate_AICc(Y, X)
 
-calculate_att(Y, X)
+Calculate_AttIC(Y, X)
 
-calculate_sic(Y, X)
+Calculate_SIC(Y, X)
 
-calculate_bic(Y, X)
+Calculate_BIC(Y, X)
 
-calculate_caic(Y, X)
+Calculate_CAIC(Y, X)
 
-calculate_caicf(Y, X)
+Calculate_CAICF(Y, X)
 
-calculate_gic2(Y, X)
+Calculate_GIC2(Y, X)
 
-calculate_gic3(Y, X)
+Calculate_GIC3(Y, X)
 
-calculate_gic4(Y, X)
+Calculate_GIC4(Y, X)
 
-calculate_gic5(Y, X)
+Calculate_GIC5(Y, X)
 
-calculate_gic6(Y, X)
+Calculate_GIC6(Y, X)
 
-calculate_aic_short(Y, X, Inverse)
+Calculate_AIC_Short(Y, X, Inverse)
 
-calculate_aicc_short(Y, X, Inverse)
+Calculate_AICc_Short(Y, X, Inverse)
 
-calculate_att_short(Y, X, Inverse)
+Calculate_AttIC_Short(Y, X, Inverse)
 
-calculate_sic_short(Y, X, Inverse)
+Calculate_SIC_Short(Y, X, Inverse)
 
-calculate_bic_short(Y, X, Inverse)
+Calculate_BIC_Short(Y, X, Inverse)
 
-calculate_caic_short(Y, X, Inverse)
+Calculate_CAIC_Short(Y, X, Inverse)
 
-calculate_caicf_short(Y, X, Inverse)
+Calculate_CAICF_Short(Y, X, Inverse)
 
-calculate_gic2_short(Y, X, Inverse)
+Calculate_GIC2_Short(Y, X, Inverse)
 
-calculate_gic3_short(Y, X, Inverse)
+Calculate_GIC3_Short(Y, X, Inverse)
 
-calculate_gic4_short(Y, X, Inverse)
+Calculate_GIC4_Short(Y, X, Inverse)
 
-calculate_gic5_short(Y, X, Inverse)
+Calculate_GIC5_Short(Y, X, Inverse)
 
-calculate_gic6_short(Y, X, Inverse)
+Calculate_GIC6_Short(Y, X, Inverse)
 }
 \arguments{
 \item{Y}{Outcome vector or matrix (numeric).}

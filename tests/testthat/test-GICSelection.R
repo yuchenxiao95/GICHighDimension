@@ -9,8 +9,8 @@ test_that("GICSelection works with example inputs", {
 
   # Ensure Julia is set up and source the Julia script
   julia_setup()
-  julia_source(system.file("julia", "penalty_selection.jl", package = "GICModelSelection"))
-
+  JuliaCall::julia_source(system.file("julia", "penalty_selection.jl",
+                                      package = "GICHighDimension"))
   # Set seed for reproducibility
   set.seed(123)
 
@@ -46,7 +46,7 @@ test_that("GICSelection works with example inputs", {
     X, Y, 1:p,
     Calculate_GIC = "Calculate_AIC",
     Calculate_GIC_short = "Calculate_AIC_short",
-    debug = FALSE, Nsim = 1
+    Nsim = 1
   )
 
   # Check the output
