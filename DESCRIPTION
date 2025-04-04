@@ -7,11 +7,11 @@ Authors@R:
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2322-9660"))
 Description: 
-    Implements Generalized Information Criterion (GIC) based variable selection 
-    using Hopfield network optimization. The computationally intensive components
-    are implemented in Julia for performance, while providing an R interface for
-    ease of use. Supports various model families including Normal, Poisson, and 
-    other GLMs. The package automatically handles Julia installation and provides
+    Implements Generalized Information Criterion (GIC) for variable selection in 
+    High-dimensions using Hopfield network optimization. The computationally intensive  
+    components are implemented in Julia for performance, while providing an R interface for
+    ease of use. Supports various GLMs including Normal, Poisson and 
+    others. The package automatically handles Julia installation and provides
     comprehensive documentation with examples.
 License: MIT + file LICENSE
 Encoding: UTF-8
