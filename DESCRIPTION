@@ -2,10 +2,15 @@ Package: GICHighDimension
 Title: GIC Variable Selection with Hopfield Network Optimization
 Version: 0.1.0
 Authors@R: 
-    person("Yuchen", "Xiao", 
-           email = "xiao.jack@utexas.edu", 
-           role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-2322-9660"))
+    c(
+      person("Yuchen", "Xiao", 
+             email = "xiao.jack@utexas.edu", 
+             role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0003-2322-9660")),
+      person("Stephen", "Walker",
+             email = "s.g.walker@math.utexas.edu",
+             role = "aut")
+    )
 Description: 
     Implements Generalized Information Criterion (GIC) for variable selection in 
     High-dimensions using Hopfield network optimization. The computationally intensive  
