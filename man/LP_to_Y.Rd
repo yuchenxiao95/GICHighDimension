@@ -39,30 +39,46 @@ LP_to_Y(
 
 \item{shape}{optional shape parameter for Gamma family}
 
-\item{cov_matrix}{Optional covariance matrix}
+\item{cov_matrix}{Optional covariance matrix (for Multivariate Normal)}
 
-\item{n_categories}{Optional number of categories}
+\item{n_categories}{Optional number of categories (for Multinomial family)}
 }
 \value{
-Numeric vector/matrix of transformed values
+Numeric vector or matrix of transformed responses
 
 numeric vector/matrix of linear predictors
 }
 \description{
-Convert observed responses to linear predictor scale
+Convert observed responses to the appropriate distribution scale
+using canonical link functions (e.g., Gaussian, Poisson).
 }
 \details{
-Uses canonical link functions appropriate for each distribution family
+Uses a Julia backend for fast transformation. Handles Gaussian, Bernoulli, Poisson,
+Gamma, and Multivariate Normal families.
 }
 \examples{
-# Normal/Gaussian family example
-set.seed(123)
-n <- 100
-p <- 5
-X <- matrix(rnorm(n * p), n, p)
-true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
-Y <- LP_to_Y(X, true_beta, family = "Normal")
-head(Y)
+\donttest{
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  julia_available <- FALSE
+  tryCatch({
+    JuliaCall::julia_setup()
+    julia_available <- TRUE
+  }, error = function(e) {
+    message("Julia not available: ", e$message)
+  })
+
+  if (julia_available) {
+    set.seed(123)
+    n <- 100
+    p <- 5
+    X <- matrix(rnorm(n * p), n, p)
+    true_beta <- c(1.5, -2, 0, 0, 3)
+    Y <- LP_to_Y(X, true_beta, family = "Normal")
+    head(Y)
+  }
+}
+}
+
 # Normal/Gaussian family example
 set.seed(123)
 n <- 100

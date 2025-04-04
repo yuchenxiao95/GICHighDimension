@@ -1,9 +1,9 @@
 # GICHighDimension
 
-[![R-CMD-check](https://github.com/yourusername/GICHighDimension/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yourusername/GICHighDimension/actions)
+[![R-CMD-check](https://github.com/yuchenxiao95/GICHighDimension/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yuchenxiao95/GICHighDimension/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**GICHighDimension** is an R package for high-dimensional model selection using Generalized Information Criteria (GIC), accelerated via a Julia backend.
+**GICHighDimension**  is an R package designed for efficient variable selection in high-dimensional settings using the Generalized Information Criterion (GIC). By leveraging a Hopfield network optimization framework and integrating Julia's computational speed, this package enables scalable model selection for generalized linear models (GLMs) such as Normal, Poisson, and Multivariate Normal.
 
 ---
 

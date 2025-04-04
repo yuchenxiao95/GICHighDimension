@@ -1,21 +1,43 @@
 #' @title Transform Linear Predictor to Response
-#' @description Convert observed responses to linear predictor scale
-#' @details Uses canonical link functions appropriate for each distribution family
+#' @description Convert observed responses to the appropriate distribution scale
+#' using canonical link functions (e.g., Gaussian, Poisson).
+#' @details Uses a Julia backend for fast transformation. Handles Gaussian, Bernoulli, Poisson,
+#' Gamma, and Multivariate Normal families.
+#'
 #' @param X Design matrix
 #' @param true_beta True coefficient vector
-#' @param family Distribution family ("Normal", "Bernoulli", etc.)
-#' @param cov_matrix Optional covariance matrix
-#' @param n_categories Optional number of categories
-#' @return Numeric vector/matrix of transformed values
+#' @param family Character string specifying distribution family ("Normal", "Poisson", "MultivariateNormal", etc.)
+#' @param n_trials Optional number of trials for Binomial family
+#' @param std Optional standard deviation for Normal family
+#' @param shape Optional shape parameter for Gamma family
+#' @param cov_matrix Optional covariance matrix (for Multivariate Normal)
+#' @param n_categories Optional number of categories (for Multinomial family)
+#'
+#' @return Numeric vector or matrix of transformed responses
+#'
 #' @examples
-#' # Normal/Gaussian family example
-#' set.seed(123)
-#' n <- 100
-#' p <- 5
-#' X <- matrix(rnorm(n * p), n, p)
-#' true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
-#' Y <- LP_to_Y(X, true_beta, family = "Normal")
-#' head(Y)
+#' \donttest{
+#' if (requireNamespace("JuliaCall", quietly = TRUE)) {
+#'   julia_available <- FALSE
+#'   tryCatch({
+#'     JuliaCall::julia_setup()
+#'     julia_available <- TRUE
+#'   }, error = function(e) {
+#'     message("Julia not available: ", e$message)
+#'   })
+#'
+#'   if (julia_available) {
+#'     set.seed(123)
+#'     n <- 100
+#'     p <- 5
+#'     X <- matrix(rnorm(n * p), n, p)
+#'     true_beta <- c(1.5, -2, 0, 0, 3)
+#'     Y <- LP_to_Y(X, true_beta, family = "Normal")
+#'     head(Y)
+#'   }
+#' }
+#' }
+#'
 #' @export
 #' @importFrom JuliaCall julia_eval
 LP_to_Y <- function(X, true_beta, family = "Normal",

@@ -7,9 +7,25 @@
 Y_to_LP(Y, family, shape = NULL, n_trials = NULL, std = NULL)
 }
 \arguments{
-\item{Y}{Observed response (vector or matrix)}
+\item{Y}{Observed response (numeric vector or matrix).}
 
-\item{family}{Distribution family. Supported options:
+\item{family}{Character string specifying the GLM family.}
+
+\item{shape}{Optional shape parameter (for Gamma family).}
+
+\item{n_trials}{Optional number of trials (for Binomial family).}
+
+\item{std}{Optional standard deviation (for Normal family).}
+}
+\value{
+A numeric vector or matrix of linear predictors, matching the input structure.
+}
+\description{
+Uses Julia's \code{Y_to_LP} function to transform observed responses into linear predictors
+using canonical link functions for various GLM families.
+}
+\details{
+Supported distribution families include:
 \itemize{
 \item "Bernoulli"
 \item "Binomial"
@@ -18,22 +34,7 @@ Y_to_LP(Y, family, shape = NULL, n_trials = NULL, std = NULL)
 \item "Gamma"
 \item "Exponential"
 \item "MultivariateNormal"
-}}
-
-\item{shape}{Optional shape parameter for Gamma family}
-
-\item{n_trials}{Optional number of trials for Binomial family}
-
-\item{std}{Optional standard deviation for Normal family}
 }
-\value{
-Transformed linear predictor values
-}
-\description{
-Uses Julia's \code{Y_to_LP} function to transform observed responses into linear predictors
-}
-\details{
-using canonical link functions for various GLM families.
 }
 \examples{
 \donttest{
@@ -56,7 +57,7 @@ if (julia_ready) {
   print(head(lp_bernoulli))
   print(head(lp_poisson))
 } else {
-  message("Julia not available - examples skipped")
+  message("Julia not available - examples skipped.")
 }
 }
 

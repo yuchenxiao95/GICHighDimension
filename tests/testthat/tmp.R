@@ -24,7 +24,6 @@ roxygen2::roxygenise()
 devtools::build_vignettes()
 
 
-
 # Check package integrity
 devtools::check()  # Fix any ERRORs/WARNINGs
 
@@ -73,11 +72,13 @@ init_cols <- seq(1, P)
 
 # Run selection and time it
 time <- system.time(
-  result1 <- GICSelection(
+  result <- GICSelection(
     X, Y, init_cols,
     "Calculate_SIC", "Calculate_SIC_short",
-    Nsim = 1
+    Nsim = 3
   )
 )["elapsed"]
 
 time
+
+result

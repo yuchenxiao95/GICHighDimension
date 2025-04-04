@@ -1,21 +1,29 @@
 #' @title Transform Outcome to Linear Predictor
-#' @description Uses Julia's `Y_to_LP` function to transform observed responses into linear predictors
-#' @details using canonical link functions for various GLM families.
-#' @param Y Observed response (vector or matrix)
-#' @param family Distribution family. Supported options:
-#'   \itemize{
-#'     \item "Bernoulli"
-#'     \item "Binomial"
-#'     \item "Normal"
-#'     \item "Poisson"
-#'     \item "Gamma"
-#'     \item "Exponential"
-#'     \item "MultivariateNormal"
-#'   }
-#' @param shape Optional shape parameter for Gamma family
-#' @param n_trials Optional number of trials for Binomial family
-#' @param std Optional standard deviation for Normal family
-#' @return Transformed linear predictor values
+#'
+#' @description
+#' Uses Julia's `Y_to_LP` function to transform observed responses into linear predictors
+#' using canonical link functions for various GLM families.
+#'
+#' @details
+#' Supported distribution families include:
+#' \itemize{
+#'   \item "Bernoulli"
+#'   \item "Binomial"
+#'   \item "Normal"
+#'   \item "Poisson"
+#'   \item "Gamma"
+#'   \item "Exponential"
+#'   \item "MultivariateNormal"
+#' }
+#'
+#' @param Y Observed response (numeric vector or matrix).
+#' @param family Character string specifying the GLM family.
+#' @param shape Optional shape parameter (for Gamma family).
+#' @param n_trials Optional number of trials (for Binomial family).
+#' @param std Optional standard deviation (for Normal family).
+#'
+#' @return A numeric vector or matrix of linear predictors, matching the input structure.
+#'
 #' @examples
 #' \donttest{
 #' julia_ready <- FALSE
@@ -37,7 +45,7 @@
 #'   print(head(lp_bernoulli))
 #'   print(head(lp_poisson))
 #' } else {
-#'   message("Julia not available - examples skipped")
+#'   message("Julia not available - examples skipped.")
 #' }
 #' }
 #'

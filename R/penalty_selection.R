@@ -1,35 +1,54 @@
 #' @title Information Criteria Calculations via Julia
+#'
 #' @description
 #' These functions calculate various information criteria using optimized Julia implementations.
 #' Each function returns a list containing the criterion value and inverse matrix.
-#' @param Y Outcome vector or matrix (numeric)
-#' @param X Design matrix (numeric)
-#' @param Inverse Pre-computed inverse matrix for short versions (numeric matrix)
+#'
+#' @param Y Outcome vector or matrix (numeric).
+#' @param X Design matrix (numeric).
+#' @param Inverse Pre-computed inverse matrix for short versions (numeric matrix).
+#'
 #' @return A list with components:
-#' \item{CriterionValue}{Numeric value of the calculated criterion.}
-#' \item{InverseMatrix}{Matrix inverse (not returned by _Short versions).}
+#' \describe{
+#'   \item{CriterionValue}{Numeric value of the calculated criterion.}
+#'   \item{InverseMatrix}{Matrix inverse (not returned by `_Short` versions).}
+#' }
+#'
 #' @details
-#' The functions provide R interfaces to optimized Julia implementations of:
+#' The following information criteria are available:
 #' \itemize{
 #'   \item Akaike Information Criterion (AIC)
 #'   \item Corrected AIC (AICc)
 #'   \item Schwarz Information Criterion (SIC/BIC)
-#'   \item Various Generalized IC versions (GIC2-GIC6)
+#'   \item Various Generalized Information Criteria (GIC2–GIC6)
 #' }
 #'
-#' The "_Short" versions use pre-computed inverse matrices.
+#' The `_Short` variants accept a pre-computed inverse matrix to avoid redundant matrix inversion.
+#' All criteria are computed using fast Julia backends for scalability and efficiency.
 #'
 #' @examples
 #' \donttest{
 #' if (requireNamespace("JuliaCall", quietly = TRUE)) {
-#'   X <- matrix(rnorm(100), ncol = 5)
-#'   Y <- rnorm(20)
-#'   aic_result <- Calculate_AIC(Y, X)
+#'   julia_available <- FALSE
+#'   tryCatch({
+#'     JuliaCall::julia_setup()
+#'     julia_available <- TRUE
+#'   }, error = function(e) {
+#'     message("Julia not available: ", e$message)
+#'   })
+#'
+#'   if (julia_available) {
+#'     X <- matrix(rnorm(100), ncol = 5)
+#'     Y <- rnorm(20)
+#'     result <- Calculate_AIC(Y, X)
+#'     print(result$CriterionValue)
+#'   }
 #' }
 #' }
 #'
 #' @name information_criteria
 NULL
+
 
 # Package environment for Julia setup flag
 .pkg_env <- new.env(parent = emptyenv())

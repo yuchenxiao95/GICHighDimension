@@ -12,17 +12,24 @@ setup_julia(
 )
 }
 \arguments{
-\item{julia_path}{Optional path to Julia binary. If NULL, searches system PATH.}
+\item{julia_path}{Optional string. Path to Julia binary. If NULL, uses system default.}
 
-\item{install_julia}{If TRUE, attempts to install Julia (default: FALSE).}
+\item{install_julia}{Logical. If TRUE, attempts to install Julia if not present (default FALSE).}
 
-\item{install_deps}{If TRUE, installs required Julia packages (default: TRUE).}
+\item{install_deps}{Logical. If TRUE, installs Julia packages required by this package (default TRUE).}
 
-\item{quiet}{If TRUE, suppresses messages (default: FALSE).}
+\item{quiet}{Logical. If TRUE, suppresses all output messages (default FALSE).}
 }
 \value{
-Invisible TRUE if successful, FALSE otherwise.
+Invisible TRUE if successful, otherwise FALSE with error message.
 }
 \description{
-Sets up the Julia connection and installs required Julia packages for this package to run.
+Sets up the Julia connection using JuliaCall and optionally installs required Julia packages.
+}
+\examples{
+\donttest{
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  setup_julia(install_julia = FALSE)
+}
+}
 }

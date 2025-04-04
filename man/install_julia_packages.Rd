@@ -10,13 +10,21 @@ install_julia_packages(
 )
 }
 \arguments{
-\item{packages}{Character vector of package names to install.}
+\item{packages}{Character vector of Julia package names to install.}
 
-\item{quiet}{If TRUE, suppresses output messages.}
+\item{quiet}{Logical. If TRUE, suppresses all output messages (default FALSE).}
 }
 \value{
 Invisible TRUE if all packages were installed successfully.
 }
 \description{
-Installs the necessary Julia packages for the GICHighDimension package to function.
+Installs Julia packages needed by the GICHighDimension package.
+}
+\examples{
+\donttest{
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  setup_julia(install_deps = FALSE)
+  install_julia_packages()
+}
+}
 }
