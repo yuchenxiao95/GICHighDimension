@@ -20,6 +20,7 @@ Description:
     comprehensive documentation with examples.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en-US
 LazyData: true
 Depends:
     R (>= 3.5.0)

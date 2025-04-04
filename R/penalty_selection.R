@@ -2,7 +2,7 @@
 #'
 #' @description
 #' These functions calculate various information criteria using optimized Julia implementations.
-#' Each function returns a list containing the criterion value and inverse matrix.
+#' Each function returns a list containing the criterion value and (optionally) the inverse matrix.
 #'
 #' @param Y Outcome vector or matrix (numeric).
 #' @param X Design matrix (numeric).
@@ -27,7 +27,7 @@
 #' All criteria are computed using fast Julia backends for scalability and efficiency.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("JuliaCall", quietly = TRUE)) {
 #'   julia_available <- FALSE
 #'   tryCatch({

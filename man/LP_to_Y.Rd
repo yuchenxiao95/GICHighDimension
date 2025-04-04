@@ -53,8 +53,15 @@ Convert observed responses to the appropriate distribution scale
 using canonical link functions (e.g., Gaussian, Poisson).
 }
 \details{
-Uses a Julia backend for fast transformation. Handles Gaussian, Bernoulli, Poisson,
-Gamma, and Multivariate Normal families.
+Uses a Julia backend for fast transformation. Handles:
+\itemize{
+\item Gaussian ("Normal")
+\item Bernoulli
+\item Poisson
+\item Gamma
+\item Multivariate Normal
+\item (Optionally) Multinomial
+}
 }
 \examples{
 \donttest{

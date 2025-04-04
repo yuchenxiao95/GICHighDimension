@@ -1,12 +1,24 @@
 #' @title Transform Linear Predictor to Response
-#' @description Convert observed responses to the appropriate distribution scale
+#'
+#' @description
+#' Convert observed responses to the appropriate distribution scale
 #' using canonical link functions (e.g., Gaussian, Poisson).
-#' @details Uses a Julia backend for fast transformation. Handles Gaussian, Bernoulli, Poisson,
-#' Gamma, and Multivariate Normal families.
+#'
+#' @details
+#' Uses a Julia backend for fast transformation. Handles:
+#' \itemize{
+#'   \item Gaussian ("Normal")
+#'   \item Bernoulli
+#'   \item Poisson
+#'   \item Gamma
+#'   \item Multivariate Normal
+#'   \item (Optionally) Multinomial
+#' }
 #'
 #' @param X Design matrix
 #' @param true_beta True coefficient vector
-#' @param family Character string specifying distribution family ("Normal", "Poisson", "MultivariateNormal", etc.)
+#' @param family Character string specifying distribution family
+#'        (e.g., "Normal", "Poisson", "MultivariateNormal", etc.)
 #' @param n_trials Optional number of trials for Binomial family
 #' @param std Optional standard deviation for Normal family
 #' @param shape Optional shape parameter for Gamma family

@@ -92,7 +92,7 @@ A list with components:
 }
 \description{
 These functions calculate various information criteria using optimized Julia implementations.
-Each function returns a list containing the criterion value and inverse matrix.
+Each function returns a list containing the criterion value and (optionally) the inverse matrix.
 }
 \details{
 The following information criteria are available:
@@ -107,7 +107,7 @@ The \verb{_Short} variants accept a pre-computed inverse matrix to avoid redunda
 All criteria are computed using fast Julia backends for scalability and efficiency.
 }
 \examples{
-\donttest{
+\dontrun{
 if (requireNamespace("JuliaCall", quietly = TRUE)) {
   julia_available <- FALSE
   tryCatch({

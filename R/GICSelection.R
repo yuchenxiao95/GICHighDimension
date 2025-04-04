@@ -68,6 +68,7 @@
 #' @importFrom JuliaCall julia_setup julia_source julia_call julia_assign julia_eval julia_exists
 #' @importFrom stats rnorm
 #' @importFrom utils packageVersion
+
 GICSelection <- function(X, Y, Initial_Column,
                          Calculate_GIC,
                          Calculate_GIC_short,
