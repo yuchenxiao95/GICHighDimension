@@ -2,7 +2,7 @@
 % Please edit documentation in R/GICSelection_Boltzmann.R
 \name{GICSelectionBoltzmann}
 \alias{GICSelectionBoltzmann}
-\title{Perform Boltzmann-based Variable Selection}
+\title{GIC Variable Selection with Boltzmann Machine}
 \usage{
 GICSelectionBoltzmann(
   X,
@@ -34,16 +34,47 @@ A list containing GIC values and corresponding coefficients.
 }
 \description{
 This function performs GIC-based variable selection using a Boltzmann-like
-simulated annealing approach, which is implemented in Julia. The method
-uses temperature control for randomness in the variable selection process.
+simulated annealing approach, which is implemented in Julia.
+}
+\details{
+The method uses temperature control for randomness in the variable selection process.
 }
 \examples{
-# Example usage:
-X <- matrix(rnorm(100), ncol = 10)  # Random design matrix with 10 features
-Y <- rnorm(10)  # Random outcome vector
-result <- GICSelectionBoltzmann(X, Y, Init_Columns = 1:5,
-                                 Calculate_GIC = "Calculate_BIC",
-                                 Calculate_GIC_short = "Calculate_BIC_short")
-print(result)
+\donttest{
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  julia_available <- FALSE
+  tryCatch({
+    JuliaCall::julia_setup(installJulia = FALSE)
+    julia_available <- TRUE
+  }, error = function(e) {
+    message("Julia not available: ", e$message)
+  })
+
+  if (julia_available) {
+    # Generate synthetic data
+    set.seed(123)
+    n <- 100
+    p <- 10
+    k <- 3
+
+    X <- matrix(rnorm(n * p), n, p)
+    true_beta <- c(rep(1.5, k), rep(0, p - k))
+    Y <- X \%*\% true_beta + rnorm(n)
+
+    # Run Boltzmann GIC selection
+    result <- GICSelectionBoltzmann(
+      X = X,
+      Y = Y,
+      Init_Columns = 1:p,
+      Calculate_GIC = "Calculate_SIC",
+      Calculate_GIC_short = "Calculate_SIC_short",
+      Nsim = 3
+    )
+
+    # Print selected coefficients
+    print(result$GIC_coeff)
+  }
+}
+}
 
 }

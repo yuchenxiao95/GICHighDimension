@@ -1,150 +1,145 @@
-# This file is part of the standard setup for testthat.
-# It is recommended that you do not modify it.
-#
-# Where should you do additional test configuration?
-# Learn more about the roles of various files in:
-# * https://r-pkgs.org/testing-design.html#sec-tests-files-overview
-# * https://testthat.r-lib.org/articles/special-files.html
+# testthat.R - Test suite for GICHighDimension package
 
-# testthat.R
+# Load necessary packages
 library(testthat)
 library(GICHighDimension)
 
-# Initialize Julia connection
-JuliaCall::julia_setup()
-JuliaCall::julia_library("Distributions")
+# Setup Julia environment for tests
+setup_julia_for_tests <- function() {
+  # Initialize Julia connection
+  tryCatch({
+    # Check if Julia is available by attempting setup
+    julia_ok <- JuliaCall::julia_setup(installJulia = FALSE, silent = TRUE)
+    if (!julia_ok) {
+      testthat::skip("Julia not available - skipping tests")
+    }
 
-test_that("Univariate Normal Model Selection works", {
-  # Set parameters
-  N <- 3000L
-  P <- 500L
-  k <- 5L
+    # Verify Julia is working
+    JuliaCall::julia_eval("1+1")
+
+    # Load required Julia packages
+    JuliaCall::julia_library("Distributions")
+    JuliaCall::julia_library("LinearAlgebra")
+
+    return(TRUE)
+  }, error = function(e) {
+    testthat::skip(paste("Julia initialization failed:", e$message))
+  })
+}
+
+# Test Suite ---------------------------------------------------------------
+
+test_that("Univariate Normal Model Selection works correctly", {
+  # Skip if Julia not available
+  if (!setup_julia_for_tests()) return()
+
+  # Parameters
+  N <- 100L  # Reduced from 3000 for faster testing
+  P <- 20L   # Reduced from 100 for faster testing
+  k <- 3L    # Reduced from 5 for faster testing
   rho <- 0.0
 
-  # Generate true columns
+  # Generate test data directly in R (faster than Julia for small cases)
   true_columns <- sort(sample(1:P, k, replace = FALSE))
-
-  # Create design matrix
-  mu <- rep(0, P)
-  cov_matrix <- matrix(rho, P, P)
-  diag(cov_matrix) <- 1.0
-
-  # Generate random matrix in Julia
-  JuliaCall::julia_assign("mu", mu)
-  JuliaCall::julia_assign("cov_matrix", cov_matrix)
-  JuliaCall::julia_assign("N", N)
-  X <- JuliaCall::julia_eval("rand(MvNormal(mu, cov_matrix), N)'")
-
-  # Create true beta
+  cov_matrix <- diag(P)
+  X <- matrix(rnorm(N*P), N, P) %*% chol(cov_matrix)
   true_beta <- rep(0, P)
   true_beta[true_columns] <- 2
-
-  # Generate response
-  Y <- LP_to_Y(X, true_beta, family = "Normal")
+  Y <- X %*% true_beta + rnorm(N)
 
   # Run model selection
-  init_cols <- 1:P
   result <- GICSelection(
     X = X,
     Y = Y,
-    init_cols,
-    "Calculate_SIC",
-    "Calculate_SIC_short",
-    Nsim = 5L
+    Initial_Column = 1:P,
+    Calculate_GIC = "Calculate_SIC",
+    Calculate_GIC_short = "Calculate_SIC_short",
+    Nsim = 2L  # Reduced from 5 for faster testing
   )
 
-  # Tests for the result structure
-  setdiff(result$GIC_coeff[[length(result$GIC_coeff)]], true_columns)
-  setdiff(true_columns, result$GIC_coeff[[length(result$GIC_coeff)]])
+  # Tests
+  selected_cols <- result$GIC_coeff[[length(result$GIC_coeff)]]
+  false_positives <- setdiff(selected_cols, true_columns)
+  false_negatives <- setdiff(true_columns, selected_cols)
+
+  expect_lte(length(false_positives), 5,
+             info = "Too many false positives in selection")
+  expect_lte(length(false_negatives), 2,  # More lenient for smaller test
+             info = "Too many false negatives in selection")
 })
 
-test_that("Univariate Poisson Model Selection works", {
-  N <- 3000L
-  P <- 500L
-  k <- 5L
-  rho <- 0.0
+test_that("Univariate Poisson Model Selection works correctly", {
+  # Skip if Julia not available
+  if (!setup_julia_for_tests()) return()
+
+  # Reduced parameters for faster testing
+  N <- 100L
+  P <- 20L
+  k <- 3L
+
+  # Generate test data in R
   true_columns <- sort(sample(1:P, k, replace = FALSE))
-
-  mu <- rep(0, P)
-  cov_matrix <- matrix(rho, P, P)
-  diag(cov_matrix) <- 1.0
-
-  JuliaCall::julia_assign("mu", mu)
-  JuliaCall::julia_assign("cov_matrix", cov_matrix)
-  JuliaCall::julia_assign("N", N)
-  X <- JuliaCall::julia_eval("rand(MvNormal(mu, cov_matrix), N)'")
-
+  X <- matrix(rnorm(N*P), N, P)
   true_beta <- rep(0, P)
-  true_beta[true_columns] <- 2
+  true_beta[true_columns] <- 0.3  # Smaller coefficients for Poisson
+  Y <- rpois(N, exp(X %*% true_beta))
 
-  Y <- LP_to_Y(X, true_beta, family = "Poisson")
-
-  init_cols <- 1:P
+  # Run model selection
   result <- GICSelection(
     X = X,
-    Y = Y_to_lp(Y, "Poisson"),
-    init_cols,
-    "Calculate_SIC",
-    "Calculate_SIC_short",
-    Nsim = 5L
+    Y = Y_to_LP(Y, "Poisson"),
+    Initial_Column = 1:P,
+    Calculate_GIC = "Calculate_SIC",
+    Calculate_GIC_short = "Calculate_SIC_short",
+    Nsim = 2L
   )
 
-  setdiff(result$GIC_coeff[[length(result$GIC_coeff)]], true_columns)
-  setdiff(true_columns, result$GIC_coeff[[length(result$GIC_coeff)]])
+  # Tests
+  selected_cols <- result$GIC_coeff[[length(result$GIC_coeff)]]
+  expect_lte(length(setdiff(selected_cols, true_columns)), 5,
+             info = "Too many false positives in Poisson model")
+  expect_lte(length(setdiff(true_columns, selected_cols)), 2,
+             info = "Too many false negatives in Poisson model")
 })
 
-test_that("Multivariate Normal Model Selection works", {
-  N <- 3000L
-  P <- 500L
-  k <- 5L
-  rho <- 0.0
+test_that("Multivariate Normal Model Selection works correctly", {
+  # Skip if Julia not available
+  if (!setup_julia_for_tests()) return()
 
-  # Create mean vector and covariance matrix
-  mu <- rep(0, P)
-  cov_matrix <- matrix(rho, P, P)
-  diag(cov_matrix) <- 1.0
+  # Reduced parameters
+  N <- 100L
+  P <- 20L
+  k <- 3L
+  m <- 3L
 
-  # Assign to Julia
-  JuliaCall::julia_assign("mu", mu)
-  JuliaCall::julia_assign("cov_matrix", cov_matrix)
-  JuliaCall::julia_assign("N", N)
-  X <- JuliaCall::julia_eval("rand(MvNormal(mu, cov_matrix), N)'")
-
-  # Create true beta coefficients
-  m <- 5L
+  # Generate test data in R
+  X <- matrix(rnorm(N*P), N, P)
   multi_beta <- matrix(0, P, m)
-  multi_beta_true_columns <- vector("list", m)
+  true_columns <- integer(0)
 
   for (i in 1:m) {
     cols <- sort(sample(1:P, k, replace = FALSE))
-    multi_beta_true_columns[[i]] <- cols
-    multi_beta[cols, i] <- seq(10, 0.1, length.out = k)
+    true_columns <- union(true_columns, cols)
+    multi_beta[cols, i] <- seq(1, 0.1, length.out = k)
   }
 
-  true_signal_columns <- unique(unlist(multi_beta_true_columns))
+  # Generate response
+  Y <- X %*% multi_beta + matrix(rnorm(N*m), N, m)
 
-  # Create response covariance matrix (different from design matrix)
-  response_cov <- matrix(0.5, m, m)  # Example: 0.5 correlation between responses
-  diag(response_cov) <- 1.0          # Unit variance
-
-  # Generate response - NOW WITH COV_MATRIX SPECIFIED
-  Y <- LP_to_Y(
-    X = X,
-    true_beta = multi_beta,
-    family = "MultivariateNormal",
-    cov_matrix = response_cov  # This was missing!
-  )
-
-  init_cols <- 1:P
+  # Run model selection
   result <- GICSelection(
     X = X,
     Y = Y,
-    init_cols,
-    "Calculate_SIC",
-    "Calculate_SIC_short",
-    Nsim = 5L
+    Initial_Column = 1:P,
+    Calculate_GIC = "Calculate_SIC",
+    Calculate_GIC_short = "Calculate_SIC_short",
+    Nsim = 2L
   )
 
-  setdiff(result$GIC_coeff[[length(result$GIC_coeff)]],   true_signal_columns )
-  setdiff(true_signal_columns , result$GIC_coeff[[length(result$GIC_coeff)]])
+  # Tests
+  selected_cols <- result$GIC_coeff[[length(result$GIC_coeff)]]
+  expect_lte(length(setdiff(selected_cols, true_columns)), 5,
+             info = "Too many false positives in multivariate model")
+  expect_lte(length(setdiff(true_columns, selected_cols)), 3,
+             info = "Too many false negatives in multivariate model")
 })

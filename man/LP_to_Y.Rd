@@ -2,8 +2,19 @@
 % Please edit documentation in R/LPtoY.R
 \name{LP_to_Y}
 \alias{LP_to_Y}
-\title{Transform Linear Predictor to Outcome Y}
+\title{Transform Linear Predictor to Response}
 \usage{
+LP_to_Y(
+  X,
+  true_beta,
+  family = "Normal",
+  n_trials = NULL,
+  std = NULL,
+  shape = NULL,
+  cov_matrix = NULL,
+  n_categories = NULL
+)
+
 LP_to_Y(
   X,
   true_beta,
@@ -18,23 +29,46 @@ LP_to_Y(
 \arguments{
 \item{X}{Design matrix}
 
-\item{true_beta}{Coefficient vector/matrix}
+\item{true_beta}{True coefficient vector}
 
-\item{family}{Distribution family ("Normal", "Binomial", etc.)}
+\item{family}{character string specifying distribution family}
 
-\item{n_trials}{Number of trials for Binomial family}
+\item{n_trials}{optional number of trials for Binomial family}
 
-\item{std}{Standard deviation for Normal family}
+\item{std}{optional standard deviation for Normal family}
 
-\item{shape}{Shape parameter for Gamma family}
+\item{shape}{optional shape parameter for Gamma family}
 
-\item{cov_matrix}{Covariance matrix for MultivariateNormal}
+\item{cov_matrix}{Optional covariance matrix}
 
-\item{n_categories}{Number of categories for Multinomial}
+\item{n_categories}{Optional number of categories}
 }
 \value{
-Simulated outcome values
+Numeric vector/matrix of transformed values
+
+numeric vector/matrix of linear predictors
 }
 \description{
-Converts linear predictors to outcomes using Julia implementation
+Convert observed responses to linear predictor scale
+}
+\details{
+Uses canonical link functions appropriate for each distribution family
+}
+\examples{
+# Normal/Gaussian family example
+set.seed(123)
+n <- 100
+p <- 5
+X <- matrix(rnorm(n * p), n, p)
+true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
+Y <- LP_to_Y(X, true_beta, family = "Normal")
+head(Y)
+# Normal/Gaussian family example
+set.seed(123)
+n <- 100
+p <- 5
+X <- matrix(rnorm(n * p), n, p)
+true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
+Y <- LP_to_Y(X, true_beta, family = "Normal")
+head(Y)
 }

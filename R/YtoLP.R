@@ -1,67 +1,76 @@
-#' @title Transform Outcome Y to Linear Predictor
-#'
-#' @description
-#' This function uses Julia's `Y_to_LP` function to transform observed responses
-#' into linear predictors using canonical link functions for various GLM families.
-#'
-#' @param Y Observed response (vector for univariate, matrix for multivariate).
+#' @title Transform Outcome to Linear Predictor
+#' @description Uses Julia's `Y_to_LP` function to transform observed responses into linear predictors
+#' @details using canonical link functions for various GLM families.
+#' @param Y Observed response (vector or matrix)
 #' @param family Distribution family. Supported options:
-#'               "Bernoulli", "Binomial", "Normal", "Poisson", "Gamma", "Exponential", "MultivariateNormal".
-#' @param shape (Optional) Shape parameter for Gamma family (default: NULL).
-#' @param n_trials (Optional) Number of trials for Binomial family (default: NULL).
-#' @param std (Optional) Standard deviation for Normal family (default: NULL).
-#'
-#' @return Transformed linear predictor values.
-#'
+#'   \itemize{
+#'     \item "Bernoulli"
+#'     \item "Binomial"
+#'     \item "Normal"
+#'     \item "Poisson"
+#'     \item "Gamma"
+#'     \item "Exponential"
+#'     \item "MultivariateNormal"
+#'   }
+#' @param shape Optional shape parameter for Gamma family
+#' @param n_trials Optional number of trials for Binomial family
+#' @param std Optional standard deviation for Normal family
+#' @return Transformed linear predictor values
 #' @examples
-#' # Bernoulli example
-#' Y_bernoulli <- sample(c(0,1), 100, replace = TRUE)
-#' lp_bernoulli <- YtoLP(Y_bernoulli, family = "Bernoulli")
+#' \donttest{
+#' julia_ready <- FALSE
+#' if (requireNamespace("JuliaCall", quietly = TRUE)) {
+#'   try({
+#'     JuliaCall::julia_setup(installJulia = FALSE)
+#'     JuliaCall::julia_eval("1 + 1")
+#'     julia_ready <- TRUE
+#'   }, silent = TRUE)
+#' }
 #'
-#' # Multivariate Normal example
-#' Y_mvnorm <- matrix(rnorm(200), ncol = 2)
-#' lp_mvnorm <- YtoLP(Y_mvnorm, family = "MultivariateNormal")
+#' if (julia_ready) {
+#'   Y_bernoulli <- sample(c(0, 1), 100, replace = TRUE)
+#'   lp_bernoulli <- Y_to_LP(Y_bernoulli, family = "Bernoulli")
+#'
+#'   Y_poisson <- rpois(100, lambda = 5)
+#'   lp_poisson <- Y_to_LP(Y_poisson, family = "Poisson")
+#'
+#'   print(head(lp_bernoulli))
+#'   print(head(lp_poisson))
+#' } else {
+#'   message("Julia not available - examples skipped")
+#' }
+#' }
 #'
 #' @export
 Y_to_LP <- function(Y, family, shape = NULL, n_trials = NULL, std = NULL) {
-
-  # Ensure JuliaCall package is available
   if (!requireNamespace("JuliaCall", quietly = TRUE)) {
-    stop("JuliaCall required. Install with install.packages('JuliaCall')")
+    stop("JuliaCall is required. Please install it with install.packages('JuliaCall')", call. = FALSE)
   }
 
-  # Initialize Julia
-  JuliaCall::julia_setup()
+  # Initialize Julia if needed
+  try({
+    JuliaCall::julia_setup(installJulia = FALSE)
+  }, silent = TRUE)
 
-  # Convert inputs to appropriate types
-  if (is.matrix(Y)) {
-    Y_julia <- Y  # Keep as matrix for multivariate cases
-  } else {
-    Y_julia <- as.vector(Y)
+  # Source the Julia script
+  if (!JuliaCall::julia_exists("Y_to_LP")) {
+    julia_script <- system.file("julia", "Y_to_LP.jl", package = "GICHighDimension")
+    if (julia_script == "") {
+      stop("Required Julia script 'Y_to_LP.jl' not found in package", call. = FALSE)
+    }
+    JuliaCall::julia_source(julia_script)
   }
 
-  # Prepare arguments list
-  args <- list(
-    Y = Y_julia,
-    family = family
-  )
+  # Build keyword argument list
+  kwargs <- list()
+  if (!is.null(shape)) kwargs$shape <- as.numeric(shape)
+  if (!is.null(n_trials)) kwargs$n_trials <- as.integer(n_trials)
+  if (!is.null(std)) kwargs$std <- as.numeric(std)
 
-  # Add optional parameters if provided
-  if (!is.null(shape)) args$shape <- as.numeric(shape)
-  if (!is.null(n_trials)) args$n_trials <- as.integer(n_trials)
-  if (!is.null(std)) args$std <- as.numeric(std)
-
-  # Locate and source Julia script
-  julia_script <- system.file("julia", "Y_to_LP.jl", package = "GICHighDimension")
-  if (julia_script == "") stop("Julia script 'Y_to_LP.jl' not found in package")
-  JuliaCall::julia_source(julia_script)
-
-  # Call Julia function with appropriate arguments
-  result <- tryCatch({
-    do.call(JuliaCall::julia_call, c("Y_to_LP", args))
+  # Combine with positional args and call
+  tryCatch({
+    do.call(JuliaCall::julia_call, c(list("Y_to_LP", Y, family), kwargs))
   }, error = function(e) {
-    stop("Julia error: ", e$message)
+    stop("Julia execution failed: ", e$message, call. = FALSE)
   })
-
-  return(result)
 }

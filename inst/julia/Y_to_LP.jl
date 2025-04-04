@@ -2,7 +2,7 @@ using StatsBase
 using Distributions
 
 # Define the function to calculate xβ from Y for different families
-function Y_to_lp(Y, family::String;
+function Y_to_LP(Y, family::String;
                   shape::Union{Nothing, Float64} = nothing, 
                   n_trials::Union{Nothing, Int64} = nothing, 
                   std::Union{Nothing, Float64} = nothing)

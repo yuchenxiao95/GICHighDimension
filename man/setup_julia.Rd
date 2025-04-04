@@ -4,13 +4,25 @@
 \alias{setup_julia}
 \title{Initialize Julia Environment}
 \usage{
-setup_julia(julia_home = NULL, pkg_check = TRUE)
+setup_julia(
+  julia_path = NULL,
+  install_julia = FALSE,
+  install_deps = TRUE,
+  quiet = FALSE
+)
 }
 \arguments{
-\item{julia_home}{Optional path to Julia binary (auto-detected if NULL)}
+\item{julia_path}{Optional path to Julia binary. If NULL, searches system PATH.}
 
-\item{pkg_check}{If TRUE, verifies all Julia packages are installed}
+\item{install_julia}{If TRUE, attempts to install Julia (default: FALSE).}
+
+\item{install_deps}{If TRUE, installs required Julia packages (default: TRUE).}
+
+\item{quiet}{If TRUE, suppresses messages (default: FALSE).}
+}
+\value{
+Invisible TRUE if successful, FALSE otherwise.
 }
 \description{
-Installs required Julia packages if missing
+Sets up the Julia connection and installs required Julia packages for this package to run.
 }

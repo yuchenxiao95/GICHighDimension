@@ -77,18 +77,39 @@ Calculate_GIC5_Short(Y, X, Inverse)
 Calculate_GIC6_Short(Y, X, Inverse)
 }
 \arguments{
-\item{Y}{Outcome vector or matrix (numeric).}
+\item{Y}{Outcome vector or matrix (numeric)}
 
-\item{X}{Design matrix (numeric).}
+\item{X}{Design matrix (numeric)}
+
+\item{Inverse}{Pre-computed inverse matrix for short versions (numeric matrix)}
 }
 \value{
-A list containing:
-\itemize{
-  \item The calculated criterion value
-  \item The inverse matrix (X'X)^{-1}
-}
+A list with components:
+\item{CriterionValue}{Numeric value of the calculated criterion.}
+\item{InverseMatrix}{Matrix inverse (not returned by _Short versions).}
 }
 \description{
 These functions calculate various information criteria using optimized Julia implementations.
 Each function returns a list containing the criterion value and inverse matrix.
+}
+\details{
+The functions provide R interfaces to optimized Julia implementations of:
+\itemize{
+\item Akaike Information Criterion (AIC)
+\item Corrected AIC (AICc)
+\item Schwarz Information Criterion (SIC/BIC)
+\item Various Generalized IC versions (GIC2-GIC6)
+}
+
+The "_Short" versions use pre-computed inverse matrices.
+}
+\examples{
+\donttest{
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  X <- matrix(rnorm(100), ncol = 5)
+  Y <- rnorm(20)
+  aic_result <- Calculate_AIC(Y, X)
+}
+}
+
 }

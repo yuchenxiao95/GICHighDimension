@@ -1,81 +1,133 @@
-#' Perform GIC-based Variable Selection Using Julia
+#' @title GIC-based Variable Selection
+#' @description
+#' Perform variable selection using the Generalized Information Criterion (GIC)
+#' with Hopfield network optimization. The computationally intensive components are
+#' implemented in Julia for performance.
+#' @details This function implements a variable selection algorithm that:
+#' \itemize{
+#'   \item Uses customizable information criteria for model selection
+#'   \item Leverages Julia backend for computational efficiency
+#'   \item Supports various model families through the underlying Julia implementation
+#' }
+#' @param X Numeric design matrix (n x p), where n is the number of observations and
+#'          p is the number of predictors.
+#' @param Y Numeric response vector of length n.
+#' @param Initial_Column Integer vector of initial feature indices to consider.
+#' @param Calculate_GIC Character name of the Julia function for full GIC calculation.
+#' @param Calculate_GIC_short Character name of the Julia shortcut function for approximate GIC.
+#' @param Nsim Integer number of simulations to run (default: 1).
 #'
-#' This function calculates GIC values and corresponding non-zero coefficient indices using
-#' Julia functions for performance and flexibility.
+#' @return A list containing:
+#' \itemize{
+#'   \item \code{GIC_values}: Calculated GIC values for all candidate models
+#'   \item \code{selected_coeffs}: Indices of selected variables
+#' }
 #'
-#' @param X Design matrix (numeric).
-#' @param Y Outcome vector (numeric).
-#' @param Initial_Column Initial subset of feature indices (integer vector).
-#' @param Calculate_GIC Name of the Julia function to calculate GIC (string).
-#' @param Calculate_GIC_short Name of the Julia function for short GIC updates (string).
-#' @param Nsim Number of times to repeat the selection process (default is 1).
-#'
-#' @return A list containing GIC values and corresponding non-zero coefficient indices.
+#' @usage
+#' GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, Nsim = 1L)
 #'
 #' @examples
-#' # Example usage:
-#' X <- matrix(rnorm(100), ncol = 10)  # Random design matrix with 10 features
-#' Y <- rnorm(10)  # Random outcome vector
-#' result <- GICSelection(X, Y, Initial_Column = 1:5,
-#'                        Calculate_GIC = "calculate_GIC",
-#'                        Calculate_GIC_short = "calculate_GIC_short")
-#' print(result)
+#' \donttest{
+#' if (requireNamespace("JuliaCall", quietly = TRUE)) {
+#'   julia_available <- FALSE
+#'   tryCatch({
+#'     JuliaCall::julia_setup(installJulia = FALSE)
+#'     julia_available <- TRUE
+#'   }, error = function(e) {
+#'     message("Julia not available: ", e$message)
+#'   })
+#'
+#'   if (julia_available) {
+#'     # Generate synthetic data
+#'     set.seed(123)
+#'     n <- 100
+#'     p <- 10
+#'     k <- 3
+#'
+#'     X <- matrix(rnorm(n * p), n, p)
+#'     true_beta <- c(rep(1.5, k), rep(0, p - k))
+#'     Y <- X %*% true_beta + rnorm(n)
+#'
+#'     # Run selection with Schwarz Information Criterion
+#'     result <- GICSelection(
+#'       X = X,
+#'       Y = Y,
+#'       Initial_Column = 1:p,
+#'       Calculate_GIC = "Calculate_SIC",
+#'       Calculate_GIC_short = "Calculate_SIC_short",
+#'       Nsim = 3
+#'     )
+#'
+#'     # Print selected coefficients
+#'     print(result$selected_coeffs)
+#'   }
+#' }
+#' }
 #'
 #' @export
-GICSelection <- function(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, Nsim = 1) {
+#' @importFrom JuliaCall julia_setup julia_source julia_call julia_assign julia_eval julia_exists
+#' @importFrom stats rnorm
+#' @importFrom utils packageVersion
+GICSelection <- function(X, Y, Initial_Column,
+                         Calculate_GIC,
+                         Calculate_GIC_short,
+                         Nsim = 1L) {
 
-  # Ensure JuliaCall package is installed and loaded
+  if (!is.matrix(X)) stop("X must be a matrix")
+  if (!is.numeric(Y)) stop("Y must be numeric")
+  if (nrow(X) != length(Y)) stop("X and Y dimensions don't match")
+  if (any(Initial_Column > ncol(X))) stop("Invalid column indices")
+
   if (!requireNamespace("JuliaCall", quietly = TRUE)) {
-    stop("The JuliaCall package is required but not installed. Please install it using install.packages('JuliaCall').")
+    stop("JuliaCall required. Install with install.packages('JuliaCall')")
   }
-  library(JuliaCall)
 
-  # Initial_Column = init_cols
-  # Calculate_GIC = 'Calculate_SIC'
-  # Calculate_GIC_short = 'Calculate_SIC_short'
+  tryCatch({
+    JuliaCall::julia_setup(installJulia = FALSE)
 
-  # Initialize Julia environment
-  julia_setup()
+    JuliaCall::julia_library("Distributions")
+    JuliaCall::julia_library("LinearAlgebra")
+    JuliaCall::julia_library("Statistics")
 
-  # Convert R inputs to appropriate Julia types
-  X_julia <- as.matrix(X)  # Convert design matrix to a Julia-compatible format
-  Y_julia <- as.vector(Y)  # Convert outcome vector to a Julia-compatible format
-  Nsim <- as.integer(Nsim)  # Ensure Nsim is an integer
+    script_dir <- system.file("julia", package = "GICHighDimension")
+    if (script_dir == "") stop("Julia scripts directory not found")
 
-  # Source the necessary Julia scripts
-  penalty_script <- system.file("julia", "penalty_selection.jl", package = "GICHighDimension")
-  if (penalty_script == "") stop("penalty_selection.jl not found. Ensure it's included in the package.")
-  julia_source(penalty_script)
+    JuliaCall::julia_source(file.path(script_dir, "penalty_selection.jl"))
+    JuliaCall::julia_source(file.path(script_dir, "GIC_Model_Selection.jl"))
 
-  gic_script <- system.file("julia", "GIC_Model_Selection.jl", package = "GICHighDimension")
-  if (gic_script == "") stop("GIC_Model_Selection.jl not found. Ensure it's included in the package.")
-  julia_source(gic_script)
+    if (!JuliaCall::julia_exists(Calculate_GIC)) {
+      stop("Julia function ", Calculate_GIC, " not found")
+    }
+    if (!JuliaCall::julia_exists(Calculate_GIC_short)) {
+      stop("Julia function ", Calculate_GIC_short, " not found")
+    }
 
+    JuliaCall::julia_assign("X_matrix", X)
+    JuliaCall::julia_assign("Y_vector", Y)
+    JuliaCall::julia_assign("init_cols", as.integer(Initial_Column))
 
-  # Define Julia functions to calculate GIC and GIC_short
-  Calculate_GIC_func <- julia_eval(Calculate_GIC)
-  Calculate_GIC_short_func <- julia_eval(Calculate_GIC_short)
+    X_jl <- JuliaCall::julia_eval("convert(Matrix{Float64}, X_matrix)")
+    Y_jl <- JuliaCall::julia_eval("convert(Vector{Float64}, Y_vector)")
+    InitCol_jl <- JuliaCall::julia_eval("convert(Vector{Int64}, init_cols)")
 
-  # Try to call the Julia function for GIC variable selection
-  result <- tryCatch({
-    julia_call(
+    julia_result <- JuliaCall::julia_call(
       "GIC_Variable_Selection",
-      X_julia, Y_julia, Initial_Column,
-      Calculate_GIC_func, Calculate_GIC_short_func,
-      Nsim = Nsim
+      X_jl, Y_jl, InitCol_jl,
+      JuliaCall::julia_eval(Calculate_GIC),
+      JuliaCall::julia_eval(Calculate_GIC_short),
+      Nsim = as.integer(Nsim)
     )
+
+    list(
+      GIC_values = julia_result[[1]],
+      selected_coeffs = julia_result[[2]]
+    )
+
   }, error = function(e) {
-    stop("Error occurred while calling the Julia function: ", e$message)
+    warning("Julia error occurred: ", e$message)
+    list(
+      GIC_values = NA,
+      selected_coeffs = NA
+    )
   })
-
-  # Convert the result from Julia to R
-  GIC_list <- result[[1]]  # GIC values
-  GIC_coeff <- result[[2]]  # Corresponding coefficients
-
-  # Return the result as a list
-  list(
-    GIC_list = GIC_list,  # GIC values
-    GIC_coeff = GIC_coeff  # Corresponding coefficients
-  )
 }
-

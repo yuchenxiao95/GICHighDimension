@@ -2,36 +2,62 @@
 % Please edit documentation in R/YtoLP.R
 \name{Y_to_LP}
 \alias{Y_to_LP}
-\title{Transform Outcome Y to Linear Predictor}
+\title{Transform Outcome to Linear Predictor}
 \usage{
 Y_to_LP(Y, family, shape = NULL, n_trials = NULL, std = NULL)
 }
 \arguments{
-\item{Y}{Observed response (vector for univariate, matrix for multivariate).}
+\item{Y}{Observed response (vector or matrix)}
 
 \item{family}{Distribution family. Supported options:
-"Bernoulli", "Binomial", "Normal", "Poisson", "Gamma", "Exponential", "MultivariateNormal".}
+\itemize{
+\item "Bernoulli"
+\item "Binomial"
+\item "Normal"
+\item "Poisson"
+\item "Gamma"
+\item "Exponential"
+\item "MultivariateNormal"
+}}
 
-\item{shape}{(Optional) Shape parameter for Gamma family (default: NULL).}
+\item{shape}{Optional shape parameter for Gamma family}
 
-\item{n_trials}{(Optional) Number of trials for Binomial family (default: NULL).}
+\item{n_trials}{Optional number of trials for Binomial family}
 
-\item{std}{(Optional) Standard deviation for Normal family (default: NULL).}
+\item{std}{Optional standard deviation for Normal family}
 }
 \value{
-Transformed linear predictor values.
+Transformed linear predictor values
 }
 \description{
-This function uses Julia's `Y_to_LP` function to transform observed responses
-into linear predictors using canonical link functions for various GLM families.
+Uses Julia's \code{Y_to_LP} function to transform observed responses into linear predictors
+}
+\details{
+using canonical link functions for various GLM families.
 }
 \examples{
-# Bernoulli example
-Y_bernoulli <- sample(c(0,1), 100, replace = TRUE)
-lp_bernoulli <- YtoLP(Y_bernoulli, family = "Bernoulli")
+\donttest{
+julia_ready <- FALSE
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  try({
+    JuliaCall::julia_setup(installJulia = FALSE)
+    JuliaCall::julia_eval("1 + 1")
+    julia_ready <- TRUE
+  }, silent = TRUE)
+}
 
-# Multivariate Normal example
-Y_mvnorm <- matrix(rnorm(200), ncol = 2)
-lp_mvnorm <- YtoLP(Y_mvnorm, family = "MultivariateNormal")
+if (julia_ready) {
+  Y_bernoulli <- sample(c(0, 1), 100, replace = TRUE)
+  lp_bernoulli <- Y_to_LP(Y_bernoulli, family = "Bernoulli")
+
+  Y_poisson <- rpois(100, lambda = 5)
+  lp_poisson <- Y_to_LP(Y_poisson, family = "Poisson")
+
+  print(head(lp_bernoulli))
+  print(head(lp_poisson))
+} else {
+  message("Julia not available - examples skipped")
+}
+}
 
 }

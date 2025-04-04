@@ -1,48 +1,63 @@
-#' @title True Beta Generation
+#' @title Generate True Coefficient Vector
+#' @description Creates a sparse coefficient vector with specified pattern of non-zero values
+#' for simulation studies.
+#' @param P Number of predictors (positive integer)
+#' @param k Number of non-zero coefficients (positive integer <= P)
+#' @param type Pattern of non-zero coefficients (1-3, see Details)
+#' @return A list containing:
+#' \describe{
+#'   \item{beta}{Numeric vector of length P with specified coefficient pattern}
+#'   \item{indices}{Integer vector of indices where beta is non-zero}
+#' }
 #'
-#' @description
-#' This function generates a true coefficient vector based on the specified type.
-#' The vector can represent different patterns of sparsity, such as coefficients that are equal to 1 at equally spaced indices,
-#' or decaying exponentially, among other types.
-#'
-#' @param P Numeric. The number of predictors in the model.
-#' @param k Numeric. The number of non-zero coefficients in the true coefficient vector.
-#' @param type Numeric (optional). A parameter to specify the structure of the true coefficient vector.
-#'             Possible values:
-#'             \itemize{
-#'               \item 1: Sparse coefficients equal to 1 at roughly equally spaced indices.
-#'               \item 2: First \( k \) components equal to 1.
-#'               \item 3: First \( k \) components with values equally spaced between 10 and 0.5.
-#'               \item 5: First \( k \) components equal to 1, then exponentially decaying coefficients.
-#'             }
-#' @return Numeric vector. The generated true coefficient vector.
+#' @details
+#' \itemize{
+#'   \item \code{type = 1}: Equally spaced signals
+#'   \item \code{type = 2}: First \code{k} positions
+#'   \item \code{type = 3}: Decaying values from 10 down to 0.5
+#' }
 #'
 #' @examples
-#' # Example of generating a beta vector with 50 predictors and 10 non-zero coefficients
-#' beta <- Beta_Generation(P = 50, k = 10, type = 1)
-#' print(beta)
+#' # Equally spaced signals
+#' beta1 <- Generate_Beta(P = 50, k = 5, type = 1)
+#' plot(beta1$beta, main = "Type 1 Pattern")
+#'
+#' # Block of signals at beginning
+#' beta2 <- Generate_Beta(P = 100, k = 10, type = 2)
+#' plot(beta2$beta, main = "Type 2 Pattern")
+#'
+#' # Decaying signals
+#' beta3 <- Generate_Beta(P = 200, k = 15, type = 3)
+#' plot(beta3$beta, main = "Type 3 Pattern")
 #'
 #' @export
-Beta_Generation <- function(P, k, type = 1) {
-
-  beta <- rep(0, P)  # Initialize beta with zeros
-
-  # Generate beta based on the specified type
-  if (type == 1) {
-    # Type 1: Sparse coefficients equal to 1 at equally spaced indices
-    indices <- floor(seq(1, P, length.out = k))
-    beta[indices] <- 1
-  } else if (type == 2) {
-    # Type 2: First k components equal to 1
-    indices <- 1:k
-    beta[indices] <- 1
-  } else if (type == 3) {
-    # Type 3: Equally spaced indices with values equally spaced between 10 and 0.5
-    indices <- floor(seq(1, P, length.out = k))
-    beta[indices] <- seq(10, 0.5, length.out = k)
-  } else {
-    stop("Invalid type specified.")
+Generate_Beta <- function(P, k, type = 1) {
+  if (!is.numeric(P) || P <= 0 || P %% 1 != 0) {
+    stop("P must be a positive integer")
+  }
+  if (!is.numeric(k) || k <= 0 || k > P || k %% 1 != 0) {
+    stop("k must be a positive integer <= P")
+  }
+  if (!type %in% 1:3) {
+    stop("type must be 1, 2, or 3")
   }
 
-  return (list(beta = beta, indices = indices))
+  beta <- numeric(P)
+
+  switch(type,
+         "1" = {
+           indices <- floor(seq(1, P, length.out = k))
+           beta[indices] <- 1
+         },
+         "2" = {
+           indices <- seq_len(k)
+           beta[indices] <- 1
+         },
+         "3" = {
+           indices <- seq_len(k)
+           beta[indices] <- seq(10, 0.5, length.out = k)
+         }
+  )
+
+  return(list(beta = beta, indices = indices))
 }

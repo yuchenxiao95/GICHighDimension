@@ -1,14 +1,42 @@
 Package: GICHighDimension
 Title: GIC Variable Selection with Hopfield Network Optimization
-Description: An R package for performing GIC-based variable selection with Hopfield network optimization that is written in Julia.
 Version: 0.1.0
-Authors@R: person("Yuchen", "Xiao", email = "xiao.jack@utexas.edu", role = c("aut", "cre"))
+Authors@R: 
+    person("Yuchen", "Xiao", 
+           email = "xiao.jack@utexas.edu", 
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-2322-9660"))
+Description: 
+    Implements Generalized Information Criterion (GIC) based variable selection 
+    using Hopfield network optimization. The computationally intensive components
+    are implemented in Julia for performance, while providing an R interface for
+    ease of use. Supports various model families including Normal, Poisson, and 
+    other GLMs. The package automatically handles Julia installation and provides
+    comprehensive documentation with examples.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: JuliaCall, MASS
+Depends:
+    R (>= 3.5.0)
+Imports: 
+    JuliaCall (>= 0.17.0),
+    MASS,
+    stats,
+    cli
+Suggests:
+    testthat (>= 3.0.0),
+    roxygen2,
+    knitr,
+    rmarkdown,
+    devtools,
+    covr,
+    Matrix
+VignetteBuilder: knitr
 SystemRequirements:
-  Julia >= 1.9 (or specify version if needed)
-  testthat (>= 3.0.0)
+    Julia (>= 1.9.0) - Installation instructions at https://julialang.org/downloads/,
+    Julia packages: Distributions, LinearAlgebra, OrderedCollections, Random, Statistics
 Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+URL: https://github.com/yuchenxiao95/GICHighDimension
+BugReports: https://github.com/yuchenxiao95/GICHighDimension/issues

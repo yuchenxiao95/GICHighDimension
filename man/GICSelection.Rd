@@ -2,44 +2,80 @@
 % Please edit documentation in R/GICSelection.R
 \name{GICSelection}
 \alias{GICSelection}
-\title{Perform GIC-based Variable Selection Using Julia}
+\title{GIC-based Variable Selection}
 \usage{
-GICSelection(
-  X,
-  Y,
-  Initial_Column,
-  Calculate_GIC,
-  Calculate_GIC_short,
-  Nsim = 1
-)
+GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, Nsim = 1L)
 }
 \arguments{
-\item{X}{Design matrix (numeric).}
+\item{X}{Numeric design matrix (n x p), where n is the number of observations and
+p is the number of predictors.}
 
-\item{Y}{Outcome vector (numeric).}
+\item{Y}{Numeric response vector of length n.}
 
-\item{Initial_Column}{Initial subset of feature indices (integer vector).}
+\item{Initial_Column}{Integer vector of initial feature indices to consider.}
 
-\item{Calculate_GIC}{Name of the Julia function to calculate GIC (string).}
+\item{Calculate_GIC}{Character name of the Julia function for full GIC calculation.}
 
-\item{Calculate_GIC_short}{Name of the Julia function for short GIC updates (string).}
+\item{Calculate_GIC_short}{Character name of the Julia shortcut function for approximate GIC.}
 
-\item{Nsim}{Number of times to repeat the selection process (default is 1).}
+\item{Nsim}{Integer number of simulations to run (default: 1).}
 }
 \value{
-A list containing GIC values and corresponding non-zero coefficient indices.
+A list containing:
+\itemize{
+\item \code{GIC_values}: Calculated GIC values for all candidate models
+\item \code{selected_coeffs}: Indices of selected variables
+}
 }
 \description{
-This function calculates GIC values and corresponding non-zero coefficient indices using
-Julia functions for performance and flexibility.
+Perform variable selection using the Generalized Information Criterion (GIC)
+with Hopfield network optimization. The computationally intensive components are
+implemented in Julia for performance.
+}
+\details{
+This function implements a variable selection algorithm that:
+\itemize{
+\item Uses customizable information criteria for model selection
+\item Leverages Julia backend for computational efficiency
+\item Supports various model families through the underlying Julia implementation
+}
 }
 \examples{
-# Example usage:
-X <- matrix(rnorm(100), ncol = 10)  # Random design matrix with 10 features
-Y <- rnorm(10)  # Random outcome vector
-result <- GICSelection(X, Y, Initial_Column = 1:5,
-                       Calculate_GIC = "calculate_GIC",
-                       Calculate_GIC_short = "calculate_GIC_short")
-print(result)
+\donttest{
+if (requireNamespace("JuliaCall", quietly = TRUE)) {
+  julia_available <- FALSE
+  tryCatch({
+    JuliaCall::julia_setup(installJulia = FALSE)
+    julia_available <- TRUE
+  }, error = function(e) {
+    message("Julia not available: ", e$message)
+  })
+
+  if (julia_available) {
+    # Generate synthetic data
+    set.seed(123)
+    n <- 100
+    p <- 10
+    k <- 3
+
+    X <- matrix(rnorm(n * p), n, p)
+    true_beta <- c(rep(1.5, k), rep(0, p - k))
+    Y <- X \%*\% true_beta + rnorm(n)
+
+    # Run selection with Schwarz Information Criterion
+    result <- GICSelection(
+      X = X,
+      Y = Y,
+      Initial_Column = 1:p,
+      Calculate_GIC = "Calculate_SIC",
+      Calculate_GIC_short = "Calculate_SIC_short",
+      Nsim = 3
+    )
+
+    # Print selected coefficients
+    print(result$selected_coeffs)
+  }
+}
+}
 
 }
