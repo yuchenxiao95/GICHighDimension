@@ -55,8 +55,8 @@
 GICSelectionBoltzmann <- function(X, Y, Init_Columns,
                                   Calculate_GIC,
                                   Calculate_GIC_short,
-                                  T = 0.2,
-                                  Nsim = 2) {
+                                  T = 0.1,
+                                  Nsim = 5) {
   if (!requireNamespace("JuliaCall", quietly = TRUE)) {
     stop("The JuliaCall package is required but not installed. Please install it using install.packages('JuliaCall').")
   }
