@@ -20,15 +20,12 @@
 #' @examples
 #' # Equally spaced signals
 #' beta1 <- Generate_Beta(P = 50, k = 5, type = 1)
-#' plot(beta1$beta, main = "Type 1 Pattern")
 #'
 #' # Block of signals at beginning
 #' beta2 <- Generate_Beta(P = 100, k = 10, type = 2)
-#' plot(beta2$beta, main = "Type 2 Pattern")
 #'
 #' # Decaying signals
 #' beta3 <- Generate_Beta(P = 200, k = 15, type = 3)
-#' plot(beta3$beta, main = "Type 3 Pattern")
 #'
 #' @export
 Generate_Beta <- function(P, k, type = 1) {

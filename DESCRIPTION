@@ -26,10 +26,10 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     JuliaCall (>= 0.17.0),
-    MASS,
     stats,
     cli
 Suggests:
+    MASS,
     testthat (>= 3.0.0),
     roxygen2,
     knitr,

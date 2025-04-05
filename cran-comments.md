@@ -1,18 +1,14 @@
+
 ## Test environments
-* macOS Sonoma 14.6, R 4.4.3
-* Ubuntu 22.04 (via GitHub Actions), R-release
-* Windows (via win-builder), R-devel
+* local macOS Sonoma 14.6, R 4.4.3
+* win-builder (devel)
+* rhub (devel, Windows + Debian)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs.
-There was 1 NOTE:
-* Unable to verify current time — known harmless issue.
+0 errors ✔ | 0 warnings ✔ | 1 NOTE (expected for new submission)
 
+## Notes
+* NOTE about 'GIC' and 'Hopfield' are expected technical terms.
+* All Julia-dependent examples are now wrapped in \dontrun{} to prevent runtime errors on CRAN systems.
 
-## CRAN submission comments
-
-* This is the first submission of GICHighDimension.
-* All examples requiring Julia are wrapped in `\donttest{}` and skip execution unless Julia is available.
-* The GitHub Actions badge was corrected to avoid broken URL.
-* Package passes `R CMD check` locally on macOS and Linux (Ubuntu).
 

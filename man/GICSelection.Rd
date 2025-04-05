@@ -10,7 +10,7 @@ GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, Nsim = 1L
 \item{X}{Numeric design matrix (n x p), where n is the number of observations and
 p is the number of predictors.}
 
-\item{Y}{Numeric response vector of length n.}
+\item{Y}{Numeric response (either vector of length n or matrix with n rows).}
 
 \item{Initial_Column}{Integer vector of initial feature indices to consider.}
 
@@ -38,10 +38,11 @@ This function implements a variable selection algorithm that:
 \item Uses customizable information criteria for model selection
 \item Leverages Julia backend for computational efficiency
 \item Supports various model families through the underlying Julia implementation
+\item Accepts both univariate and multivariate responses
 }
 }
 \examples{
-\donttest{
+\dontrun{
 if (requireNamespace("JuliaCall", quietly = TRUE)) {
   julia_available <- FALSE
   tryCatch({
@@ -52,28 +53,41 @@ if (requireNamespace("JuliaCall", quietly = TRUE)) {
   })
 
   if (julia_available) {
-    # Generate synthetic data
+    # Univariate case
     set.seed(123)
-    n <- 100
-    p <- 10
-    k <- 3
-
+    n <- 100; p <- 10; k <- 3
     X <- matrix(rnorm(n * p), n, p)
-    true_beta <- c(rep(1.5, k), rep(0, p - k))
-    Y <- X \%*\% true_beta + rnorm(n)
+    beta <- c(rep(1.5, k), rep(0, p - k))
+    Y <- LP_to_Y(X, beta, family = "Normal", std = 1.0)
 
-    # Run selection with Schwarz Information Criterion
-    result <- GICSelection(
+    result_uni <- GICSelection(
       X = X,
-      Y = Y,
+      Y = Y_uni,
       Initial_Column = 1:p,
       Calculate_GIC = "Calculate_SIC",
       Calculate_GIC_short = "Calculate_SIC_short",
       Nsim = 3
     )
+    print(result_uni$selected_coeffs)
 
-    # Print selected coefficients
-    print(result$selected_coeffs)
+    # Multivariate case
+    m <- 3
+    beta_multi <- matrix(0, p, m)
+    beta_multi[1:3, ] <- 1
+    rho <- 0.2
+    cov_p <- matrix(rho, nrow = m, ncol = m)
+    diag(cov_p) <- 1.0
+    Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
+
+    result_multi <- GICSelection(
+      X = X,
+      Y = Y_multi,
+      Initial_Column = 1:p,
+      Calculate_GIC = "Calculate_SIC",
+      Calculate_GIC_short = "Calculate_SIC_short",
+      Nsim = 3
+    )
+    print(result_multi$selected_coeffs)
   }
 }
 }

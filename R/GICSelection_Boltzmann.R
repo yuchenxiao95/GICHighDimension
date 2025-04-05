@@ -13,7 +13,7 @@
 #' @return A list containing GIC values and corresponding coefficients.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("JuliaCall", quietly = TRUE)) {
 #'   julia_available <- FALSE
 #'   tryCatch({

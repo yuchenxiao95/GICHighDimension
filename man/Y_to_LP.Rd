@@ -37,7 +37,7 @@ Supported distribution families include:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 julia_ready <- FALSE
 if (requireNamespace("JuliaCall", quietly = TRUE)) {
   try({

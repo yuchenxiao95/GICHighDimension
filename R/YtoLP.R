@@ -25,7 +25,7 @@
 #' @return A numeric vector or matrix of linear predictors, matching the input structure.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' julia_ready <- FALSE
 #' if (requireNamespace("JuliaCall", quietly = TRUE)) {
 #'   try({

@@ -64,7 +64,7 @@ Uses a Julia backend for fast transformation. Handles:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 if (requireNamespace("JuliaCall", quietly = TRUE)) {
   julia_available <- FALSE
   tryCatch({
@@ -86,6 +86,7 @@ if (requireNamespace("JuliaCall", quietly = TRUE)) {
 }
 }
 
+\dontrun{
 # Normal/Gaussian family example
 set.seed(123)
 n <- 100
@@ -94,4 +95,5 @@ X <- matrix(rnorm(n * p), n, p)
 true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
 Y <- LP_to_Y(X, true_beta, family = "Normal")
 head(Y)
+}
 }

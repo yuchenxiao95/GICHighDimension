@@ -40,7 +40,7 @@ simulated annealing approach, which is implemented in Julia.
 The method uses temperature control for randomness in the variable selection process.
 }
 \examples{
-\donttest{
+\dontrun{
 if (requireNamespace("JuliaCall", quietly = TRUE)) {
   julia_available <- FALSE
   tryCatch({

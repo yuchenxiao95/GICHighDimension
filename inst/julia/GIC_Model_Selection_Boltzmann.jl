@@ -1,6 +1,6 @@
 Pkg.add("LogExpFunctions")
 using Random 
-using LogExpFunctions
+using LogExpFunctions, Distributions
 
 function GIC_Variable_Selection_Boltzmann(
     X::AbstractMatrix, 

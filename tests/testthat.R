@@ -2,6 +2,7 @@
 
 # Load necessary packages
 library(testthat)
+library(MASS)
 library(GICHighDimension)
 
 # Setup Julia environment for tests
@@ -34,8 +35,8 @@ test_that("Univariate Normal Model Selection works correctly", {
   if (!setup_julia_for_tests()) return()
 
   # Parameters
-  N <- 100L  # Reduced from 3000 for faster testing
-  P <- 20L   # Reduced from 100 for faster testing
+  N <- 1000L  # Reduced from 3000 for faster testing
+  P <- 50L   # Reduced from 100 for faster testing
   k <- 3L    # Reduced from 5 for faster testing
   rho <- 0.0
 
@@ -45,7 +46,8 @@ test_that("Univariate Normal Model Selection works correctly", {
   X <- matrix(rnorm(N*P), N, P) %*% chol(cov_matrix)
   true_beta <- rep(0, P)
   true_beta[true_columns] <- 2
-  Y <- X %*% true_beta + rnorm(N)
+  Y <- LP_to_Y(X, true_beta, family = "Normal", std = 1.0)
+
 
   # Run model selection
   result <- GICSelection(
@@ -82,7 +84,8 @@ test_that("Univariate Poisson Model Selection works correctly", {
   X <- matrix(rnorm(N*P), N, P)
   true_beta <- rep(0, P)
   true_beta[true_columns] <- 0.3  # Smaller coefficients for Poisson
-  Y <- rpois(N, exp(X %*% true_beta))
+  Y <- LP_to_Y(X, true_beta, family = "Poisson")
+
 
   # Run model selection
   result <- GICSelection(
@@ -107,9 +110,9 @@ test_that("Multivariate Normal Model Selection works correctly", {
   if (!setup_julia_for_tests()) return()
 
   # Reduced parameters
-  N <- 100L
-  P <- 20L
-  k <- 3L
+  N <- 3000L
+  P <- 200L
+  k <- 4L
   m <- 3L
 
   # Generate test data in R
@@ -123,8 +126,15 @@ test_that("Multivariate Normal Model Selection works correctly", {
     multi_beta[cols, i] <- seq(1, 0.1, length.out = k)
   }
 
+  # Define rho
+  rho <- 0.2
+  # Create m x m matrix filled with rho
+  cov_p <- matrix(rho, nrow = m, ncol = m)
+  # Set diagonal to 1.0
+  diag(cov_p) <- 1.0
+
   # Generate response
-  Y <- X %*% multi_beta + matrix(rnorm(N*m), N, m)
+  Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
 
   # Run model selection
   result <- GICSelection(

@@ -28,7 +28,7 @@
 #' @return Numeric vector or matrix of transformed responses
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("JuliaCall", quietly = TRUE)) {
 #'   julia_available <- FALSE
 #'   tryCatch({
@@ -109,6 +109,7 @@ LP_to_Y <- function(X, true_beta, family = "Normal",
 #' @param std optional standard deviation for Normal family
 #' @return numeric vector/matrix of linear predictors
 #' @examples
+#' \dontrun{
 #' # Normal/Gaussian family example
 #' set.seed(123)
 #' n <- 100
@@ -117,6 +118,7 @@ LP_to_Y <- function(X, true_beta, family = "Normal",
 #' true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
 #' Y <- LP_to_Y(X, true_beta, family = "Normal")
 #' head(Y)
+#' }
 #' @export
 LP_to_Y <- function(X, true_beta, family = "Normal",
                     n_trials = NULL, std = NULL, shape = NULL,
@@ -152,6 +154,7 @@ LP_to_Y <- function(X, true_beta, family = "Normal",
     family
   )
 
+
   # Add optional parameters if specified
   if (!is.null(n_trials)) args$n_trials <- as.integer(n_trials)
   if (!is.null(std)) args$std <- as.numeric(std)
@@ -165,6 +168,10 @@ LP_to_Y <- function(X, true_beta, family = "Normal",
   }, error = function(e) {
     stop("Julia error: ", e$message)
   })
+
+  JuliaCall::julia_assign("jl_result", result)
+  JuliaCall::julia_eval("converted = reduce(hcat, jl_result)'")
+  result <- JuliaCall::julia_eval("converted")
 
   return(result)
 }
