@@ -55,7 +55,7 @@ N <- 100L; P <- 20L; k <- 3L
 true_columns <- sort(sample(1:P, k))
 X <- matrix(rnorm(N * P), N, P)
 true_beta <- rep(0, P); true_beta[true_columns] <- 2
-Y <- X %*% true_beta + rnorm(N)
+Y <- LP_to_Y(X, true_beta, family = "Normal")
 
 result <- GICSelection(
   X = X,
@@ -76,7 +76,7 @@ N <- 100L; P <- 20L; k <- 3L
 true_columns <- sort(sample(1:P, k))
 X <- matrix(rnorm(N * P), N, P)
 true_beta <- rep(0, P); true_beta[true_columns] <- 0.3
-Y <- rpois(N, exp(X %*% true_beta))
+Y <- LP_to_Y(X, true_beta, family = "Poisson")
 
 result <- GICSelection(
   X = X,
@@ -101,7 +101,7 @@ for (i in 1:m) {
   true_columns <- union(true_columns, cols)
   multi_beta[cols, i] <- seq(1, 0.1, length.out = k)
 }
-Y <- X %*% multi_beta + matrix(rnorm(N * m), N, m)
+rho <- 0.2cov_p <- matrix(rho, nrow = m, ncol = m)diag(cov_p) <- 1.0Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
 
 result <- GICSelection(
   X = X,

@@ -14,30 +14,20 @@ LP_to_Y(
   cov_matrix = NULL,
   n_categories = NULL
 )
-
-LP_to_Y(
-  X,
-  true_beta,
-  family = "Normal",
-  n_trials = NULL,
-  std = NULL,
-  shape = NULL,
-  cov_matrix = NULL,
-  n_categories = NULL
-)
 }
 \arguments{
 \item{X}{Design matrix}
 
 \item{true_beta}{True coefficient vector}
 
-\item{family}{character string specifying distribution family}
+\item{family}{Character string specifying distribution family
+(e.g., "Normal", "Poisson", "MultivariateNormal", etc.)}
 
-\item{n_trials}{optional number of trials for Binomial family}
+\item{n_trials}{Optional number of trials for Binomial family}
 
-\item{std}{optional standard deviation for Normal family}
+\item{std}{Optional standard deviation for Normal family}
 
-\item{shape}{optional shape parameter for Gamma family}
+\item{shape}{Optional shape parameter for Gamma family}
 
 \item{cov_matrix}{Optional covariance matrix (for Multivariate Normal)}
 
@@ -45,8 +35,6 @@ LP_to_Y(
 }
 \value{
 Numeric vector or matrix of transformed responses
-
-numeric vector/matrix of linear predictors
 }
 \description{
 Convert observed responses to the appropriate distribution scale
@@ -86,14 +74,4 @@ if (requireNamespace("JuliaCall", quietly = TRUE)) {
 }
 }
 
-\dontrun{
-# Normal/Gaussian family example
-set.seed(123)
-n <- 100
-p <- 5
-X <- matrix(rnorm(n * p), n, p)
-true_beta <- c(1.5, -2, 0, 0, 3)  # True coefficients with some zeros
-Y <- LP_to_Y(X, true_beta, family = "Normal")
-head(Y)
-}
 }
