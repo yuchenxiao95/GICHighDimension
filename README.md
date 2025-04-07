@@ -39,11 +39,11 @@ result <- GICSelection(
   Initial_Column = init_cols,
   Calculate_GIC = "Calculate_BIC",
   Calculate_GIC_short = "Calculate_BIC_short",
-  Nsim = 10L
+  Nsim = 8L
 )
 
-# Extract results
-selected_vars <- which(rowSums(abs(result$GIC_coeff)) > 1e-6)
+# Extract number of false positives and false negatives
+selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
 ```
 
 # Univariate Normal Model Selection
@@ -63,11 +63,11 @@ result <- GICSelection(
   Initial_Column = 1:P,
   Calculate_GIC = "Calculate_SIC",
   Calculate_GIC_short = "Calculate_SIC_short",
-  Nsim = 2L
+  Nsim = 8L
 )
 
-print(result$GIC_coeff)
-
+# Extract number of false positives and false negatives
+selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
 ```
 
 # Univariate Poisson Model Selection
@@ -84,10 +84,11 @@ result <- GICSelection(
   Initial_Column = 1:P,
   Calculate_GIC = "Calculate_SIC",
   Calculate_GIC_short = "Calculate_SIC_short",
-  Nsim = 2L
+  Nsim = 8L
 )
 
-print(result$GIC_coeff)
+# Extract number of false positives and false negatives
+selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
 ```
 # Multivariate Normal Model Selection
 ```r
@@ -101,7 +102,11 @@ for (i in 1:m) {
   true_columns <- union(true_columns, cols)
   multi_beta[cols, i] <- seq(1, 0.1, length.out = k)
 }
-rho <- 0.2cov_p <- matrix(rho, nrow = m, ncol = m)diag(cov_p) <- 1.0Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
+
+rho <- 0.2
+cov_p <- matrix(rho, nrow = m, ncol = m)
+diag(cov_p) <- 1.0
+Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
 
 result <- GICSelection(
   X = X,
@@ -109,10 +114,11 @@ result <- GICSelection(
   Initial_Column = 1:P,
   Calculate_GIC = "Calculate_SIC",
   Calculate_GIC_short = "Calculate_SIC_short",
-  Nsim = 2L
+  Nsim = 8L
 )
 
-print(result$GIC_coeff)
+# Extract number of false positives and false negatives
+selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
 ```
 
 
