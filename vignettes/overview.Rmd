@@ -1,19 +1,68 @@
+```yaml
 ---
-title: "overview"
+title: "Fast Variable Selection with GIC in High Dimension via Hopfield Network"
+author: "Yuchen Xiao"
+date: "2025-04-10"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{overview}
+  %\VignetteIndexEntry{Fast Variable Selection with GIC in High Dimension via Hopfield Network}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE  # Prevent Julia-dependent code from running on CRAN
 )
 ```
 
-```{r setup}
+## Overview
+
+The `GICHighDimension` package enables variable selection in high-dimensional regression models using the generalized information criterion ('GIC') and a Hopfield-inspired optimization routine. It leverages 'Julia' for performance-critical computations and supports generalized linear models ('GLMs') such as 'Normal', 'Poisson', and 'MultivariateNormal'.
+
+This vignette demonstrates how to:
+
+- Generate synthetic high-dimensional data
+- Run `GICSelection()` for model selection
+- Interpret selection output
+
+## Julia Setup (Optional)
+
+To use this package, 'Julia' (≥ 1.9.0) must be available and initialized.
+
+```{r}
+# Initialize Julia (optional)
 library(GICHighDimension)
+setup_julia(install_julia = FALSE, quiet = TRUE)
 ```
+
+## Example: Univariate Normal Selection
+
+```{r}
+n <- 100
+p <- 30
+k <- 3
+X <- matrix(rnorm(n * p), n, p)
+true_beta <- numeric(p)
+true_beta[sample(1:p, k)] <- 2
+Y <- LP_to_Y(X, true_beta, family = "Normal")
+
+result <- GICSelection(
+  X = X,
+  Y = Y,
+  Initial_Column = 1:p,
+  Calculate_GIC = "Calculate_SIC",
+  Calculate_GIC_short = "Calculate_SIC_short",
+  Nsim = 3
+)
+
+str(result$selected_coeffs)
+```
+
+## Notes
+
+- All Julia-based code is wrapped with `eval = FALSE` to comply with CRAN policy.
+- Users must install and configure 'Julia' separately. See `setup_julia()` for more.

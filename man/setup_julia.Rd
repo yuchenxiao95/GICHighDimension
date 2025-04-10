@@ -2,7 +2,7 @@
 % Please edit documentation in R/zzz.R
 \name{setup_julia}
 \alias{setup_julia}
-\title{Initialize Julia Environment}
+\title{Initialize 'Julia' Environment}
 \usage{
 setup_julia(
   julia_path = NULL,
@@ -12,24 +12,25 @@ setup_julia(
 )
 }
 \arguments{
-\item{julia_path}{Optional string. Path to Julia binary. If NULL, uses system default.}
+\item{julia_path}{Optional character string. Path to the 'Julia' binary. If NULL, uses system default.}
 
-\item{install_julia}{Logical. If TRUE, attempts to install Julia if not present (default FALSE).}
+\item{install_julia}{Logical. If TRUE, attempts to install 'Julia' (not recommended for CRAN use). Default is FALSE.}
 
-\item{install_deps}{Logical. If TRUE, installs Julia packages required by this package (default TRUE).}
+\item{install_deps}{Logical. If TRUE, checks for required 'Julia' packages but does not install them automatically. Default is TRUE.}
 
-\item{quiet}{Logical. If TRUE, suppresses all output messages (default FALSE).}
+\item{quiet}{Logical. If TRUE, suppresses status messages. Default is FALSE.}
 }
 \value{
-Invisible TRUE if successful, otherwise FALSE with error message.
+Invisibly returns TRUE if initialization succeeds, otherwise throws an error.
 }
 \description{
-Sets up the Julia connection using JuliaCall and optionally installs required Julia packages.
+Sets up the connection to 'Julia' using the 'JuliaCall' interface. This function should be run manually before calling other functions that rely on 'Julia'.
 }
 \examples{
-\donttest{
-if (requireNamespace("JuliaCall", quietly = TRUE)) {
+\dontrun{
+if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
   setup_julia(install_julia = FALSE)
 }
 }
+
 }

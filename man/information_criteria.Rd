@@ -26,7 +26,7 @@
 \alias{Calculate_GIC4_Short}
 \alias{Calculate_GIC5_Short}
 \alias{Calculate_GIC6_Short}
-\title{Information Criteria Calculations via Julia}
+\title{Information Criterion Calculations via Julia}
 \usage{
 Calculate_AIC(Y, X)
 
@@ -77,52 +77,48 @@ Calculate_GIC5_Short(Y, X, Inverse)
 Calculate_GIC6_Short(Y, X, Inverse)
 }
 \arguments{
-\item{Y}{Outcome vector or matrix (numeric).}
+\item{Y}{A numeric vector or matrix of responses.}
 
-\item{X}{Design matrix (numeric).}
+\item{X}{A numeric design matrix.}
 
-\item{Inverse}{Pre-computed inverse matrix for short versions (numeric matrix).}
+\item{Inverse}{(for \verb{_Short} variants only) a numeric matrix — the inverse of X'X.}
 }
 \value{
-A list with components:
+For full versions: a named list with components:
 \describe{
-\item{CriterionValue}{Numeric value of the calculated criterion.}
-\item{InverseMatrix}{Matrix inverse (not returned by \verb{_Short} versions).}
+\item{CriterionValue}{Numeric scalar of the selected information criterion.}
+\item{InverseMatrix}{Matrix inverse used in computation (if applicable).}
 }
+For \verb{_Short} versions: a numeric scalar of the criterion value.
 }
 \description{
-These functions calculate various information criteria using optimized Julia implementations.
-Each function returns a list containing the criterion value and (optionally) the inverse matrix.
+Compute information criteria using efficient 'Julia' backends via the 'JuliaCall' package.
+These functions are useful for variable selection and model comparison in high-dimensional
+settings. Each function returns either the computed criterion value, or a list with additional data.
 }
 \details{
-The following information criteria are available:
+This interface leverages 'Julia' to compute information-theoretic criteria efficiently,
+especially when repeatedly evaluating models. Supported criteria include:
 \itemize{
-\item Akaike Information Criterion (AIC)
-\item Corrected AIC (AICc)
-\item Schwarz Information Criterion (SIC/BIC)
-\item Various Generalized Information Criteria (GIC2–GIC6)
+\item AIC: Akaike Information Criterion
+\item AICc: Corrected AIC for small samples
+\item BIC / SIC: Bayesian or Schwarz Information Criterion
+\item CAIC: Consistent AIC
+\item CAICF: Consistent Akaike's Information Criterion with Fisher Information
+\item GIC2–GIC6: Generalized Information Criterion family
+\item AttIC: Attention-weighted Information Criterion
 }
-
-The \verb{_Short} variants accept a pre-computed inverse matrix to avoid redundant matrix inversion.
-All criteria are computed using fast Julia backends for scalability and efficiency.
+Short versions (e.g., \code{Calculate_AIC_Short}) allow reusing a precomputed inverse matrix
+to save computational time.
 }
 \examples{
 \dontrun{
-if (requireNamespace("JuliaCall", quietly = TRUE)) {
-  julia_available <- FALSE
-  tryCatch({
-    JuliaCall::julia_setup()
-    julia_available <- TRUE
-  }, error = function(e) {
-    message("Julia not available: ", e$message)
-  })
-
-  if (julia_available) {
-    X <- matrix(rnorm(100), ncol = 5)
-    Y <- rnorm(20)
-    result <- Calculate_AIC(Y, X)
-    print(result$CriterionValue)
-  }
+if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
+  JuliaCall::julia_setup(installJulia = FALSE)
+  X <- matrix(rnorm(100), ncol = 5)
+  Y <- rnorm(20)
+  result <- Calculate_AIC(Y, X)
+  print(result$CriterionValue)
 }
 }
 

@@ -1,16 +1,28 @@
-#' @title GIC Variable Selection with Boltzmann Machine
-#' @description This function performs GIC-based variable selection using a Boltzmann-like
-#' simulated annealing approach, which is implemented in Julia.
-#' @details The method uses temperature control for randomness in the variable selection process.
-#' @param X Design matrix (numeric).
-#' @param Y Outcome vector (numeric).
-#' @param Init_Columns Initial subset of feature indices (integer vector).
-#' @param Calculate_GIC Name of the Julia function to calculate GIC (string).
-#' @param Calculate_GIC_short Name of the Julia function for short GIC updates (string).
-#' @param T Temperature parameter controlling the randomness of updates (default 0.2).
-#' @param Nsim Number of times to repeat the selection process (default 2).
+#' @title GIC-Based Variable Selection Using Boltzmann Machine
 #'
-#' @return A list containing GIC values and corresponding coefficients.
+#' @description
+#' Performs variable selection using the Generalized Information Criterion ('GIC')
+#' combined with a Boltzmann-like simulated annealing approach. The optimization logic
+#' is implemented in 'Julia' and accessed from 'R' through the 'JuliaCall' interface.
+#'
+#' @details
+#' This method uses temperature-based control to introduce stochasticity in
+#' model exploration. It supports custom GIC formulations by passing the names of
+#' 'Julia' functions and works with both univariate and multivariate responses.
+#'
+#' @param X A numeric design matrix with \code{n} rows (observations) and \code{p} columns (predictors).
+#' @param Y A numeric response vector (length \code{n}) or matrix compatible with \code{X}.
+#' @param Init_Columns Integer vector of indices specifying the initial set of predictors.
+#' @param Calculate_GIC Character string giving the name of the 'Julia' function to compute full GIC values.
+#' @param Calculate_GIC_short Character string giving the name of the 'Julia' function to compute approximate GIC values.
+#' @param T Numeric scalar. The temperature parameter controlling stochasticity in the simulated annealing process (default: 0.1).
+#' @param Nsim Integer. Number of repeated runs for the optimization procedure (default: 5).
+#'
+#' @return A list with the following components:
+#' \describe{
+#'   \item{\code{GIC_list}}{List of GIC values returned for each run.}
+#'   \item{\code{GIC_coeff}}{Indices of the variables selected in the final run.}
+#' }
 #'
 #' @examples
 #' \dontrun{
@@ -24,17 +36,12 @@
 #'   })
 #'
 #'   if (julia_available) {
-#'     # Generate synthetic data
 #'     set.seed(123)
-#'     n <- 100
-#'     p <- 10
-#'     k <- 3
-#'
+#'     n <- 100; p <- 10; k <- 3
 #'     X <- matrix(rnorm(n * p), n, p)
-#'     true_beta <- c(rep(1.5, k), rep(0, p - k))
-#'     Y <- X %*% true_beta + rnorm(n)
+#'     beta <- c(rep(1.5, k), rep(0, p - k))
+#'     Y <- X %*% beta + rnorm(n)
 #'
-#'     # Run Boltzmann GIC selection
 #'     result <- GICSelectionBoltzmann(
 #'       X = X,
 #'       Y = Y,
@@ -43,8 +50,6 @@
 #'       Calculate_GIC_short = "Calculate_SIC_short",
 #'       Nsim = 3
 #'     )
-#'
-#'     # Print selected coefficients
 #'     print(result$GIC_coeff)
 #'   }
 #' }
@@ -58,7 +63,7 @@ GICSelectionBoltzmann <- function(X, Y, Init_Columns,
                                   T = 0.1,
                                   Nsim = 5) {
   if (!requireNamespace("JuliaCall", quietly = TRUE)) {
-    stop("The JuliaCall package is required but not installed. Please install it using install.packages('JuliaCall').")
+    stop("The 'JuliaCall' package is required. Please install it with install.packages('JuliaCall').")
   }
 
   JuliaCall::julia_setup(installJulia = FALSE)

@@ -1,5 +1,5 @@
 Package: GICHighDimension
-Title: GIC Variable Selection with Hopfield Network Optimization
+Title: Generalized Information Criterion for Variable Selection Using Hopfield Network Optimization
 Version: 0.1.0
 Authors@R: 
     c(
@@ -12,12 +12,13 @@ Authors@R:
              role = "aut")
     )
 Description: 
-    Implements Generalized Information Criterion (GIC) for variable selection in 
-    High-dimensions using Hopfield network optimization. The computationally intensive  
-    components are implemented in Julia for performance, while providing an R interface for
-    ease of use. Supports various GLMs including Normal, Poisson and 
-    others. The package automatically handles Julia installation and provides
-    comprehensive documentation with examples.
+    Provides tools for variable selection in high-dimensional regression models using the 
+    generalized information criterion ('GIC') combined with 'Hopfield' network optimization. 
+    The package supports a variety of generalized linear models ('GLMs'), including the 
+    'Normal' and 'Poisson' families. Performance-critical components are implemented in 
+    'Julia', while providing a user-friendly interface through 'R'. The package supports 
+    optional 'Julia' setup and includes examples and vignettes. 'GLM' stands for 
+    generalized linear model.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
@@ -38,9 +39,9 @@ Suggests:
     covr,
     Matrix
 VignetteBuilder: knitr
-SystemRequirements:
-    Julia (>= 1.9.0) - Installation instructions at https://julialang.org/downloads/,
-    Julia packages: Distributions, LinearAlgebra, OrderedCollections, Random, Statistics
+SystemRequirements: 
+    'Julia' (>= 1.9.0) – installation instructions at <https://julialang.org/downloads/>; 
+    Julia packages: 'Distributions', 'LinearAlgebra', 'OrderedCollections', 'Random', 'Statistics'
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

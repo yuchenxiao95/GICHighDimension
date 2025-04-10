@@ -2,7 +2,7 @@
 % Please edit documentation in R/zzz.R
 \name{install_julia_packages}
 \alias{install_julia_packages}
-\title{Install Required Julia Packages}
+\title{Install Required 'Julia' Packages}
 \usage{
 install_julia_packages(
   packages = c("Distributions", "LinearAlgebra", "Statistics", "Random"),
@@ -10,21 +10,22 @@ install_julia_packages(
 )
 }
 \arguments{
-\item{packages}{Character vector of Julia package names to install.}
+\item{packages}{Character vector of 'Julia' package names. Defaults to core packages used by this package.}
 
-\item{quiet}{Logical. If TRUE, suppresses all output messages (default FALSE).}
+\item{quiet}{Logical. If TRUE, suppresses installation messages. Default is FALSE.}
 }
 \value{
-Invisible TRUE if all packages were installed successfully.
+Invisibly returns TRUE if all packages were installed successfully, FALSE otherwise.
 }
 \description{
-Installs Julia packages needed by the GICHighDimension package.
+Installs the 'Julia' packages required by this package. This function must be run manually and is not intended for use in examples, tests, or vignettes.
 }
 \examples{
-\donttest{
-if (requireNamespace("JuliaCall", quietly = TRUE)) {
+\dontrun{
+if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
   setup_julia(install_deps = FALSE)
   install_julia_packages()
 }
 }
+
 }

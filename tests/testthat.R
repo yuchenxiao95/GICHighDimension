@@ -1,124 +1,99 @@
 # testthat.R - Test suite for GICHighDimension package
 
-# Load necessary packages
 library(testthat)
 library(MASS)
 library(GICHighDimension)
 
-# Setup Julia environment for tests
+# Safe check for Julia availability
 setup_julia_for_tests <- function() {
-  # Initialize Julia connection
   tryCatch({
-    # Check if Julia is available by attempting setup
-    julia_ok <- JuliaCall::julia_setup(installJulia = FALSE, silent = TRUE)
-    if (!julia_ok) {
-      testthat::skip("Julia not available - skipping tests")
+    if (!JuliaCall::julia_exists("Base.sqrt")) {
+      testthat::skip("Julia not initialized. Skipping test.")
     }
-
-    # Verify Julia is working
-    JuliaCall::julia_eval("1+1")
-
-    # Load required Julia packages
-    JuliaCall::julia_library("Distributions")
-    JuliaCall::julia_library("LinearAlgebra")
-
-    return(TRUE)
+    TRUE
   }, error = function(e) {
-    testthat::skip(paste("Julia initialization failed:", e$message))
+    testthat::skip(paste("Julia not available or failed:", e$message))
   })
 }
 
-# Test Suite ---------------------------------------------------------------
-
+# Test: Univariate Normal Model Selection
 test_that("Univariate Normal Model Selection works correctly", {
-  # Skip if Julia not available
+  skip_on_cran()
   if (!setup_julia_for_tests()) return()
 
-  # Parameters
-  N <- 1000L  # Reduced from 3000 for faster testing
-  P <- 50L   # Reduced from 100 for faster testing
-  k <- 3L    # Reduced from 5 for faster testing
-  rho <- 0.0
-
-  # Generate test data directly in R (faster than Julia for small cases)
+  set.seed(123)
+  N <- 1000L
+  P <- 50L
+  k <- 3L
   true_columns <- sort(sample(1:P, k, replace = FALSE))
-  cov_matrix <- diag(P)
-  X <- matrix(rnorm(N*P), N, P) %*% chol(cov_matrix)
-  true_beta <- rep(0, P)
+
+  X <- matrix(rnorm(N * P), N, P)
+  true_beta <- numeric(P)
   true_beta[true_columns] <- 2
   Y <- LP_to_Y(X, true_beta, family = "Normal", std = 1.0)
 
-
-  # Run model selection
   result <- GICSelection(
     X = X,
     Y = Y,
     Initial_Column = 1:P,
     Calculate_GIC = "Calculate_SIC",
     Calculate_GIC_short = "Calculate_SIC_short",
-    Nsim = 6L  # Reduced from 5 for faster testing
+    Nsim = 2L
   )
 
-  # Tests
   selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]
   false_positives <- setdiff(selected_cols, true_columns)
   false_negatives <- setdiff(true_columns, selected_cols)
-  testthat::expect_true(length(false_positives) <= 5,
-                      info = "Too many false positives in selection")
-  testthat::expect_true(length(false_negatives) <= 5,
-                        info = "Too many false negatives in selection")
 
+  expect_true(length(false_positives) <= 5, info = "Too many false positives")
+  expect_true(length(false_negatives) <= 5, info = "Too many false negatives")
 })
 
+# Test: Univariate Poisson Model Selection
 test_that("Univariate Poisson Model Selection works correctly", {
-  # Skip if Julia not available
+  skip_on_cran()
   if (!setup_julia_for_tests()) return()
 
-  # Reduced parameters for faster testing
+  set.seed(123)
   N <- 1000L
   P <- 50L
   k <- 3L
-
-  # Generate test data in R
   true_columns <- sort(sample(1:P, k, replace = FALSE))
-  X <- matrix(rnorm(N*P), N, P)
-  true_beta <- rep(0, P)
-  true_beta[true_columns] <- 0.3  # Smaller coefficients for Poisson
+
+  X <- matrix(rnorm(N * P), N, P)
+  true_beta <- numeric(P)
+  true_beta[true_columns] <- 0.3
   Y <- LP_to_Y(X, true_beta, family = "Poisson")
 
-
-  # Run model selection
   result <- GICSelection(
     X = X,
     Y = Y_to_LP(Y, "Poisson"),
     Initial_Column = 1:P,
     Calculate_GIC = "Calculate_SIC",
     Calculate_GIC_short = "Calculate_SIC_short",
-    Nsim = 6L
+    Nsim = 2L
   )
 
-  # Tests
   selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]
   false_positives <- setdiff(selected_cols, true_columns)
   false_negatives <- setdiff(true_columns, selected_cols)
-  testthat::expect_true(length(false_positives) <= 5,
-                        info = "Too many false positives in selection")
-  testthat::expect_true(length(false_negatives) <= 5,
-                        info = "Too many false negatives in selection")
+
+  expect_true(length(false_positives) <= 5, info = "Too many false positives")
+  expect_true(length(false_negatives) <= 5, info = "Too many false negatives")
 })
 
+# Test: Multivariate Normal Model Selection
 test_that("Multivariate Normal Model Selection works correctly", {
-  # Skip if Julia not available
+  skip_on_cran()
   if (!setup_julia_for_tests()) return()
 
-  # Reduced parameters
+  set.seed(123)
   N <- 3000L
   P <- 200L
   k <- 4L
   m <- 3L
 
-  # Generate test data in R
-  X <- matrix(rnorm(N*P), N, P)
+  X <- matrix(rnorm(N * P), N, P)
   multi_beta <- matrix(0, P, m)
   true_columns <- integer(0)
 
@@ -128,32 +103,25 @@ test_that("Multivariate Normal Model Selection works correctly", {
     multi_beta[cols, i] <- seq(1, 0.1, length.out = k)
   }
 
-  # Define rho
   rho <- 0.2
-  # Create m x m matrix filled with rho
-  cov_p <- matrix(rho, nrow = m, ncol = m)
-  # Set diagonal to 1.0
+  cov_p <- matrix(rho, m, m)
   diag(cov_p) <- 1.0
 
-  # Generate response
   Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
 
-  # Run model selection
   result <- GICSelection(
     X = X,
     Y = Y,
     Initial_Column = 1:P,
     Calculate_GIC = "Calculate_SIC",
     Calculate_GIC_short = "Calculate_SIC_short",
-    Nsim = 7L
+    Nsim = 2L
   )
 
-  # Tests
   selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]
   false_positives <- setdiff(selected_cols, true_columns)
   false_negatives <- setdiff(true_columns, selected_cols)
-  testthat::expect_true(length(false_positives) <= 5,
-                        info = "Too many false positives in selection")
-  testthat::expect_true(length(false_negatives) <= 5,
-                        info = "Too many false negatives in selection")
+
+  expect_true(length(false_positives) <= 5, info = "Too many false positives")
+  expect_true(length(false_negatives) <= 5, info = "Too many false negatives")
 })

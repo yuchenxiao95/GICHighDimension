@@ -2,7 +2,7 @@
 % Please edit documentation in R/GICSelection_Boltzmann.R
 \name{GICSelectionBoltzmann}
 \alias{GICSelectionBoltzmann}
-\title{GIC Variable Selection with Boltzmann Machine}
+\title{GIC-Based Variable Selection Using Boltzmann Machine}
 \usage{
 GICSelectionBoltzmann(
   X,
@@ -10,34 +10,41 @@ GICSelectionBoltzmann(
   Init_Columns,
   Calculate_GIC,
   Calculate_GIC_short,
-  T = 0.2,
-  Nsim = 2
+  T = 0.1,
+  Nsim = 5
 )
 }
 \arguments{
-\item{X}{Design matrix (numeric).}
+\item{X}{A numeric design matrix with \code{n} rows (observations) and \code{p} columns (predictors).}
 
-\item{Y}{Outcome vector (numeric).}
+\item{Y}{A numeric response vector (length \code{n}) or matrix compatible with \code{X}.}
 
-\item{Init_Columns}{Initial subset of feature indices (integer vector).}
+\item{Init_Columns}{Integer vector of indices specifying the initial set of predictors.}
 
-\item{Calculate_GIC}{Name of the Julia function to calculate GIC (string).}
+\item{Calculate_GIC}{Character string giving the name of the 'Julia' function to compute full GIC values.}
 
-\item{Calculate_GIC_short}{Name of the Julia function for short GIC updates (string).}
+\item{Calculate_GIC_short}{Character string giving the name of the 'Julia' function to compute approximate GIC values.}
 
-\item{T}{Temperature parameter controlling the randomness of updates (default 0.2).}
+\item{T}{Numeric scalar. The temperature parameter controlling stochasticity in the simulated annealing process (default: 0.1).}
 
-\item{Nsim}{Number of times to repeat the selection process (default 2).}
+\item{Nsim}{Integer. Number of repeated runs for the optimization procedure (default: 5).}
 }
 \value{
-A list containing GIC values and corresponding coefficients.
+A list with the following components:
+\describe{
+\item{\code{GIC_list}}{List of GIC values returned for each run.}
+\item{\code{GIC_coeff}}{Indices of the variables selected in the final run.}
+}
 }
 \description{
-This function performs GIC-based variable selection using a Boltzmann-like
-simulated annealing approach, which is implemented in Julia.
+Performs variable selection using the Generalized Information Criterion ('GIC')
+combined with a Boltzmann-like simulated annealing approach. The optimization logic
+is implemented in 'Julia' and accessed from 'R' through the 'JuliaCall' interface.
 }
 \details{
-The method uses temperature control for randomness in the variable selection process.
+This method uses temperature-based control to introduce stochasticity in
+model exploration. It supports custom GIC formulations by passing the names of
+'Julia' functions and works with both univariate and multivariate responses.
 }
 \examples{
 \dontrun{
@@ -51,17 +58,12 @@ if (requireNamespace("JuliaCall", quietly = TRUE)) {
   })
 
   if (julia_available) {
-    # Generate synthetic data
     set.seed(123)
-    n <- 100
-    p <- 10
-    k <- 3
-
+    n <- 100; p <- 10; k <- 3
     X <- matrix(rnorm(n * p), n, p)
-    true_beta <- c(rep(1.5, k), rep(0, p - k))
-    Y <- X \%*\% true_beta + rnorm(n)
+    beta <- c(rep(1.5, k), rep(0, p - k))
+    Y <- X \%*\% beta + rnorm(n)
 
-    # Run Boltzmann GIC selection
     result <- GICSelectionBoltzmann(
       X = X,
       Y = Y,
@@ -70,8 +72,6 @@ if (requireNamespace("JuliaCall", quietly = TRUE)) {
       Calculate_GIC_short = "Calculate_SIC_short",
       Nsim = 3
     )
-
-    # Print selected coefficients
     print(result$GIC_coeff)
   }
 }

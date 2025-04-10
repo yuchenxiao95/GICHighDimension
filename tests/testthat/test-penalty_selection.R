@@ -1,87 +1,31 @@
 library(testthat)
 library(JuliaCall)
-library(MASS)
 
-test_that("Calculate_AIC works with example inputs", {
+test_that("Information criteria functions return valid output", {
+  skip_on_cran()
+
+  # Initialize Julia once
+  expect_silent(julia_setup(installJulia = FALSE))
+
+  # Simulate inputs
   Y <- rnorm(20)
   X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_AIC(Y, X)
-  expect_true(is.list(result))
-})
 
-test_that("Calculate_AICc works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_AICc(Y, X)
-  expect_true(is.list(result))
-})
+  # Exported R function names
+  criteria <- c(
+    "Calculate_AIC", "Calculate_AICc", "Calculate_AttIC", "Calculate_SIC",
+    "Calculate_BIC", "Calculate_CAIC", "Calculate_CAICF",
+    "Calculate_GIC2", "Calculate_GIC3", "Calculate_GIC4",
+    "Calculate_GIC5", "Calculate_GIC6"
+  )
 
-test_that("Calculate_AttIC works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_AttIC(Y, X)
-  expect_true(is.list(result))
-})
+  for (fn in criteria) {
+    criterion_fun <- get(fn, mode = "function")
+    result <- criterion_fun(Y, X)
 
-test_that("Calculate_SIC works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_SIC(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_BIC works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_BIC(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_CAIC works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_CAIC(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_CAICF works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_CAICF(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_GIC2 works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_GIC2(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_GIC3 works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_GIC3(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_GIC4 works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_GIC4(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_GIC5 works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_GIC5(Y, X)
-  expect_true(is.list(result))
-})
-
-test_that("Calculate_GIC6 works with example inputs", {
-  Y <- rnorm(20)
-  X <- matrix(rnorm(100), nrow = 20)
-  result <- Calculate_GIC6(Y, X)
-  expect_true(is.list(result))
+    expect_type(result, "list")
+    expect_named(result, c("CriterionValue", "InverseMatrix"))
+    expect_true(is.numeric(result$CriterionValue), info = paste(fn, "did not return a numeric CriterionValue"))
+    expect_true(is.matrix(result$InverseMatrix), info = paste(fn, "did not return a valid InverseMatrix"))
+  }
 })

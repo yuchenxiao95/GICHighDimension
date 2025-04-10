@@ -1,25 +1,25 @@
-#' @title GIC-based Variable Selection
+#' @title GIC-Based Variable Selection
 #'
 #' @description
-#' Perform variable selection using the Generalized Information Criterion (GIC)
-#' with Hopfield network optimization. The computationally intensive components are
-#' implemented in Julia for performance.
+#' Performs variable selection using the Generalized Information Criterion (GIC)
+#' with Hopfield Network optimization. The computationally intensive components
+#' are implemented in 'Julia' for performance, while an 'R' interface provides user-friendly access.
 #'
 #' @details
 #' This function implements a variable selection algorithm that:
 #' \itemize{
-#'   \item Uses customizable information criteria for model selection
-#'   \item Leverages Julia backend for computational efficiency
-#'   \item Supports various model families through the underlying Julia implementation
+#'   \item Uses customizable information criteria (such as AIC, BIC, and ICOMP)
+#'   \item Leverages a 'Julia' backend for computational efficiency
+#'   \item Supports various model families, including generalized linear models (GLMs) such as the normal and Poisson families
 #'   \item Accepts both univariate and multivariate responses
 #' }
 #'
 #' @param X Numeric design matrix (n x p), where n is the number of observations and
 #'          p is the number of predictors.
-#' @param Y Numeric response (either vector of length n or matrix with n rows).
+#' @param Y Numeric response (either a vector of length n or a matrix with n rows).
 #' @param Initial_Column Integer vector of initial feature indices to consider.
-#' @param Calculate_GIC Character name of the Julia function for full GIC calculation.
-#' @param Calculate_GIC_short Character name of the Julia shortcut function for approximate GIC.
+#' @param Calculate_GIC Character name of the 'Julia' function for full GIC calculation.
+#' @param Calculate_GIC_short Character name of the 'Julia' shortcut function for approximate GIC.
 #' @param Nsim Integer number of simulations to run (default: 1).
 #'
 #' @return A list containing:
@@ -43,12 +43,11 @@
 #'   })
 #'
 #'   if (julia_available) {
-#'     # Univariate case
 #'     set.seed(123)
 #'     n <- 100; p <- 10; k <- 3
 #'     X <- matrix(rnorm(n * p), n, p)
 #'     beta <- c(rep(1.5, k), rep(0, p - k))
-#'     Y <- LP_to_Y(X, beta, family = "Normal", std = 1.0)
+#'     Y_uni <- LP_to_Y(X, beta, family = "Normal", std = 1.0)
 #'
 #'     result_uni <- GICSelection(
 #'       X = X,
@@ -60,14 +59,13 @@
 #'     )
 #'     print(result_uni$selected_coeffs)
 #'
-#'     # Multivariate case
 #'     m <- 3
-#'     beta_multi <- matrix(0, p, m)
-#'     beta_multi[1:3, ] <- 1
+#'     multi_beta <- matrix(0, p, m)
+#'     multi_beta[1:3, ] <- 1
 #'     rho <- 0.2
 #'     cov_p <- matrix(rho, nrow = m, ncol = m)
 #'     diag(cov_p) <- 1.0
-#'     Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
+#'     Y_multi <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
 #'
 #'     result_multi <- GICSelection(
 #'       X = X,
@@ -81,11 +79,11 @@
 #'   }
 #' }
 #' }
-#'
 #' @export
 #' @importFrom JuliaCall julia_setup julia_source julia_call julia_assign julia_eval julia_exists
 #' @importFrom stats rnorm
 #' @importFrom utils packageVersion
+#'
 GICSelection <- function(X, Y, Initial_Column,
                          Calculate_GIC,
                          Calculate_GIC_short,

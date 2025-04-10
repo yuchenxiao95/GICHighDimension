@@ -2,43 +2,41 @@
 % Please edit documentation in R/Beta_Generation.R
 \name{Generate_Beta}
 \alias{Generate_Beta}
-\title{Generate True Coefficient Vector}
+\title{Generate Sparse Coefficient Vector}
 \usage{
 Generate_Beta(P, k, type = 1)
 }
 \arguments{
-\item{P}{Number of predictors (positive integer)}
+\item{P}{Integer. Total number of predictors (must be a positive integer).}
 
-\item{k}{Number of non-zero coefficients (positive integer <= P)}
+\item{k}{Integer. Number of non-zero coefficients (must be between 1 and \code{P}).}
 
-\item{type}{Pattern of non-zero coefficients (1-3, see Details)}
+\item{type}{Integer. Pattern type for non-zero coefficients:
+\itemize{
+\item \code{1}: Equally spaced non-zero values
+\item \code{2}: First \code{k} positions are non-zero
+\item \code{3}: Decaying values from 10 to 0.5
+}}
 }
 \value{
-A list containing:
+A list with components:
 \describe{
-\item{beta}{Numeric vector of length P with specified coefficient pattern}
-\item{indices}{Integer vector of indices where beta is non-zero}
+\item{\code{beta}}{A numeric vector of length \code{P} with the specified sparsity pattern.}
+\item{\code{indices}}{An integer vector of indices where \code{beta} is non-zero.}
 }
 }
 \description{
-Creates a sparse coefficient vector with specified pattern of non-zero values
-for simulation studies.
-}
-\details{
-\itemize{
-\item \code{type = 1}: Equally spaced signals
-\item \code{type = 2}: First \code{k} positions
-\item \code{type = 3}: Decaying values from 10 down to 0.5
-}
+Creates a sparse coefficient vector with a specified pattern of non-zero values
+for use in simulation studies, such as benchmarking variable selection methods.
 }
 \examples{
-# Equally spaced signals
-beta1 <- Generate_Beta(P = 50, k = 5, type = 1)
+# Equally spaced non-zero coefficients
+Generate_Beta(P = 50, k = 5, type = 1)
 
-# Block of signals at beginning
-beta2 <- Generate_Beta(P = 100, k = 10, type = 2)
+# First k positions non-zero
+Generate_Beta(P = 100, k = 10, type = 2)
 
-# Decaying signals
-beta3 <- Generate_Beta(P = 200, k = 15, type = 3)
+# Decaying pattern
+Generate_Beta(P = 200, k = 15, type = 3)
 
 }

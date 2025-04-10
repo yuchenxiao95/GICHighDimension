@@ -16,59 +16,58 @@ LP_to_Y(
 )
 }
 \arguments{
-\item{X}{Design matrix}
+\item{X}{A numeric design matrix.}
 
-\item{true_beta}{True coefficient vector}
+\item{true_beta}{A numeric vector or matrix of true coefficients.}
 
-\item{family}{Character string specifying distribution family
-(e.g., "Normal", "Poisson", "MultivariateNormal", etc.)}
+\item{family}{A character string specifying the distribution family.}
 
-\item{n_trials}{Optional number of trials for Binomial family}
+\item{n_trials}{Optional integer, number of trials for the Binomial family.}
 
-\item{std}{Optional standard deviation for Normal family}
+\item{std}{Optional numeric, standard deviation for the Normal family.}
 
-\item{shape}{Optional shape parameter for Gamma family}
+\item{shape}{Optional numeric, shape parameter for the Gamma family.}
 
-\item{cov_matrix}{Optional covariance matrix (for Multivariate Normal)}
+\item{cov_matrix}{Optional covariance matrix for multivariate families.}
 
-\item{n_categories}{Optional number of categories (for Multinomial family)}
+\item{n_categories}{Optional integer, number of categories for Multinomial family.}
 }
 \value{
-Numeric vector or matrix of transformed responses
+A numeric vector or matrix of responses generated from the linear predictor.
 }
 \description{
-Convert observed responses to the appropriate distribution scale
-using canonical link functions (e.g., Gaussian, Poisson).
+Converts a linear predictor to observed responses using canonical link functions from
+generalized linear models (GLMs). Supports univariate and multivariate distributions.
 }
 \details{
-Uses a Julia backend for fast transformation. Handles:
+This function uses the Julia backend via the 'JuliaCall' interface to compute responses
+from linear predictors efficiently. Supported families include:
 \itemize{
-\item Gaussian ("Normal")
-\item Bernoulli
-\item Poisson
-\item Gamma
-\item Multivariate Normal
-\item (Optionally) Multinomial
+\item "Normal" (Gaussian)
+\item "Poisson"
+\item "Bernoulli"
+\item "Gamma"
+\item "MultivariateNormal"
+\item "Multinomial" (optional)
 }
+GLM stands for \emph{generalized linear model}.
 }
 \examples{
 \dontrun{
-if (requireNamespace("JuliaCall", quietly = TRUE)) {
-  julia_available <- FALSE
+if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
+  julia_ready <- FALSE
   tryCatch({
-    JuliaCall::julia_setup()
-    julia_available <- TRUE
-  }, error = function(e) {
-    message("Julia not available: ", e$message)
-  })
+    JuliaCall::julia_setup(installJulia = FALSE)
+    julia_ready <- TRUE
+  }, error = function(e) message("Julia setup failed"))
 
-  if (julia_available) {
+  if (julia_ready) {
     set.seed(123)
     n <- 100
     p <- 5
     X <- matrix(rnorm(n * p), n, p)
-    true_beta <- c(1.5, -2, 0, 0, 3)
-    Y <- LP_to_Y(X, true_beta, family = "Normal")
+    beta <- c(1.5, -2, 0, 0, 3)
+    Y <- LP_to_Y(X, beta, family = "Normal", std = 1.0)
     head(Y)
   }
 }

@@ -3,129 +3,19 @@
 [![R-CMD-check](https://github.com/yuchenxiao95/GICHighDimension/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yuchenxiao95/GICHighDimension/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**GICHighDimension**  is an R package designed for efficient variable selection in high-dimensional settings using the Generalized Information Criterion (GIC). By leveraging a Hopfield network optimization framework and integrating Julia's computational speed, this package enables scalable model selection for generalized linear models (GLMs) such as Normal, Poisson, and Multivariate Normal.
+**'GICHighDimension'** is an R package for high-dimensional variable selection using the generalized information criterion ('GIC') and Hopfield network optimization. Performance-critical steps are accelerated using 'Julia', while the R interface ensures ease of use for modeling generalized linear models ('GLMs').
 
 ---
 
 ## 📦 Installation
 
 ### ✅ Requirements
-- [R](https://cran.r-project.org/) (≥ 4.0.0)
-- [Julia](https://julialang.org/download/) (≥ 1.6)
-- R package: `JuliaCall`
+- 'R' (≥ 4.0.0)
+- 'Julia' (≥ 1.6)
+- R package: 'JuliaCall'
 
 ### 🔧 Install from GitHub
 
 ```r
-# Install from GitHub
 if (!require("remotes")) install.packages("remotes")
 remotes::install_github("yuchenxiao95/GICHighDimension")
-```
-
-## Quick Example
-```r
-library(GICHighDimension)
-
-# Generate synthetic data
-X <- matrix(rnorm(1000 * 500), 1000, 500)  # 1000 samples, 500 features
-true_beta <- c(rep(2, 5), rep(0, 495))     # 5 true signals
-Y <- LP_to_Y(X, true_beta, family = "Normal")
-init_cols <- 1:100
-
-# Run model selection
-result <- GICSelection(
-  X = X,
-  Y = Y,
-  Initial_Column = init_cols,
-  Calculate_GIC = "Calculate_BIC",
-  Calculate_GIC_short = "Calculate_BIC_short",
-  Nsim = 8L
-)
-
-# Extract number of false positives and false negatives
-selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
-```
-
-# Univariate Normal Model Selection
-```r
-library(GICHighDimension)
-setup_julia()
-
-N <- 100L; P <- 20L; k <- 3L
-true_columns <- sort(sample(1:P, k))
-X <- matrix(rnorm(N * P), N, P)
-true_beta <- rep(0, P); true_beta[true_columns] <- 2
-Y <- LP_to_Y(X, true_beta, family = "Normal")
-
-result <- GICSelection(
-  X = X,
-  Y = Y,
-  Initial_Column = 1:P,
-  Calculate_GIC = "Calculate_SIC",
-  Calculate_GIC_short = "Calculate_SIC_short",
-  Nsim = 8L
-)
-
-# Extract number of false positives and false negatives
-selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
-```
-
-# Univariate Poisson Model Selection
-```r
-N <- 100L; P <- 20L; k <- 3L
-true_columns <- sort(sample(1:P, k))
-X <- matrix(rnorm(N * P), N, P)
-true_beta <- rep(0, P); true_beta[true_columns] <- 0.3
-Y <- LP_to_Y(X, true_beta, family = "Poisson")
-
-result <- GICSelection(
-  X = X,
-  Y = Y_to_LP(Y, "Poisson"),
-  Initial_Column = 1:P,
-  Calculate_GIC = "Calculate_SIC",
-  Calculate_GIC_short = "Calculate_SIC_short",
-  Nsim = 8L
-)
-
-# Extract number of false positives and false negatives
-selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
-```
-# Multivariate Normal Model Selection
-```r
-N <- 100L; P <- 20L; k <- 3L; m <- 3L
-X <- matrix(rnorm(N * P), N, P)
-multi_beta <- matrix(0, P, m)
-true_columns <- integer(0)
-
-for (i in 1:m) {
-  cols <- sort(sample(1:P, k))
-  true_columns <- union(true_columns, cols)
-  multi_beta[cols, i] <- seq(1, 0.1, length.out = k)
-}
-
-rho <- 0.2
-cov_p <- matrix(rho, nrow = m, ncol = m)
-diag(cov_p) <- 1.0
-Y <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
-
-result <- GICSelection(
-  X = X,
-  Y = Y,
-  Initial_Column = 1:P,
-  Calculate_GIC = "Calculate_SIC",
-  Calculate_GIC_short = "Calculate_SIC_short",
-  Nsim = 8L
-)
-
-# Extract number of false positives and false negatives
-selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]false_positives <- setdiff(selected_cols, true_columns)false_negatives <- setdiff(true_columns, selected_cols)
-```
-
-
-## Features
-- 🚀 **High Performance**: Julia-accelerated critical routines
-- 📊 **GLM**: Normal, Poisson, Multivariate Normal
-
-## Documentation
-- Function reference: `?GICSelection`
-- Tutorial: `vignette("GICModelSelection

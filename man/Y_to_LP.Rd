@@ -7,25 +7,25 @@
 Y_to_LP(Y, family, shape = NULL, n_trials = NULL, std = NULL)
 }
 \arguments{
-\item{Y}{Observed response (numeric vector or matrix).}
+\item{Y}{A numeric vector or matrix of observed responses.}
 
-\item{family}{Character string specifying the GLM family.}
+\item{family}{A character string indicating the GLM family to use.}
 
-\item{shape}{Optional shape parameter (for Gamma family).}
+\item{shape}{Optional shape parameter (used for the Gamma family).}
 
-\item{n_trials}{Optional number of trials (for Binomial family).}
+\item{n_trials}{Optional number of trials (used for the Binomial family).}
 
-\item{std}{Optional standard deviation (for Normal family).}
+\item{std}{Optional standard deviation (used for the Normal family).}
 }
 \value{
-A numeric vector or matrix of linear predictors, matching the input structure.
+A numeric vector or matrix representing the linear predictor.
 }
 \description{
-Uses Julia's \code{Y_to_LP} function to transform observed responses into linear predictors
-using canonical link functions for various GLM families.
+Uses the Julia function \code{'Y_to_LP'} to convert observed responses to linear predictors
+using canonical link functions from generalized linear models (GLMs).
 }
 \details{
-Supported distribution families include:
+This function supports canonical link transformations for the following distribution families:
 \itemize{
 \item "Bernoulli"
 \item "Binomial"
@@ -35,29 +35,29 @@ Supported distribution families include:
 \item "Exponential"
 \item "MultivariateNormal"
 }
+GLM stands for \emph{generalized linear model}, a common framework for regression models.
+
+The underlying Julia logic is sourced from \code{'Y_to_LP.jl'}, and relies on the 'JuliaCall' interface.
 }
 \examples{
 \dontrun{
-julia_ready <- FALSE
-if (requireNamespace("JuliaCall", quietly = TRUE)) {
-  try({
+if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
+  julia_ready <- FALSE
+  tryCatch({
     JuliaCall::julia_setup(installJulia = FALSE)
-    JuliaCall::julia_eval("1 + 1")
     julia_ready <- TRUE
-  }, silent = TRUE)
-}
+  }, error = function(e) message("Julia setup failed"))
 
-if (julia_ready) {
-  Y_bernoulli <- sample(c(0, 1), 100, replace = TRUE)
-  lp_bernoulli <- Y_to_LP(Y_bernoulli, family = "Bernoulli")
+  if (julia_ready) {
+    Y1 <- rbinom(100, 1, 0.5)
+    eta1 <- Y_to_LP(Y1, family = "Bernoulli")
 
-  Y_poisson <- rpois(100, lambda = 5)
-  lp_poisson <- Y_to_LP(Y_poisson, family = "Poisson")
+    Y2 <- rpois(100, lambda = 5)
+    eta2 <- Y_to_LP(Y2, family = "Poisson")
 
-  print(head(lp_bernoulli))
-  print(head(lp_poisson))
-} else {
-  message("Julia not available - examples skipped.")
+    print(head(eta1))
+    print(head(eta2))
+  }
 }
 }
 
