@@ -38,7 +38,7 @@ Transform observed responses `Y` into linear predictors using canonical link fun
         p_adjusted = copy(p)
         p_adjusted[p .== 0] .+= 0.01  # Avoid log(0) error
         p_adjusted[p .== 1] .-= 0.01  # Avoid log(1) error
-        return log.(p_adjusted ./ (1 .- p_adjusted))  # Logistic transformation
+        return log.(p_adjusted ./ (1 .- p_adjusted)) * n_trials  # Logistic transformation
 
     # For Bernoulli: Logit link function (logistic transformation)
     elseif family == "Bernoulli"

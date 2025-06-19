@@ -29,7 +29,8 @@ function GIC_Variable_Selection(
     Init_Columns::AbstractVector{Int}, 
     Calculate_GIC, 
     Calculate_GIC_short;
-    Nsim::Int64 = 1
+    Huber::Bool = false,
+    Nsim::Int64 = 2
 )
     # --- Input Validation ---
     m, n = size(X)
@@ -37,12 +38,14 @@ function GIC_Variable_Selection(
     @assert m == size(Y, 1) "Sample size mismatch between X and Y."
 
     # --- Initialization ---
-    sets = collect(1:n)  # All feature indices
-    repeated_list = repeat(sets, Nsim)  # Feature sequence for iteration
+    shuffled_sets = [shuffle(1:n) for _ in 1:Nsim]   # List of Nsim shuffled vectors
+    repeated_list = vcat(shuffled_sets...) 
+    # sets = collect(1:n)  # All feature indices
+    # repeated_list = repeat(sets, Nsim)  # Feature sequence for iteration
 
     # Initial GIC calculation and inverse covariance
     GIC_coef_sets = Init_Columns
-    GIC_c, M_inv = Calculate_GIC(Y, X[:, GIC_coef_sets])
+    GIC_c, M_inv = Calculate_GIC(Y, X[:, GIC_coef_sets], Huber)
     current_X = X[:, GIC_coef_sets]
 
     # --- Output Storage ---
@@ -60,14 +63,15 @@ function GIC_Variable_Selection(
             X_subsets = X[:, GIC_coef_sets_temp]
 
             # Block matrix update for inverse covariance (efficient removal)
-            A_hat = M_inv[setdiff(1:end, index), setdiff(1:end, index)]
-            B_hat = M_inv[setdiff(1:end, index), index]
-            C_hat = M_inv[index, setdiff(1:end, index)]'
-            D_hat = only(M_inv[index, index])
-            A_inv = A_hat - ((B_hat / D_hat) * C_hat)  # Schur complement
+            # A_hat = M_inv[setdiff(1:end, index), setdiff(1:end, index)]
+            # B_hat = M_inv[setdiff(1:end, index), index]
+            # C_hat = M_inv[index, setdiff(1:end, index)]'
+            # D_hat = only(M_inv[index, index])
+            # A_inv = A_hat - ((B_hat / D_hat) * C_hat)  # Schur complement
 
             # GIC evaluation after removal
-            GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
@@ -85,21 +89,22 @@ function GIC_Variable_Selection(
             index = findfirst(==(z), GIC_coef_sets_temp)
 
             # Block matrix update for inverse covariance (efficient addition)
-            Xsquare = X_subsets' * X_subsets
-            A_hat = Xsquare[setdiff(1:end, index), setdiff(1:end, index)]
-            B_hat = Xsquare[setdiff(1:end, index), index]
-            C_hat = Xsquare[index, setdiff(1:end, index)]'
-            D_hat = only(Xsquare[index, index])
+            # Xsquare = X_subsets' * X_subsets
+            # A_hat = Xsquare[setdiff(1:end, index), setdiff(1:end, index)]
+            # B_hat = Xsquare[setdiff(1:end, index), index]
+            # C_hat = Xsquare[index, setdiff(1:end, index)]'
+            # D_hat = only(Xsquare[index, index])
 
             # Sherman-Morrison-Woodbury formula
-            topleft = M_inv + M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
-            topright = -M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat)
-            bottomleft = -inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
-            bottomright = inv(D_hat - C_hat * M_inv * B_hat)
-            A_inv = [topleft topright; bottomleft bottomright]
+            # topleft = M_inv + M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
+            # topright = -M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat)
+            # bottomleft = -inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
+            # bottomright = inv(D_hat - C_hat * M_inv * B_hat)
+            # A_inv = [topleft topright; bottomleft bottomright]
 
             # GIC evaluation after addition
-            GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
