@@ -11,7 +11,7 @@ end
 
 
 # AIC Functions
-function Calculate_AIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_AIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -35,7 +35,7 @@ function Calculate_AIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatr
     return (AIC, Inverse)
 end
 
-function Calculate_AIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_AIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -59,7 +59,7 @@ function Calculate_AIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstra
 end
 
 # AICc Functions
-function Calculate_AIC_c(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_AIC_c(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -88,7 +88,7 @@ function Calculate_AIC_c(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMa
     return (AICc, Inverse)
 end
 
-function Calculate_AIC_c_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_AIC_c_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -117,7 +117,7 @@ function Calculate_AIC_c_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abst
 end
 
 # Attention Functions
-function Calculate_AttIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_AttIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -142,7 +142,7 @@ function Calculate_AttIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMa
     return (AttIC, Inverse)
 end
 
-function Calculate_AttIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_AttIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -166,7 +166,7 @@ end
 
 
 # SIC Functions
-function Calculate_SIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_SIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
     T, K = size(X, 1), size(X, 2)
     Inverse = inv(X' * X)
     Hat_matrix = X * Inverse * X'
@@ -183,7 +183,7 @@ function Calculate_SIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatr
     return (SIC, Inverse)
 end
 
-function Calculate_SIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_SIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -207,7 +207,7 @@ function Calculate_SIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstra
 end
 
 # BIC Functions
-function Calculate_BIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_BIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -231,7 +231,7 @@ function Calculate_BIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatr
     return (BIC, Inverse)
 end
 
-function Calculate_BIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_BIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
 
     # Get dimensions
@@ -256,7 +256,7 @@ function Calculate_BIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstra
 end
 
 # CAIC Functions
-function Calculate_CAIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_CAIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -280,7 +280,7 @@ function Calculate_CAIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (CAIC, Inverse)
 end
 
-function Calculate_CAIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_CAIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -305,7 +305,7 @@ end
 
 
 # ICOMP Functions
-function Calculate_ICOMP(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_ICOMP(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -330,7 +330,7 @@ function Calculate_ICOMP(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMa
     return (ICOMP, Inverse)
 end
 
-function Calculate_ICOMP_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_ICOMP_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -356,7 +356,7 @@ end
 
 
 # ICOMPIFIM Functions
-function Calculate_ICOMPIFIM(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_ICOMPIFIM(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -381,7 +381,7 @@ function Calculate_ICOMPIFIM(Y::Union{AbstractVector, AbstractMatrix}, X::Abstra
     return (ICOMPIFIM, Inverse)
 end
 
-function Calculate_ICOMPIFIM_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_ICOMPIFIM_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -408,7 +408,7 @@ end
 
 
 # CAICF Functions
-function Calculate_CAICF(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_CAICF(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -433,7 +433,7 @@ function Calculate_CAICF(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMa
     return (CAICF, Inverse)
 end
 
-function Calculate_CAICF_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_CAICF_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -458,7 +458,7 @@ function Calculate_CAICF_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abst
 end
 
 # GIC2 Functions
-function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
+function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -482,7 +482,7 @@ function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC2, Inverse)
 end
 
-function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -506,7 +506,7 @@ function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC3 Functions
-function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
+function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -530,7 +530,7 @@ function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC3, Inverse)
 end
 
-function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -554,7 +554,7 @@ function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC4 Functions
-function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
+function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -578,7 +578,7 @@ function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC4, Inverse)
 end
 
-function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -602,7 +602,7 @@ function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC5 Functions
-function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
+function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -626,7 +626,7 @@ function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC5, Inverse)
 end
 
-function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -650,7 +650,7 @@ function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC6 Functions
-function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
+function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -674,7 +674,7 @@ function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
 end
 
 
-function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)

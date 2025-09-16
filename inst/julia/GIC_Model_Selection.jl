@@ -29,7 +29,7 @@ function GIC_Variable_Selection(
     Init_Columns::AbstractVector{Int}, 
     Calculate_GIC, 
     Calculate_GIC_short;
-    gamma::Float64 = 1,
+    gamma::Float64 = 1.0,
     Huber::Bool = false,
     Nsim::Int64 = 2
 )
