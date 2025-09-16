@@ -458,7 +458,7 @@ function Calculate_CAICF_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abst
 end
 
 # GIC2 Functions
-function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -506,7 +506,7 @@ function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC3 Functions
-function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -554,7 +554,7 @@ function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC4 Functions
-function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -602,7 +602,7 @@ function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC5 Functions
-function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -650,7 +650,7 @@ function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC6 Functions
-function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false,P::Int64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -700,7 +700,7 @@ end
 
 
 # GIC6 Functions
-function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
