@@ -458,7 +458,7 @@ function Calculate_CAICF_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abst
 end
 
 # GIC2 Functions
-function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
+function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -477,7 +477,7 @@ function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     end
 
     # Compute GIC2
-    GIC2 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * K^(1/3)
+    GIC2 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * P^(1/3)
 
     return (GIC2, Inverse)
 end
@@ -500,13 +500,13 @@ function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC2
-    GIC2 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * K^(1/3)
+    GIC2 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * P^(1/3)
 
     return GIC2
 end
 
 # GIC3 Functions
-function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
+function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -525,7 +525,7 @@ function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     end
 
     # Compute GIC3
-    GIC3 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * log(K)
+    GIC3 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * log(P)
 
     return (GIC3, Inverse)
 end
@@ -548,13 +548,13 @@ function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC3
-    GIC3 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * log(K)
+    GIC3 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * log(P)
 
     return GIC3
 end
 
 # GIC4 Functions
-function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
+function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -573,7 +573,7 @@ function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     end
 
     # Compute GIC4
-    GIC4 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * (log(K) + log(log(K)))
+    GIC4 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * (log(K) + log(log(P)))
 
     return (GIC4, Inverse)
 end
@@ -596,13 +596,13 @@ function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC4
-    GIC4 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * (log(K) + log(log(K)))
+    GIC4 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * (log(K) + log(log(P)))
 
     return GIC4
 end
 
 # GIC5 Functions
-function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
+function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -621,7 +621,7 @@ function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     end
 
     # Compute GIC5
-    GIC5 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(log(T)) * log(K)
+    GIC5 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(log(T)) * log(P)
 
     return (GIC5, Inverse)
 end
@@ -650,7 +650,7 @@ function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 # GIC6 Functions
-function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false,P::Int64)
+function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -668,7 +668,7 @@ function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
         sample_variance = (residuals' * residuals) / (T-K)
     end
 
-    GIC6 = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * log(T) * log(K)
+    GIC6 = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * log(T) * log(P)
 
     return (GIC6, Inverse)
 end
@@ -692,7 +692,7 @@ function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC5
-    GIC6 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(T) * log(K)
+    GIC6 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(T) * log(binomial(P, K))
 
     return GIC6
 end
@@ -700,7 +700,7 @@ end
 
 
 # GIC6 Functions
-function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false, P::Int64)
+function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -718,7 +718,7 @@ function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
         sample_variance = (residuals' * residuals) / (T-K)
     end
 
-    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + log(K))
+    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + log(binomial(P, K)))
 
     return (EBIC, Inverse)
 end
@@ -742,7 +742,7 @@ function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC5
-    EBIC = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * (log(T) + log(K))
+    EBIC = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * (log(T) + log(binomial(P, K)))
 
     return EBIC
 end
