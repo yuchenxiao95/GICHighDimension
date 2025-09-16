@@ -29,6 +29,7 @@ function GIC_Variable_Selection(
     Init_Columns::AbstractVector{Int}, 
     Calculate_GIC, 
     Calculate_GIC_short;
+    gamma::Float64 = 1,
     Huber::Bool = false,
     Nsim::Int64 = 2
 )
@@ -71,7 +72,7 @@ function GIC_Variable_Selection(
 
             # GIC evaluation after removal
             #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber, n)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber, n, gamma)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
@@ -104,7 +105,7 @@ function GIC_Variable_Selection(
 
             # GIC evaluation after addition
             #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber, n)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber, n, gamma)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i

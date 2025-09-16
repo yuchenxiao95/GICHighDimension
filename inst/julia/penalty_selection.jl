@@ -700,7 +700,7 @@ end
 
 
 # GIC6 Functions
-function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false)
+function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, Huber::Bool = false, gamma::Float64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -718,13 +718,13 @@ function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
         sample_variance = (residuals' * residuals) / (T-K)
     end
 
-    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + log(binomial(P, K)))
+    EBIC = (Y'*Hat_matrix*Y)/ T - (sample_variance)/T * (K * log(T) + gamma * log(binomial(big(P), K)))
 
     return (EBIC, Inverse)
 end
 
 
-function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false, gamma::Float64)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -742,7 +742,7 @@ function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC5
-    EBIC = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * (log(T) + log(binomial(P, K)))
+    EBIC = (Y' * Hat_matrix * Y) / T - (sample_variance) / T * (K * log(T) + gamma * log(binomial(big(P), K)))
 
     return EBIC
 end
