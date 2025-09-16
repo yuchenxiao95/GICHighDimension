@@ -698,8 +698,7 @@ function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
 end
 
 
-
-# GIC6 Functions
+# EBIC Functions
 function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions

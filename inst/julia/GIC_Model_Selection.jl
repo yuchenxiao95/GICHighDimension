@@ -23,6 +23,8 @@ addition/removal. Optimized for both single-response (vector `Y`) and multi-resp
 - Uses Sherman-Morrison-Woodbury for efficient inverse updates when adding/removing features.
 - For multi-response `Y`, `Calculate_GIC` functions should return GIC as a matrix (e.g., trace for scalar comparison).
 """
+
+
 function GIC_Variable_Selection(
     X::AbstractMatrix, 
     Y::Union{AbstractVector, AbstractMatrix}, 
