@@ -46,7 +46,7 @@ function GIC_Variable_Selection(
 
     # Initial GIC calculation and inverse covariance
     GIC_coef_sets = Init_Columns
-    GIC_c, M_inv = Calculate_GIC(Y, X[:, GIC_coef_sets], Huber, P = n, gamma = gamma)
+    GIC_c, M_inv = Calculate_GIC(Y, X[:, GIC_coef_sets], n, gamma, Huber)
     current_X = X[:, GIC_coef_sets]
 
     # --- Output Storage ---
@@ -72,7 +72,7 @@ function GIC_Variable_Selection(
 
             # GIC evaluation after removal
             #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber, P = n, gamma = gamma)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n, gamma, Huber)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
