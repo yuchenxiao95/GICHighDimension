@@ -699,6 +699,60 @@ end
 
 
 
+# GIC6 Functions
+function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Huber::Bool = false)
+
+    # Get dimensions
+    T, K = size(X, 1), size(X, 2)
+
+    # Compute inverse and hat matrix
+    Inverse = inv(X'*X)
+    Hat_matrix = X*Inverse*X'
+
+    # Compute residuals and sample variance
+    residuals = Y - Hat_matrix * Y
+    if Huber
+        estimated_var = (residuals' * residuals) / (T-K)
+        sample_variance = huber_loss(residuals, 0.8 * sqrt(estimated_var))/ (T-K)
+    else
+        sample_variance = (residuals' * residuals) / (T-K)
+    end
+
+    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + log(K))
+
+    return (EBIC, Inverse)
+end
+
+
+function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, Huber::Bool = false)
+
+    # Get dimensions
+    T, K = size(X, 1), size(X, 2)
+
+    # Compute hat matrix
+    Hat_matrix = X * Inverse * X'
+
+    # Compute residuals and sample variance
+    residuals = Y - Hat_matrix * Y
+    if Huber
+        estimated_var = (residuals' * residuals) / (T-K)
+        sample_variance = huber_loss(residuals, 0.8 * sqrt(estimated_var))/ (T-K)
+    else
+        sample_variance = (residuals' * residuals) / (T-K)
+    end
+
+    # Compute GIC5
+    EBIC = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * (log(T) + log(K))
+
+    return EBIC
+end
+
+
+
+
+
+
+
 
 
 
