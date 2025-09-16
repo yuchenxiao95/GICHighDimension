@@ -700,7 +700,7 @@ end
 
 
 # GIC6 Functions
-function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, P::Integer, gamma::Float64, Huber::Bool = false)
+function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, P::Integer, gamma::Float64, Huber::Bool = false)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
