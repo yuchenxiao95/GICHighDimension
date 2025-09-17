@@ -57,6 +57,7 @@ GICSelection <- function(X, Y, Initial_Column,
                          gamma = 1.0,
                          huber = FALSE) {
 
+  p <- ncol(X)
   if (!is.matrix(X)) stop("X must be a matrix")
   if (!(is.numeric(Y) && (is.vector(Y) || is.matrix(Y))))
     stop("Y must be either a numeric vector or a numeric matrix")
@@ -124,3 +125,73 @@ GICSelection <- function(X, Y, Initial_Column,
     list(GIC_values = NA, selected_coeffs = NA)
   })
 }
+
+n <- 300
+p <- 1000
+k <- 10
+A <- 3.5                  # signal amplitude
+q <- 0.20                 # target FDR
+X_type <- "diag"           # "iid" or "ar1"
+rho <- 0.5                # AR(1) autocorr (|rho|<1) if type="ar1"
+
+generate_X <- function(
+    n, p,
+    rho = NULL,                    # required for equicorr/ar1
+    type = c("equicorr", "ar1", "diag"),
+    diag_var = 1,                  # metadata only for diag; X not scaled
+    ensure_spd = TRUE,             # used for equicorr/ar1
+    jitter = 1e-8
+) {
+  type <- match.arg(type)
+
+  if (type == "diag") {
+    # ---- diagonal case: X ~ iid N(0,1); Sigma recorded only ----
+    Z <- matrix(rnorm(n * p), n, p)
+    X <- Z
+    if (length(diag_var) == 1L) {
+      if (diag_var <= 0) stop("diag_var must be positive.")
+      Sigma <- diag(diag_var, p)
+    } else {
+      if (length(diag_var) != p) stop("diag_var must be scalar or length p.")
+      if (any(diag_var <= 0)) stop("All entries of diag_var must be > 0.")
+      Sigma <- diag(as.numeric(diag_var))
+    }
+
+  } else {
+    # ---- correlated cases: build Sigma and use chol ----
+    if (is.null(rho)) stop("rho must be provided for type != 'diag'.")
+    if (type == "equicorr") {
+      Sigma <- matrix(rho, p, p); diag(Sigma) <- 1
+    } else { # "ar1" via Toeplitz
+      Sigma <- toeplitz(rho^(0:(p - 1)))
+    }
+    R <- tryCatch(chol(Sigma),
+                  error = function(e) {
+                    if (!ensure_spd) stop(e)
+                    chol(Sigma + diag(jitter, p))
+                  })
+    Z <- matrix(rnorm(n * p), n, p)
+    X <- Z %*% R
+  }
+
+  list(X = X, Sigma = Sigma, type = type)
+}
+
+## ---- draw X, beta, y ----
+GX <- generate_X(n, p, type = X_type, rho = rho)
+X <- GX$X
+
+support <- sample.int(p, k, replace = FALSE)
+beta <- numeric(p)
+beta[support] <- sample(c(-A, A), size = k, replace = TRUE)
+
+# y ~ N(X beta, I)
+Y <- as.vector(X %*% beta + rnorm(n, sd = 1))
+
+
+idx = sample(seq_len(p), 10, replace = FALSE)
+Initial_Column = idx;
+Calculate_GIC = "Calculate_EBIC";
+Calculate_GIC_short = "Calculate_EBIC_short";
+gamma = 1;
+Nsim = 4L
