@@ -91,7 +91,7 @@ function GIC_Variable_Selection(
             X_subsets = X[:, GIC_coef_sets_temp]
             index = findfirst(==(z), GIC_coef_sets_temp)
 
-            #Block matrix update for inverse covariance (efficient addition)
+            Block matrix update for inverse covariance (efficient addition)
             Xsquare = X_subsets' * X_subsets
             A_hat = Xsquare[setdiff(1:end, index), setdiff(1:end, index)]
             B_hat = Xsquare[setdiff(1:end, index), index]
