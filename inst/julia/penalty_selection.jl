@@ -692,7 +692,7 @@ function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC5
-    GIC6 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(T) * log(K)
+    GIC6 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(T) * log(P)
 
     return GIC6
 end
