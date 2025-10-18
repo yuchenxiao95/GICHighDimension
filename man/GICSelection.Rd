@@ -4,89 +4,60 @@
 \alias{GICSelection}
 \title{GIC-Based Variable Selection}
 \usage{
-GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, Nsim = 1L)
+GICSelection(X, Y, Initial_Column,
+             Calculate_GIC, Calculate_GIC_short,
+             Nsim = 1L, gamma = 1.0, huber = FALSE)
 }
 \arguments{
-\item{X}{Numeric design matrix (n x p), where n is the number of observations and
-p is the number of predictors.}
+\item{X}{Numeric design matrix (n × p).}
 
-\item{Y}{Numeric response (either a vector of length n or a matrix with n rows).}
+\item{Y}{Numeric response (vector length n, or matrix with n rows).}
 
-\item{Initial_Column}{Integer vector of initial feature indices to consider.}
+\item{Initial_Column}{Integer vector of initial feature indices.}
 
-\item{Calculate_GIC}{Character name of the 'Julia' function for full GIC calculation.}
+\item{Calculate_GIC}{Character name of the Julia full-IC function.}
 
-\item{Calculate_GIC_short}{Character name of the 'Julia' shortcut function for approximate GIC.}
+\item{Calculate_GIC_short}{Character name of the Julia short-IC function.}
 
-\item{Nsim}{Integer number of simulations to run (default: 1).}
+\item{Nsim}{Integer number of shuffled passes of features (default 1L).}
+
+\item{gamma}{Numeric EBIC/penalty tuning parameter forwarded to Julia keywords (default 1.0).}
+
+\item{huber}{Logical; if TRUE, forwards \code{Huber = true} to Julia (default FALSE).}
 }
 \value{
-A list containing:
+A list with:
 \itemize{
-\item \code{GIC_values}: Calculated GIC values for all candidate models
-\item \code{selected_coeffs}: Indices of selected variables
+\item \code{GIC_values}: numeric vector trace of criterion values
+\item \code{selected_coeffs}: list of integer vectors of chosen columns per step
 }
 }
 \description{
 Performs variable selection using the Generalized Information Criterion (GIC)
-with Hopfield Network optimization. The computationally intensive components
-are implemented in 'Julia' for performance, while an 'R' interface provides user-friendly access.
+with a fast 'Julia' backend. Supports custom ICs (AIC/BIC/ICOMP/EBIC/etc.) and
+univariate or multivariate Y.
 }
 \details{
-This function implements a variable selection algorithm that:
+The Julia backend implements an iterative add/remove search over features.
+You provide two Julia functions:
 \itemize{
-\item Uses customizable information criteria (such as AIC, BIC, and ICOMP)
-\item Leverages a 'Julia' backend for computational efficiency
-\item Supports various model families, including generalized linear models (GLMs) such as the normal and Poisson families
-\item Accepts both univariate and multivariate responses
+\item \code{Calculate_GIC(Y, X_subset, P, gamma, Huber)} returning \code{(criterion, inverse)}
+\item \code{Calculate_GIC_short(Y, X_subset, Inverse, P, gamma, Huber)} returning \code{criterion}
 }
+where \code{P} is the total number of predictors in the full design.
 }
 \examples{
 \dontrun{
-if (requireNamespace("JuliaCall", quietly = TRUE)) {
-  julia_available <- FALSE
-  tryCatch({
-    JuliaCall::julia_setup(installJulia = FALSE)
-    julia_available <- TRUE
-  }, error = function(e) {
-    message("Julia not available: ", e$message)
-  })
-
-  if (julia_available) {
-    set.seed(123)
-    n <- 100; p <- 10; k <- 3
-    X <- matrix(rnorm(n * p), n, p)
-    beta <- c(rep(1.5, k), rep(0, p - k))
-    Y_uni <- LP_to_Y(X, beta, family = "Normal", std = 1.0)
-
-    result_uni <- GICSelection(
-      X = X,
-      Y = Y_uni,
-      Initial_Column = 1:p,
-      Calculate_GIC = "Calculate_SIC",
-      Calculate_GIC_short = "Calculate_SIC_short",
-      Nsim = 3
+  if (requireNamespace("JuliaCall", quietly = TRUE)) {
+    set.seed(1)
+    X <- matrix(rnorm(50*10), 50, 10)
+    Y <- rnorm(50)
+    GICSelection(
+      X, Y, Initial_Column = 1:3,
+      Calculate_GIC = "Calculate_EBIC",
+      Calculate_GIC_short = "Calculate_EBIC_short",
+      Nsim = 2L, gamma = 0.5, huber = FALSE
     )
-    print(result_uni$selected_coeffs)
-
-    m <- 3
-    multi_beta <- matrix(0, p, m)
-    multi_beta[1:3, ] <- 1
-    rho <- 0.2
-    cov_p <- matrix(rho, nrow = m, ncol = m)
-    diag(cov_p) <- 1.0
-    Y_multi <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
-
-    result_multi <- GICSelection(
-      X = X,
-      Y = Y_multi,
-      Initial_Column = 1:p,
-      Calculate_GIC = "Calculate_SIC",
-      Calculate_GIC_short = "Calculate_SIC_short",
-      Nsim = 3
-    )
-    print(result_multi$selected_coeffs)
   }
-}
 }
 }

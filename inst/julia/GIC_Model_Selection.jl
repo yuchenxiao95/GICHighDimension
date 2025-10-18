@@ -66,15 +66,15 @@ function GIC_Variable_Selection(
             X_subsets = X[:, GIC_coef_sets_temp]
 
             #Block matrix update for inverse covariance (efficient removal)
-            A_hat = M_inv[setdiff(1:end, index), setdiff(1:end, index)]
-            B_hat = M_inv[setdiff(1:end, index), index]
-            C_hat = M_inv[index, setdiff(1:end, index)]'
-            D_hat = only(M_inv[index, index])
-            A_inv = A_hat - ((B_hat / D_hat) * C_hat)  # Schur complement
+            # A_hat = M_inv[setdiff(1:end, index), setdiff(1:end, index)]
+            # B_hat = M_inv[setdiff(1:end, index), index]
+            # C_hat = M_inv[index, setdiff(1:end, index)]'
+            # D_hat = only(M_inv[index, index])
+            # A_inv = A_hat - ((B_hat / D_hat) * C_hat)  # Schur complement
 
-            #GIC evaluation after removal
-            GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            #GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n, gamma, Huber)
+            # #GIC evaluation after removal
+            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n, gamma, Huber)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
@@ -92,22 +92,22 @@ function GIC_Variable_Selection(
             index = findfirst(==(z), GIC_coef_sets_temp)
 
             #Block matrix update for inverse covariance (efficient addition)
-            Xsquare = X_subsets' * X_subsets
-            A_hat = Xsquare[setdiff(1:end, index), setdiff(1:end, index)]
-            B_hat = Xsquare[setdiff(1:end, index), index]
-            C_hat = Xsquare[index, setdiff(1:end, index)]'
-            D_hat = only(Xsquare[index, index])
+            # Xsquare = X_subsets' * X_subsets
+            # A_hat = Xsquare[setdiff(1:end, index), setdiff(1:end, index)]
+            # B_hat = Xsquare[setdiff(1:end, index), index]
+            # C_hat = Xsquare[index, setdiff(1:end, index)]'
+            # D_hat = only(Xsquare[index, index])
 
-            #Sherman-Morrison-Woodbury formula
-            topleft = M_inv + M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
-            topright = -M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat)
-            bottomleft = -inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
-            bottomright = inv(D_hat - C_hat * M_inv * B_hat)
-            A_inv = [topleft topright; bottomleft bottomright]
+            # #Sherman-Morrison-Woodbury formula
+            # topleft = M_inv + M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
+            # topright = -M_inv * B_hat * inv(D_hat - C_hat * M_inv * B_hat)
+            # bottomleft = -inv(D_hat - C_hat * M_inv * B_hat) * C_hat * M_inv
+            # bottomright = inv(D_hat - C_hat * M_inv * B_hat)
+            # A_inv = [topleft topright; bottomleft bottomright]
 
-            # GIC evaluation after addition
-            GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            #GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n, gamma, Huber)
+            # # GIC evaluation after addition
+            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n, gamma, Huber)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i

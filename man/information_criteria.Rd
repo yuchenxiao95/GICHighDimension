@@ -14,6 +14,7 @@
 \alias{Calculate_GIC4}
 \alias{Calculate_GIC5}
 \alias{Calculate_GIC6}
+\alias{Calculate_EBIC}
 \alias{Calculate_AIC_Short}
 \alias{Calculate_AICc_Short}
 \alias{Calculate_AttIC_Short}
@@ -26,62 +27,71 @@
 \alias{Calculate_GIC4_Short}
 \alias{Calculate_GIC5_Short}
 \alias{Calculate_GIC6_Short}
+\alias{Calculate_EBIC_Short}
 \title{Information Criterion Calculations via Julia}
 \usage{
-Calculate_AIC(Y, X)
+Calculate_AIC(Y, X, huber = FALSE)
 
-Calculate_AICc(Y, X)
+Calculate_AICc(Y, X, huber = FALSE)
 
-Calculate_AttIC(Y, X)
+Calculate_AttIC(Y, X, huber = FALSE)
 
-Calculate_SIC(Y, X)
+Calculate_SIC(Y, X, huber = FALSE)
 
-Calculate_BIC(Y, X)
+Calculate_BIC(Y, X, huber = FALSE)
 
-Calculate_CAIC(Y, X)
+Calculate_CAIC(Y, X, huber = FALSE)
 
-Calculate_CAICF(Y, X)
+Calculate_CAICF(Y, X, huber = FALSE)
 
-Calculate_GIC2(Y, X)
+Calculate_GIC2(Y, X, huber = FALSE)
 
-Calculate_GIC3(Y, X)
+Calculate_GIC3(Y, X, huber = FALSE)
 
-Calculate_GIC4(Y, X)
+Calculate_GIC4(Y, X, huber = FALSE)
 
-Calculate_GIC5(Y, X)
+Calculate_GIC5(Y, X, huber = FALSE)
 
-Calculate_GIC6(Y, X)
+Calculate_GIC6(Y, X, huber = FALSE)
 
-Calculate_AIC_Short(Y, X, Inverse)
+Calculate_EBIC(Y, X, gamma = 0.5, huber = FALSE)
 
-Calculate_AICc_Short(Y, X, Inverse)
+Calculate_AIC_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_AttIC_Short(Y, X, Inverse)
+Calculate_AICc_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_SIC_Short(Y, X, Inverse)
+Calculate_AttIC_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_BIC_Short(Y, X, Inverse)
+Calculate_SIC_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_CAIC_Short(Y, X, Inverse)
+Calculate_BIC_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_CAICF_Short(Y, X, Inverse)
+Calculate_CAIC_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_GIC2_Short(Y, X, Inverse)
+Calculate_CAICF_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_GIC3_Short(Y, X, Inverse)
+Calculate_GIC2_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_GIC4_Short(Y, X, Inverse)
+Calculate_GIC3_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_GIC5_Short(Y, X, Inverse)
+Calculate_GIC4_Short(Y, X, Inverse, huber = FALSE)
 
-Calculate_GIC6_Short(Y, X, Inverse)
+Calculate_GIC5_Short(Y, X, Inverse, huber = FALSE)
+
+Calculate_GIC6_Short(Y, X, Inverse, huber = FALSE)
+
+Calculate_EBIC_Short(Y, X, Inverse, gamma = 0.5, huber = FALSE)
 }
 \arguments{
-\item{Y}{A numeric vector or matrix of responses.}
+\item{Y}{A numeric vector or matrix of responses (n × 1 or n × q).}
 
-\item{X}{A numeric design matrix.}
+\item{X}{A numeric design matrix (n × p).}
 
-\item{Inverse}{(for \verb{_Short} variants only) a numeric matrix — the inverse of X'X.}
+\item{huber}{Logical; if \code{TRUE}, use Huber loss for the variance estimate (default \code{FALSE}).}
+
+\item{gamma}{EBIC tuning parameter (only used by EBIC wrappers). Default \code{0.5}.}
+
+\item{Inverse}{(Short variants only) a numeric matrix — the inverse of \eqn{X'X}.}
 }
 \value{
 For full versions: a named list with components:
@@ -102,23 +112,27 @@ especially when repeatedly evaluating models. Supported criteria include:
 \itemize{
 \item AIC: Akaike Information Criterion
 \item AICc: Corrected AIC for small samples
-\item BIC / SIC: Bayesian or Schwarz Information Criterion
+\item BIC / SIC: Bayesian (BIC) and a sqrt(n)-scaled variant (SIC) as implemented in Julia
 \item CAIC: Consistent AIC
-\item CAICF: Consistent Akaike's Information Criterion with Fisher Information
+\item CAICF: CAIC with Fisher Information penalty
 \item GIC2–GIC6: Generalized Information Criterion family
 \item AttIC: Attention-weighted Information Criterion
+\item EBIC: Extended BIC (with \code{gamma})
 }
 Short versions (e.g., \code{Calculate_AIC_Short}) allow reusing a precomputed inverse matrix
 to save computational time.
+
+Internally, the wrappers pass \code{P = ncol(X)} automatically. For all criteria except EBIC,
+a dummy \code{gamma = 0.0} is sent to match the Julia signatures (it is ignored there).
 }
 \examples{
 \dontrun{
 if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
   JuliaCall::julia_setup(installJulia = FALSE)
-  X <- matrix(rnorm(100), ncol = 5)
+  X <- matrix(rnorm(20*5), ncol = 5)
   Y <- rnorm(20)
-  result <- Calculate_AIC(Y, X)
-  print(result$CriterionValue)
+  out <- Calculate_AIC(Y, X)
+  print(out$CriterionValue)
 }
 }
 
