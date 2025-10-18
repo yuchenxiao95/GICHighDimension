@@ -184,7 +184,7 @@ Calculate_GIC6  <- function(Y, X, huber = FALSE)
 
 #' @rdname information_criteria
 #' @export
-Calculate_EBIC  <- function(Y, X, gamma = 0.5, huber = FALSE)
+Calculate_EBIC  <- function(Y, X, gamma = 1.0, huber = FALSE)
   .Calculate_Criterion("Calculate_EBIC",  Y, X, gamma = gamma, huber = huber)
 
 # ---- Short versions ----------------------------------------------------------
@@ -253,5 +253,5 @@ Calculate_GIC6_Short  <- function(Y, X, Inverse, huber = FALSE)
 
 #' @rdname information_criteria
 #' @export
-Calculate_EBIC_Short <- function(Y, X, Inverse, gamma = 0.5, huber = FALSE)
+Calculate_EBIC_Short <- function(Y, X, Inverse, gamma = 1.0, huber = FALSE)
   .Calculate_Criterion_Short("Calculate_EBIC",  Y, X, Inverse, gamma = gamma, huber = huber)
