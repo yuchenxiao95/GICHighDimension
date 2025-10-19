@@ -743,7 +743,7 @@ function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     end
 
     # Compute GIC5
-    EBIC = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * (log(T) + 2 * gamma * log(binomial(big(P), K)))
+   EBIC = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * (log(T) + 2 * gamma * log(binomial(big(P), K)))
 
     return EBIC
 end
