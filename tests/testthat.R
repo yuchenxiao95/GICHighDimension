@@ -16,29 +16,44 @@ setup_julia_for_tests <- function() {
   })
 }
 
+generate_X <- function(p, rho){
+  g <- rnorm()
+}
+
 # Test: Univariate Normal Model Selection
 test_that("Univariate Normal Model Selection works correctly", {
   skip_on_cran()
   if (!setup_julia_for_tests()) return()
 
   set.seed(123)
-  N <- 1000L
-  P <- 50L
-  k <- 3L
+  N <- 600L
+  P <- 8000L
+  k <- 30L
   true_columns <- sort(sample(1:P, k, replace = FALSE))
+  rho = 0.4
+  # Set mean vector and covariance matrix
+  mu <- rep(0, P)
+  cov <- matrix(rho, P, P)
+  diag(cov) <- 1  # Identity matrix with off-diagonal correlation
 
-  X <- matrix(rnorm(N * P), N, P)
+  # Generate the design matrix X
+  X <- mvrnorm(N, mu, cov)
+
+  #X <- matrix(rnorm(N * P), N, P)
   true_beta <- numeric(P)
-  true_beta[true_columns] <- 2
+  true_beta[true_columns] <- 3.5
   Y <- LP_to_Y(X, true_beta, family = "Normal", std = 1.0)
+
+  Init_col <- sample(1:P, 50, replace = FALSE)
 
   result <- GICSelection(
     X = X,
     Y = Y,
-    Initial_Column = 1:P,
-    Calculate_GIC = "Calculate_SIC",
-    Calculate_GIC_short = "Calculate_SIC_short",
-    Nsim = 2L
+    Initial_Column = Init_col,
+    Calculate_GIC = "Calculate_EBIC",
+    Calculate_GIC_short = "Calculate_EBIC_short",
+    gamma = 1.0,
+    Nsim = 20L
   )
 
   selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]
@@ -71,7 +86,7 @@ test_that("Univariate Poisson Model Selection works correctly", {
     Initial_Column = 1:P,
     Calculate_GIC = "Calculate_SIC",
     Calculate_GIC_short = "Calculate_SIC_short",
-    Nsim = 2L
+    Nsim = 20L
   )
 
   selected_cols <- result$selected_coeffs[[length(result$selected_coeffs)]]
@@ -88,8 +103,8 @@ test_that("Multivariate Normal Model Selection works correctly", {
   if (!setup_julia_for_tests()) return()
 
   set.seed(123)
-  N <- 3000L
-  P <- 200L
+  N <- 600L
+  P <- 8000L
   k <- 4L
   m <- 3L
 
