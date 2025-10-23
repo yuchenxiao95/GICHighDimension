@@ -9,6 +9,7 @@
 \alias{Calculate_BIC}
 \alias{Calculate_CAIC}
 \alias{Calculate_CAICF}
+\alias{Calculate_EBIC}
 \alias{Calculate_GIC2}
 \alias{Calculate_GIC3}
 \alias{Calculate_GIC4}
@@ -21,6 +22,7 @@
 \alias{Calculate_BIC_Short}
 \alias{Calculate_CAIC_Short}
 \alias{Calculate_CAICF_Short}
+\alias{Calculate_EBIC_Short}
 \alias{Calculate_GIC2_Short}
 \alias{Calculate_GIC3_Short}
 \alias{Calculate_GIC4_Short}
@@ -42,15 +44,17 @@ Calculate_CAIC(Y, X)
 
 Calculate_CAICF(Y, X)
 
-Calculate_GIC2(Y, X)
+Calculate_EBIC(Y, X, P = ncol(X))
 
-Calculate_GIC3(Y, X)
+Calculate_GIC2(Y, X, P = ncol(X))
 
-Calculate_GIC4(Y, X)
+Calculate_GIC3(Y, X, P = ncol(X))
 
-Calculate_GIC5(Y, X)
+Calculate_GIC4(Y, X, P = ncol(X))
 
-Calculate_GIC6(Y, X)
+Calculate_GIC5(Y, X, P = ncol(X))
+
+Calculate_GIC6(Y, X, P = ncol(X))
 
 Calculate_AIC_Short(Y, X, Inverse)
 
@@ -66,20 +70,25 @@ Calculate_CAIC_Short(Y, X, Inverse)
 
 Calculate_CAICF_Short(Y, X, Inverse)
 
-Calculate_GIC2_Short(Y, X, Inverse)
+Calculate_EBIC_Short(Y, X, Inverse, P = ncol(X))
 
-Calculate_GIC3_Short(Y, X, Inverse)
+Calculate_GIC2_Short(Y, X, Inverse, P = ncol(X))
 
-Calculate_GIC4_Short(Y, X, Inverse)
+Calculate_GIC3_Short(Y, X, Inverse, P = ncol(X))
 
-Calculate_GIC5_Short(Y, X, Inverse)
+Calculate_GIC4_Short(Y, X, Inverse, P = ncol(X))
 
-Calculate_GIC6_Short(Y, X, Inverse)
+Calculate_GIC5_Short(Y, X, Inverse, P = ncol(X))
+
+Calculate_GIC6_Short(Y, X, Inverse, P = ncol(X))
 }
 \arguments{
 \item{Y}{A numeric vector or matrix of responses.}
 
 \item{X}{A numeric design matrix.}
+
+\item{P}{(only for EBIC and GIC2–GIC6) integer total number of candidate predictors.
+Defaults to \code{ncol(X)}.}
 
 \item{Inverse}{(for \verb{_Short} variants only) a numeric matrix — the inverse of X'X.}
 }
@@ -105,7 +114,8 @@ especially when repeatedly evaluating models. Supported criteria include:
 \item BIC / SIC: Bayesian or Schwarz Information Criterion
 \item CAIC: Consistent AIC
 \item CAICF: Consistent Akaike's Information Criterion with Fisher Information
-\item GIC2–GIC6: Generalized Information Criterion family
+\item EBIC: Extended BIC (depends on the candidate pool size \(P\))
+\item GIC2–GIC6: Generalized Information Criterion family (depend on \(P\))
 \item AttIC: Attention-weighted Information Criterion
 }
 Short versions (e.g., \code{Calculate_AIC_Short}) allow reusing a precomputed inverse matrix
@@ -117,8 +127,9 @@ if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
   JuliaCall::julia_setup(installJulia = FALSE)
   X <- matrix(rnorm(100), ncol = 5)
   Y <- rnorm(20)
-  result <- Calculate_AIC(Y, X)
-  print(result$CriterionValue)
+  out1 <- Calculate_AIC(Y, X)
+  out2 <- Calculate_EBIC(Y, X)        # uses P = ncol(X) by default
+  val_short <- Calculate_EBIC_Short(Y, X, solve(crossprod(X)))
 }
 }
 
