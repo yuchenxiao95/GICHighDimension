@@ -28,9 +28,9 @@ function GIC_Variable_Selection(
     Y::Union{AbstractVector, AbstractMatrix}, 
     Init_Columns::AbstractVector{Int}, 
     Calculate_GIC, 
-    Calculate_GIC_short;
-    Huber::Bool = false,
-    Nsim::Int64 = 2
+    Calculate_GIC_short,
+    k::Int;
+    Nsim::Int64 = 1
 )
     # --- Input Validation ---
     m, n = size(X)
@@ -38,14 +38,12 @@ function GIC_Variable_Selection(
     @assert m == size(Y, 1) "Sample size mismatch between X and Y."
 
     # --- Initialization ---
-    shuffled_sets = [shuffle(1:n) for _ in 1:Nsim]   # List of Nsim shuffled vectors
-    repeated_list = vcat(shuffled_sets...) 
-    # sets = collect(1:n)  # All feature indices
-    # repeated_list = repeat(sets, Nsim)  # Feature sequence for iteration
+    sets = collect(1:n)  # All feature indices
+    repeated_list = repeat(sets, Nsim)  # Feature sequence for iteration
 
     # Initial GIC calculation and inverse covariance
     GIC_coef_sets = Init_Columns
-    GIC_c, M_inv = Calculate_GIC(Y, X[:, GIC_coef_sets], Huber)
+    GIC_c, M_inv = Calculate_GIC(Y, X[:, GIC_coef_sets],n)
     current_X = X[:, GIC_coef_sets]
 
     # --- Output Storage ---
@@ -57,10 +55,12 @@ function GIC_Variable_Selection(
 
     for z in repeated_list
         if z in GIC_coef_sets  
+
             # Case 1: Test removing feature `z`
             index = findfirst(==(z), GIC_coef_sets)
             GIC_coef_sets_temp = deleteat!(copy(GIC_coef_sets), index)
             X_subsets = X[:, GIC_coef_sets_temp]
+
 
             # Block matrix update for inverse covariance (efficient removal)
             # A_hat = M_inv[setdiff(1:end, index), setdiff(1:end, index)]
@@ -70,8 +70,9 @@ function GIC_Variable_Selection(
             # A_inv = A_hat - ((B_hat / D_hat) * C_hat)  # Schur complement
 
             # GIC evaluation after removal
-            #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber)
+            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets,n)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
@@ -88,6 +89,14 @@ function GIC_Variable_Selection(
             X_subsets = X[:, GIC_coef_sets_temp]
             index = findfirst(==(z), GIC_coef_sets_temp)
 
+            if size(X_subsets, 2) >= k
+                GIC_list[w] = tr(GIC_c)
+                GIC_coeff[w] = copy(GIC_coef_sets)
+                w += 1
+                continue 
+            end 
+
+
             # Block matrix update for inverse covariance (efficient addition)
             # Xsquare = X_subsets' * X_subsets
             # A_hat = Xsquare[setdiff(1:end, index), setdiff(1:end, index)]
@@ -103,10 +112,11 @@ function GIC_Variable_Selection(
             # A_inv = [topleft topright; bottomleft bottomright]
 
             # GIC evaluation after addition
-            #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
-            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, Huber)
+            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
 
-            if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n)
+
+            if tr(GIC_c) < tr(GIC_i) - 0.001  # Keep change if GIC improves
                 GIC_c = GIC_i
                 GIC_coef_sets = GIC_coef_sets_temp
                 M_inv = A_inv
