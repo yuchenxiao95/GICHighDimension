@@ -1,102 +1,160 @@
 #' @title GIC-Based Variable Selection
-#' @description Performs variable selection using the Generalized Information Criterion (GIC)
-#' with Hopfield Network optimization. Heavy computations are delegated to Julia (via {JuliaCall}).
-#' @details Supply Julia criterion names via `Calculate_GIC` and `Calculate_GIC_short`
-#' (e.g., "Calculate_BIC", "Calculate_BIC_short"). Any internal quantities such as `P`
-#' are computed on the Julia side. The tuning integer `k` is passed positionally.
-#' @param X Numeric matrix (n × p) of predictors.
-#' @param Y Numeric response (vector length n, or matrix with n rows).
-#' @param Initial_Column Integer vector of initial feature indices (1-based).
-#' @param Calculate_GIC Character: name of the Julia full criterion, e.g. "Calculate_BIC".
-#' @param Calculate_GIC_short Character: name of the Julia short criterion, e.g. "Calculate_BIC_short".
-#' @param k Integer control parameter consumed by the Julia driver (e.g., target sparsity).
-#' @param Nsim Integer simulations to run (default 1).
-#' @return A list with \code{GIC_values} and \code{selected_coeffs}.
+#'
+#' @description
+#' Performs variable selection using the Generalized Information Criterion (GIC)
+#' with Hopfield Network optimization. The computationally intensive components
+#' are implemented in 'Julia' for performance, while an 'R' interface provides user-friendly access.
+#'
+#' @details
+#' This function implements a variable selection algorithm that:
+#' \itemize{
+#'   \item Uses customizable information criteria (such as AIC, BIC, and ICOMP)
+#'   \item Leverages a 'Julia' backend for computational efficiency
+#'   \item Supports various model families, including generalized linear models (GLMs) such as the normal and Poisson families
+#'   \item Accepts both univariate and multivariate responses
+#' }
+#'
+#' @param X Numeric design matrix (n x p), where n is the number of observations and
+#'          p is the number of predictors.
+#' @param Y Numeric response (either a vector of length n or a matrix with n rows).
+#' @param Initial_Column Integer vector of initial feature indices to consider.
+#' @param Calculate_GIC Character name of the 'Julia' function for full GIC calculation.
+#' @param Calculate_GIC_short Character name of the 'Julia' shortcut function for approximate GIC.
+#' @param k Integer tuning/control parameter passed to the Julia driver.
+#' @param Nsim Integer number of simulations to run (default: 1).
+#'
+#' @return A list containing:
+#' \itemize{
+#'   \item \code{GIC_values}: Calculated GIC values for all candidate models
+#'   \item \code{selected_coeffs}: Indices of selected variables
+#' }
+#'
+#' @usage
+#' GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, k, Nsim = 1L)
+#'
+#' @examples
+#' \dontrun{
+#' if (requireNamespace("JuliaCall", quietly = TRUE)) {
+#'   julia_available <- FALSE
+#'   tryCatch({
+#'     JuliaCall::julia_setup(installJulia = FALSE)
+#'     julia_available <- TRUE
+#'   }, error = function(e) {
+#'     message("Julia not available: ", e$message)
+#'   })
+#'
+#'   if (julia_available) {
+#'     set.seed(123)
+#'     n <- 100; p <- 10; k <- 3
+#'     X <- matrix(rnorm(n * p), n, p)
+#'     beta <- c(rep(1.5, k), rep(0, p - k))
+#'     Y_uni <- LP_to_Y(X, beta, family = "Normal", std = 1.0)
+#'
+#'     result_uni <- GICSelection(
+#'       X = X,
+#'       Y = Y_uni,
+#'       Initial_Column = 1:p,
+#'       Calculate_GIC = "Calculate_SIC",
+#'       Calculate_GIC_short = "Calculate_SIC_short",
+#'       k = 3,
+#'       Nsim = 3
+#'     )
+#'     print(result_uni$selected_coeffs)
+#'
+#'     m <- 3
+#'     multi_beta <- matrix(0, p, m)
+#'     multi_beta[1:3, ] <- 1
+#'     rho <- 0.2
+#'     cov_p <- matrix(rho, nrow = m, ncol = m)
+#'     diag(cov_p) <- 1.0
+#'     Y_multi <- LP_to_Y(X, multi_beta, family = "MultivariateNormal", cov_matrix = cov_p)
+#'
+#'     result_multi <- GICSelection(
+#'       X = X,
+#'       Y = Y_multi,
+#'       Initial_Column = 1:p,
+#'       Calculate_GIC = "Calculate_SIC",
+#'       Calculate_GIC_short = "Calculate_SIC_short",
+#'       k = 3,
+#'       Nsim = 3
+#'     )
+#'     print(result_multi$selected_coeffs)
+#'   }
+#' }
+#' }
 #' @export
-#' @importFrom JuliaCall julia_setup julia_source julia_call julia_assign julia_eval julia_exists julia_library
+#' @importFrom JuliaCall julia_setup julia_source julia_call julia_assign julia_eval julia_exists
+#' @importFrom stats rnorm
+#' @importFrom utils packageVersion
+#'
 GICSelection <- function(X, Y, Initial_Column,
                          Calculate_GIC,
                          Calculate_GIC_short,
                          k,
                          Nsim = 1L) {
   
-  ## ---- Basic checks ----
-  if (!is.matrix(X)) stop("X must be a matrix.")
-  if (!(is.numeric(Y) && (is.vector(Y) || is.matrix(Y))))
-    stop("Y must be either a numeric vector or a numeric matrix.")
-  if (nrow(X) != nrow(as.matrix(Y)))
-    stop("X and Y must have the same number of rows.")
-  if (!is.numeric(Initial_Column))
-    stop("Initial_Column must be numeric/integer indices (1-based).")
-  Initial_Column <- as.integer(Initial_Column)
-  if (any(Initial_Column < 1L | Initial_Column > ncol(X)))
-    stop("Invalid column indices in Initial_Column.")
-  if (missing(k) || length(k) != 1L || !is.numeric(k))
-    stop("Argument 'k' must be a single numeric/integer value.")
-  k <- as.integer(k)
-  if (k < 1L) stop("'k' must be >= 1.")
+  if (!is.matrix(X)) stop("X must be a matrix")
+  if (!(is.numeric(Y) && (is.vector(Y) || is.matrix(Y)))) {
+    stop("Y must be either a numeric vector or a numeric matrix")
+  }
+  if (nrow(X) != nrow(as.matrix(Y))) stop("X and Y must have the same number of rows")
+  if (any(Initial_Column > ncol(X))) stop("Invalid column indices in Initial_Column")
   
-  if (!requireNamespace("JuliaCall", quietly = TRUE))
-    stop("Package 'JuliaCall' is required. Install with install.packages('JuliaCall').")
-  
-  ## ---- Start Julia & source package Julia files ----
-  JuliaCall::julia_setup(installJulia = FALSE)
-  JuliaCall::julia_library("LinearAlgebra")
-  JuliaCall::julia_library("Statistics")
-  JuliaCall::julia_library("Distributions")
-  
-  jl_dir <- system.file("julia", package = "GICHighDimension")
-  if (jl_dir == "" || !dir.exists(jl_dir))
-    stop("Julia scripts directory not found in the package (inst/julia).")
-  
-  for (f in c("penalty_selection.jl", "GIC_Calculation.jl", "GIC_Model_Selection.jl")) {
-    fp <- file.path(jl_dir, f)
-    if (file.exists(fp)) JuliaCall::julia_source(fp)
+  if (!requireNamespace("JuliaCall", quietly = TRUE)) {
+    stop("JuliaCall required. Install with install.packages('JuliaCall')")
   }
   
-  ## ---- Verify the named Julia functions exist ----
-  if (!JuliaCall::julia_exists(Calculate_GIC))
-    stop("Julia function '", Calculate_GIC, "' not found. Is it defined/loaded?")
-  if (!JuliaCall::julia_exists(Calculate_GIC_short))
-    stop("Julia function '", Calculate_GIC_short, "' not found. Is it defined/loaded?")
-  
-  ## ---- Create Julia anonymous functions from the names (avoid R closures) ----
-  make_full_fun <- function(jl_name) {
-    JuliaCall::julia_eval(
-      sprintf('(Y,X)->(getfield(Main, Symbol("%s")))(Y, X)', jl_name)
+  tryCatch({
+    JuliaCall::julia_setup(installJulia = FALSE)
+    
+    JuliaCall::julia_library("Distributions")
+    JuliaCall::julia_library("LinearAlgebra")
+    JuliaCall::julia_library("Statistics")
+    
+    script_dir <- system.file("julia", package = "GICHighDimension")
+    if (script_dir == "") stop("Julia scripts directory not found")
+    
+    JuliaCall::julia_source(file.path(script_dir, "penalty_selection.jl"))
+    JuliaCall::julia_source(file.path(script_dir, "GIC_Model_Selection.jl"))
+    
+    if (!JuliaCall::julia_exists(Calculate_GIC)) {
+      stop("Julia function ", Calculate_GIC, " not found")
+    }
+    if (!JuliaCall::julia_exists(Calculate_GIC_short)) {
+      stop("Julia function ", Calculate_GIC_short, " not found")
+    }
+    
+    JuliaCall::julia_assign("X_matrix", X)
+    JuliaCall::julia_assign("Y_vector", Y)
+    JuliaCall::julia_assign("init_cols", as.integer(Initial_Column))
+    
+    X_jl <- JuliaCall::julia_eval("convert(Matrix{Float64}, X_matrix)")
+    Y_jl <- if (is.matrix(Y)) {
+      JuliaCall::julia_eval("convert(Matrix{Float64}, Y_vector)")
+    } else {
+      JuliaCall::julia_eval("convert(Vector{Float64}, Y_vector)")
+    }
+    InitCol_jl <- JuliaCall::julia_eval("convert(Vector{Int64}, init_cols)")
+    
+    julia_result <- JuliaCall::julia_call(
+      "GIC_Variable_Selection",
+      X_jl, Y_jl, InitCol_jl,
+      JuliaCall::julia_eval(Calculate_GIC),
+      JuliaCall::julia_eval(Calculate_GIC_short),
+      as.integer(k),
+      Nsim = as.integer(Nsim)
     )
-  }
-  make_short_fun <- function(jl_name) {
-    JuliaCall::julia_eval(
-      sprintf('(Y,X,Inv)->(getfield(Main, Symbol("%s")))(Y, X, Inv)', jl_name)
+    
+    list(
+      GIC_values = julia_result[[1]],
+      selected_coeffs = julia_result[[2]]
     )
-  }
-  
-  f_full  <- make_full_fun(Calculate_GIC)
-  f_short <- make_short_fun(Calculate_GIC_short)
-  
-  ## ---- Marshal data to Julia (with explicit types) ----
-  JuliaCall::julia_assign("X_matrix", X)
-  JuliaCall::julia_assign("Y_vector", Y)
-  JuliaCall::julia_assign("init_cols", Initial_Column)
-  
-  X_jl       <- JuliaCall::julia_eval("convert(Matrix{Float64}, X_matrix)")
-  Y_jl       <- if (is.matrix(Y)) JuliaCall::julia_eval("convert(Matrix{Float64}, Y_vector)")
-  else               JuliaCall::julia_eval("convert(Vector{Float64}, Y_vector)")
-  InitCol_jl <- JuliaCall::julia_eval("convert(Vector{Int64}, init_cols)")
-  
-  ## ---- Call the Julia driver ----
-  jr <- JuliaCall::julia_call(
-    "GIC_Variable_Selection",
-    X_jl, Y_jl, InitCol_jl,
-    f_full, f_short,          # real Julia Functions
-    k,                        # positional k :: Int64
-    Nsim = as.integer(Nsim)   # keyword arg
-  )
-  
-  ## ---- Return ----
-  list(
-    GIC_values      = jr[[1]],
-    selected_coeffs = jr[[2]]
-  )
+    
+  }, error = function(e) {
+    warning("Julia error occurred: ", e$message)
+    list(
+      GIC_values = NA,
+      selected_coeffs = NA
+    )
+  })
 }
