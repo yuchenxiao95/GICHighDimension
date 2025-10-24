@@ -492,7 +492,7 @@ function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC6, Inverse)
 end
 
-function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix)
+function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
