@@ -7,19 +7,17 @@
 #'
 #' @details
 #' You may pass any Julia criterion pair by name via `Calculate_GIC` and
-#' `Calculate_GIC_short`. This function automatically detects whether the
-#' criterion needs the candidate-pool size `P` (true for EBIC and GIC2–GIC6),
-#' and, if so, wraps the Julia functions in closures that capture `P`
-#' (default `P = ncol(X)`).
+#' `Calculate_GIC_short`. The candidate-pool size `P` is computed internally
+#' in Julia; it is not an R argument. The tuning integer `k` (e.g., target
+#' sparsity or related control used by your Julia routine) is passed through.
 #'
 #' @param X Numeric matrix (n × p) of predictors.
 #' @param Y Numeric response (vector length n, or matrix with n rows).
 #' @param Initial_Column Integer vector of initial feature indices.
 #' @param Calculate_GIC Character: name of the Julia **full** criterion, e.g. "Calculate_BIC".
 #' @param Calculate_GIC_short Character: name of the Julia **short** criterion, e.g. "Calculate_BIC_short".
+#' @param k Integer control parameter consumed by the Julia driver (e.g., target sparsity).
 #' @param Nsim Integer simulations to run (default 1).
-#' @param P Optional integer total number of candidate predictors used by EBIC and GIC2–GIC6
-#'   (defaults to `ncol(X)`). Ignored for criteria that do not use `P`.
 #'
 #' @return A list with
 #' \itemize{
@@ -32,8 +30,8 @@
 GICSelection <- function(X, Y, Initial_Column,
                          Calculate_GIC,
                          Calculate_GIC_short,
-                         Nsim = 1L,
-                         P = ncol(X)) {
+                         k,
+                         Nsim = 1L) {
   
   ## --------- Basic checks ---------
   if (!is.matrix(X)) stop("X must be a matrix")
@@ -42,6 +40,9 @@ GICSelection <- function(X, Y, Initial_Column,
   }
   if (nrow(X) != nrow(as.matrix(Y))) stop("X and Y must have the same number of rows")
   if (any(Initial_Column > ncol(X))) stop("Invalid column indices in Initial_Column")
+  if (missing(k) || length(k) != 1L || !is.numeric(k)) {
+    stop("Argument 'k' must be a single numeric/integer value")
+  }
   
   if (!requireNamespace("JuliaCall", quietly = TRUE)) {
     stop("Package 'JuliaCall' is required. Install with install.packages('JuliaCall').")
@@ -57,52 +58,18 @@ GICSelection <- function(X, Y, Initial_Column,
   if (jl_dir == "" || !dir.exists(jl_dir)) {
     stop("Julia scripts directory not found in the package (inst/julia).")
   }
-  # Load in a safe order so all symbols are defined
   for (f in c("penalty_selection.jl", "GIC_Calculation.jl", "GIC_Model_Selection.jl")) {
     fp <- file.path(jl_dir, f)
     if (file.exists(fp)) JuliaCall::julia_source(fp)
   }
   
-  ## --------- Helper: does this criterion need P? ---------
-  needs_P <- function(fname) {
-    # EBIC and GIC2..GIC6 (case-insensitive) require P
-    fn <- tolower(fname)
-    any(fn %in% c("calculate_ebic",
-                  "calculate_gic2","calculate_gic3","calculate_gic4","calculate_gic5","calculate_gic6"))
-  }
-  
-  ## --------- Build Julia callables (wrap with P if needed) ---------
-  # Verify the base functions exist in Julia
+  ## --------- Verify Julia functions exist ---------
   if (!JuliaCall::julia_exists(Calculate_GIC)) {
     stop("Julia function '", Calculate_GIC, "' not found. Is it defined/loaded?")
   }
   if (!JuliaCall::julia_exists(Calculate_GIC_short)) {
     stop("Julia function '", Calculate_GIC_short, "' not found. Is it defined/loaded?")
   }
-  
-  # Construct a Julia anonymous function that either calls f(Y,X)
-  # or f(Y,X,P), and similarly for the _short(Y,X,Inv) or _short(Y,X,Inv,P).
-  make_full_fun <- function(fname, P, useP) {
-    if (useP) {
-      JuliaCall::julia_eval(sprintf("(Y,X)->%s(Y, X, %d)", fname, as.integer(P)))
-    } else {
-      JuliaCall::julia_eval(sprintf("(Y,X)->%s(Y, X)", fname))
-    }
-  }
-  make_short_fun <- function(fname_short, P, useP) {
-    if (useP) {
-      JuliaCall::julia_eval(sprintf("(Y,X,Inv)->%s(Y, X, Inv, %d)", fname_short, as.integer(P)))
-    } else {
-      JuliaCall::julia_eval(sprintf("(Y,X,Inv)->%s(Y, X, Inv)", fname_short))
-    }
-  }
-  
-  useP_full  <- needs_P(Calculate_GIC)
-  useP_short <- needs_P(gsub("_short$", "", Calculate_GIC_short, ignore.case = TRUE)) ||
-    grepl("ebic|gic[2-6]", Calculate_GIC_short, ignore.case = TRUE)
-  
-  f_full  <- make_full_fun(Calculate_GIC,       P, useP_full)
-  f_short <- make_short_fun(Calculate_GIC_short, P, useP_short)
   
   ## --------- Move data to Julia (typed) ---------
   JuliaCall::julia_assign("X_matrix", X)
@@ -121,13 +88,15 @@ GICSelection <- function(X, Y, Initial_Column,
   jr <- JuliaCall::julia_call(
     "GIC_Variable_Selection",
     X_jl, Y_jl, InitCol_jl,
-    f_full, f_short,
+    JuliaCall::julia_eval(Calculate_GIC),
+    JuliaCall::julia_eval(Calculate_GIC_short),
+    as.integer(k),
     Nsim = as.integer(Nsim)
   )
   
   ## --------- Return ---------
   list(
-    GIC_values     = jr[[1]],
+    GIC_values      = jr[[1]],
     selected_coeffs = jr[[2]]
   )
 }

@@ -10,8 +10,8 @@ GICSelection(
   Initial_Column,
   Calculate_GIC,
   Calculate_GIC_short,
-  Nsim = 1L,
-  P = ncol(X)
+  k,
+  Nsim = 1L
 )
 }
 \arguments{
@@ -25,10 +25,9 @@ GICSelection(
 
 \item{Calculate_GIC_short}{Character: name of the Julia \strong{short} criterion, e.g. "Calculate_BIC_short".}
 
-\item{Nsim}{Integer simulations to run (default 1).}
+\item{k}{Integer control parameter consumed by the Julia driver (e.g., target sparsity).}
 
-\item{P}{Optional integer total number of candidate predictors used by EBIC and GIC2–GIC6
-(defaults to \code{ncol(X)}). Ignored for criteria that do not use \code{P}.}
+\item{Nsim}{Integer simulations to run (default 1).}
 }
 \value{
 A list with
@@ -44,8 +43,7 @@ with Hopfield Network optimization. Heavy computations are delegated to Julia
 }
 \details{
 You may pass any Julia criterion pair by name via \code{Calculate_GIC} and
-\code{Calculate_GIC_short}. This function automatically detects whether the
-criterion needs the candidate-pool size \code{P} (true for EBIC and GIC2–GIC6),
-and, if so, wraps the Julia functions in closures that capture \code{P}
-(default \code{P = ncol(X)}).
+\code{Calculate_GIC_short}. The candidate-pool size \code{P} is computed internally
+in Julia; it is not an R argument. The tuning integer \code{k} (e.g., target
+sparsity or related control used by your Julia routine) is passed through.
 }
