@@ -21,7 +21,7 @@
 #' Short versions (e.g., `Calculate_AIC_Short`) allow reusing a precomputed inverse matrix
 #' to save computational time.
 #'
-#' @param Y A numeric vector or matrix of responses.
+#' @param Y A numeric vector or matrix of responses (typically \(n \times 1\) in your pipeline).
 #' @param X A numeric design matrix.
 #' @param Inverse (for `_Short` variants only) a numeric matrix — the inverse of X'X.
 #' @param P (only for EBIC and GIC2–GIC6) integer total number of candidate predictors.
@@ -30,10 +30,10 @@
 #' @return
 #' For full versions: a named list with components:
 #' \describe{
-#'   \item{CriterionValue}{Numeric scalar of the selected information criterion.}
+#'   \item{CriterionValue}{Numeric scalar when \(Y\) is \(n \times 1\).}
 #'   \item{InverseMatrix}{Matrix inverse used in computation (if applicable).}
 #' }
-#' For `_Short` versions: a numeric scalar of the criterion value.
+#' For `_Short` versions: a numeric scalar of the criterion value (when \(Y\) is \(n \times 1\)).
 #'
 #' @examples
 #' \dontrun{
@@ -52,24 +52,39 @@ NULL
 
 .pkg_env <- new.env(parent = emptyenv())
 
+# Internal: coerce Y properly for Julia (vector if n×1, otherwise matrix)
+.Y_arg <- function(Y) {
+  if (is.matrix(Y)) {
+    if (ncol(Y) == 1L) as.numeric(Y) else as.matrix(Y)
+  } else {
+    as.numeric(Y)
+  }
+}
+
+# Internal: coerce X/Inverse to double matrices
+.X_arg <- function(X) { storage.mode(X) <- "double"; as.matrix(X) }
+.Inv_arg <- function(M) { storage.mode(M) <- "double"; as.matrix(M) }
+
 julia_setup_once <- function() {
   if (!exists("julia_setup_done", envir = .pkg_env)) {
     if (!requireNamespace("JuliaCall", quietly = TRUE)) {
       stop("Package 'JuliaCall' is required. Install with install.packages('JuliaCall')")
     }
-    JuliaCall::julia_setup()
-    # Source all Julia files we rely on
+    # Avoid interactive install attempts in CRAN / headless
+    JuliaCall::julia_setup(installJulia = FALSE)
+    
+    # Source Julia files we rely on (order can matter)
     jl_dir <- system.file("julia", package = "GICHighDimension")
     if (jl_dir == "" || !dir.exists(jl_dir)) {
       stop("Julia scripts directory not found in the package (inst/julia).")
     }
-    # load core files (order can matter)
     for (f in c("penalty_selection.jl",
                 "GIC_Calculation.jl",
                 "GIC_Model_Selection.jl")) {
       fp <- file.path(jl_dir, f)
       if (file.exists(fp)) JuliaCall::julia_source(fp)
     }
+    
     assign("julia_setup_done", TRUE, envir = .pkg_env)
   }
 }
@@ -79,34 +94,37 @@ julia_setup_once <- function() {
 # Full versions: criteria that DO NOT depend on P
 .Calculate_Criterion_NO_P <- function(func_name, Y, X) {
   julia_setup_once()
-  res <- JuliaCall::julia_call(func_name, as.vector(Y), as.matrix(X))
-  list(CriterionValue = res[[1]], InverseMatrix = res[[2]])
+  res <- JuliaCall::julia_call(func_name, .Y_arg(Y), .X_arg(X))
+  # Expect scalar when Y is n×1
+  list(CriterionValue = as.numeric(res[[1]]), InverseMatrix = res[[2]])
 }
 
 # Full versions: criteria that DO depend on P
 .Calculate_Criterion_WITH_P <- function(func_name, Y, X, P = ncol(X)) {
   julia_setup_once()
-  res <- JuliaCall::julia_call(func_name, as.vector(Y), as.matrix(X), as.integer(P))
-  list(CriterionValue = res[[1]], InverseMatrix = res[[2]])
+  res <- JuliaCall::julia_call(func_name, .Y_arg(Y), .X_arg(X), as.integer(P))
+  list(CriterionValue = as.numeric(res[[1]]), InverseMatrix = res[[2]])
 }
 
 # Short versions: criteria that DO NOT depend on P
 .Calculate_Criterion_Short_NO_P <- function(func_name, Y, X, Inverse) {
   julia_setup_once()
   JuliaCall::julia_call(paste0(func_name, "_short"),
-                        as.vector(Y),
-                        as.matrix(X),
-                        as.matrix(Inverse))
+                        .Y_arg(Y),
+                        .X_arg(X),
+                        .Inv_arg(Inverse)) |>
+    as.numeric()
 }
 
 # Short versions: criteria that DO depend on P
 .Calculate_Criterion_Short_WITH_P <- function(func_name, Y, X, Inverse, P = ncol(X)) {
   julia_setup_once()
   JuliaCall::julia_call(paste0(func_name, "_short"),
-                        as.vector(Y),
-                        as.matrix(X),
-                        as.matrix(Inverse),
-                        as.integer(P))
+                        .Y_arg(Y),
+                        .X_arg(X),
+                        .Inv_arg(Inverse),
+                        as.integer(P)) |>
+    as.numeric()
 }
 
 # ---------------- Full: NO-P criteria ----------------
@@ -184,13 +202,5 @@ Calculate_EBIC_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterio
 Calculate_GIC2_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC2", Y, X, Inverse, P)
 #' @rdname information_criteria
 #' @export
-Calculate_GIC3_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC3", Y, X, Inverse, P)
-#' @rdname information_criteria
-#' @export
-Calculate_GIC4_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC4", Y, X, Inverse, P)
-#' @rdname information_criteria
-#' @export
-Calculate_GIC5_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC5", Y, X, Inverse, P)
-#' @rdname information_criteria
-#' @export
-Calculate_GIC6_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC6", Y, X, Inverse, P)
+Calculate_GIC3_Short <- function(Y, X, In
+                                 
