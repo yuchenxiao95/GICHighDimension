@@ -16,7 +16,7 @@ test_that("Information criteria functions return valid output", {
     "Calculate_AIC", "Calculate_AICc", "Calculate_AttIC", "Calculate_SIC",
     "Calculate_BIC", "Calculate_CAIC", "Calculate_CAICF",
     "Calculate_GIC2", "Calculate_GIC3", "Calculate_GIC4",
-    "Calculate_GIC5", "Calculate_GIC6" "Calculate_EBIC"
+    "Calculate_GIC5", "Calculate_GIC6", "Calculate_EBIC"
   )
 
   for (fn in criteria) {

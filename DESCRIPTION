@@ -1,6 +1,6 @@
 Package: GICHighDimension
 Title: Generalized Information Criterion for Variable Selection Using Hopfield Network Optimization
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     c(
       person("Yuchen", "Xiao", 
@@ -11,24 +11,21 @@ Authors@R:
              email = "s.g.walker@math.utexas.edu",
              role = "aut")
     )
-Description: 
-    Provides tools for variable selection in high-dimensional regression models using the 
-    generalized information criterion ('GIC') combined with 'Hopfield' network optimization. 
-    The package supports a variety of generalized linear models ('GLMs'), including the 
-    'Normal' and 'Poisson' families. Performance-critical components are implemented in 
-    'Julia', while providing a user-friendly interface through 'R'. The package supports 
-    optional 'Julia' setup and includes examples and vignettes. 'GLM' stands for 
-    generalized linear model.
+Description: Provides tools for variable selection in high-dimensional regression
+    using the generalized information criterion (GIC) combined with Hopfield
+    network optimization. Supports generalized linear models (GLMs), including
+    normal and Poisson families. Performance-critical components are implemented
+    in Julia with a user-friendly R interface via 'JuliaCall'.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
-LazyData: true
 Depends:
     R (>= 3.5.0)
 Imports: 
+    cli,
     JuliaCall (>= 0.17.0),
     stats,
-    cli
+    utils
 Suggests:
     MASS,
     testthat (>= 3.0.0),
@@ -40,8 +37,7 @@ Suggests:
     Matrix
 VignetteBuilder: knitr
 SystemRequirements: 
-    'Julia' (>= 1.9.0) – installation instructions at <https://julialang.org/downloads/>; 
-    Julia packages: 'Distributions', 'LinearAlgebra', 'OrderedCollections', 'Random', 'Statistics'
+    Julia (>= 1.9.0); Julia packages: Distributions, LinearAlgebra, OrderedCollections, Random, Statistics
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
