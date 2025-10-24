@@ -4,28 +4,19 @@
 \alias{install_julia_packages}
 \title{Install Required 'Julia' Packages}
 \usage{
-install_julia_packages(
-  packages = c("Distributions", "LinearAlgebra", "Statistics", "Random"),
-  quiet = FALSE
-)
+install_julia_packages(packages = c("Distributions"), quiet = FALSE)
 }
 \arguments{
-\item{packages}{Character vector of 'Julia' package names. Defaults to core packages used by this package.}
+\item{packages}{Character vector of external Julia package names to ensure are installed.
+Defaults to c("Distributions"). Stdlibs (LinearAlgebra, Statistics, Random) are \strong{not}
+installable and are always present.}
 
-\item{quiet}{Logical. If TRUE, suppresses installation messages. Default is FALSE.}
+\item{quiet}{Logical; suppress messages.}
 }
 \value{
-Invisibly returns TRUE if all packages were installed successfully, FALSE otherwise.
+Invisibly TRUE if all packages were installed/are present, FALSE otherwise.
 }
 \description{
-Installs the 'Julia' packages required by this package. This function must be run manually and is not intended for use in examples, tests, or vignettes.
-}
-\examples{
-\dontrun{
-if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
-  setup_julia(install_deps = FALSE)
-  install_julia_packages()
-}
-}
-
+Installs the external Julia packages required by this package. Must be run manually;
+not intended for examples, tests, or vignettes.
 }

@@ -83,9 +83,9 @@ Calculate_GIC5_Short(Y, X, Inverse, P = ncol(X))
 Calculate_GIC6_Short(Y, X, Inverse, P = ncol(X))
 }
 \arguments{
-\item{Y}{A numeric vector or matrix of responses.}
+\item{Y}{A numeric response (vector of length n). (Current package assumes univariate Y.)}
 
-\item{X}{A numeric design matrix.}
+\item{X}{A numeric design matrix (n × p).}
 
 \item{P}{(only for EBIC and GIC2–GIC6) integer total number of candidate predictors.
 Defaults to \code{ncol(X)}.}
@@ -113,7 +113,7 @@ especially when repeatedly evaluating models. Supported criteria include:
 \item AICc: Corrected AIC for small samples
 \item BIC / SIC: Bayesian or Schwarz Information Criterion
 \item CAIC: Consistent AIC
-\item CAICF: Consistent Akaike's Information Criterion with Fisher Information
+\item CAICF: Consistent AIC with Fisher Information
 \item EBIC: Extended BIC (depends on the candidate pool size \(P\))
 \item GIC2–GIC6: Generalized Information Criterion family (depend on \(P\))
 \item AttIC: Attention-weighted Information Criterion
@@ -124,7 +124,7 @@ to save computational time.
 \examples{
 \dontrun{
 if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
-  JuliaCall::julia_setup(installJulia = FALSE)
+  setup_julia(install_julia = FALSE)
   X <- matrix(rnorm(100), ncol = 5)
   Y <- rnorm(20)
   out1 <- Calculate_AIC(Y, X)
