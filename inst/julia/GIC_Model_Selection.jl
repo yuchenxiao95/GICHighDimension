@@ -27,8 +27,8 @@ function GIC_Variable_Selection(
     X::AbstractMatrix,
     Y::Union{AbstractVector,AbstractMatrix},
     Init_Columns::AbstractVector{Int64},
-    Calculate_GIC::Function,
-    Calculate_GIC_short::Function,
+    Calculate_GIC,
+    Calculate_GIC_short,
     k::Int64;                          # positional k
     Nsim::Int64 = 1                    # keyword arg
 )
