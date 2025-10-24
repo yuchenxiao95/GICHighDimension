@@ -28,7 +28,8 @@ function GIC_Variable_Selection(
     Y::Union{AbstractVector, AbstractMatrix}, 
     Init_Columns::AbstractVector{Int}, 
     Calculate_GIC, 
-    Calculate_GIC_short;
+    Calculate_GIC_short,
+    k::Int;
     Nsim::Int64 = 1
 )
     # --- Input Validation ---
