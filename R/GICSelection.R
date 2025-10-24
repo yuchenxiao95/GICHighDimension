@@ -1,9 +1,9 @@
 #' @title GIC-Based Variable Selection
 #' @description Performs variable selection using the Generalized Information Criterion (GIC)
 #' with Hopfield Network optimization. Heavy computations are delegated to Julia (via {JuliaCall}).
-#' @details You pass Julia criterion names via `Calculate_GIC` and `Calculate_GIC_short`.
-#' The candidate-pool size `P` is computed internally in Julia. The tuning integer `k`
-#' (e.g. target sparsity) is passed positionally to Julia.
+#' @details Supply Julia criterion names via `Calculate_GIC` and `Calculate_GIC_short`
+#' (e.g., "Calculate_BIC", "Calculate_BIC_short"). Any internal quantities such as `P`
+#' are computed on the Julia side. The tuning integer `k` is passed positionally.
 #' @param X Numeric matrix (n × p) of predictors.
 #' @param Y Numeric response (vector length n, or matrix with n rows).
 #' @param Initial_Column Integer vector of initial feature indices (1-based).
@@ -20,28 +20,26 @@ GICSelection <- function(X, Y, Initial_Column,
                          k,
                          Nsim = 1L) {
   
-  ## --------- Basic checks ---------
-  if (!is.matrix(X)) stop("X must be a matrix")
+  ## ---- Basic checks ----
+  if (!is.matrix(X)) stop("X must be a matrix.")
   if (!(is.numeric(Y) && (is.vector(Y) || is.matrix(Y))))
-    stop("Y must be either a numeric vector or a numeric matrix")
+    stop("Y must be either a numeric vector or a numeric matrix.")
   if (nrow(X) != nrow(as.matrix(Y)))
-    stop("X and Y must have the same number of rows")
-  
+    stop("X and Y must have the same number of rows.")
   if (!is.numeric(Initial_Column))
-    stop("Initial_Column must be numeric/integer indices (1-based)")
+    stop("Initial_Column must be numeric/integer indices (1-based).")
   Initial_Column <- as.integer(Initial_Column)
   if (any(Initial_Column < 1L | Initial_Column > ncol(X)))
-    stop("Invalid column indices in Initial_Column")
-  
+    stop("Invalid column indices in Initial_Column.")
   if (missing(k) || length(k) != 1L || !is.numeric(k))
-    stop("Argument 'k' must be a single numeric/integer value")
+    stop("Argument 'k' must be a single numeric/integer value.")
   k <- as.integer(k)
-  if (k < 1L) stop("'k' must be >= 1")
+  if (k < 1L) stop("'k' must be >= 1.")
   
   if (!requireNamespace("JuliaCall", quietly = TRUE))
     stop("Package 'JuliaCall' is required. Install with install.packages('JuliaCall').")
   
-  ## --------- Start Julia and source package Julia files ---------
+  ## ---- Start Julia & source package Julia files ----
   JuliaCall::julia_setup(installJulia = FALSE)
   JuliaCall::julia_library("LinearAlgebra")
   JuliaCall::julia_library("Statistics")
@@ -56,13 +54,13 @@ GICSelection <- function(X, Y, Initial_Column,
     if (file.exists(fp)) JuliaCall::julia_source(fp)
   }
   
-  ## --------- Verify Julia criterion functions exist ---------
+  ## ---- Verify the named Julia functions exist ----
   if (!JuliaCall::julia_exists(Calculate_GIC))
     stop("Julia function '", Calculate_GIC, "' not found. Is it defined/loaded?")
   if (!JuliaCall::julia_exists(Calculate_GIC_short))
     stop("Julia function '", Calculate_GIC_short, "' not found. Is it defined/loaded?")
   
-  ## --------- Build Julia anonymous functions (avoid RCall.RFunction) ---------
+  ## ---- Create Julia anonymous functions from the names (avoid R closures) ----
   make_full_fun <- function(jl_name) {
     JuliaCall::julia_eval(
       sprintf('(Y,X)->(getfield(Main, Symbol("%s")))(Y, X)', jl_name)
@@ -77,7 +75,7 @@ GICSelection <- function(X, Y, Initial_Column,
   f_full  <- make_full_fun(Calculate_GIC)
   f_short <- make_short_fun(Calculate_GIC_short)
   
-  ## --------- Move data to Julia (typed) ---------
+  ## ---- Marshal data to Julia (with explicit types) ----
   JuliaCall::julia_assign("X_matrix", X)
   JuliaCall::julia_assign("Y_vector", Y)
   JuliaCall::julia_assign("init_cols", Initial_Column)
@@ -87,16 +85,16 @@ GICSelection <- function(X, Y, Initial_Column,
   else               JuliaCall::julia_eval("convert(Vector{Float64}, Y_vector)")
   InitCol_jl <- JuliaCall::julia_eval("convert(Vector{Int64}, init_cols)")
   
-  ## --------- Call Julia driver ---------
+  ## ---- Call the Julia driver ----
   jr <- JuliaCall::julia_call(
     "GIC_Variable_Selection",
     X_jl, Y_jl, InitCol_jl,
-    f_full, f_short,                # pass Julia Functions, not R closures
-    k,                              # positional k :: Int
-    Nsim = as.integer(Nsim)         # keyword Nsim
+    f_full, f_short,          # real Julia Functions
+    k,                        # positional k :: Int64
+    Nsim = as.integer(Nsim)   # keyword arg
   )
   
-  ## --------- Return ---------
+  ## ---- Return ----
   list(
     GIC_values      = jr[[1]],
     selected_coeffs = jr[[2]]
