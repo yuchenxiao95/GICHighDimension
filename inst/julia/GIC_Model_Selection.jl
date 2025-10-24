@@ -24,13 +24,13 @@ addition/removal. Optimized for both single-response (vector `Y`) and multi-resp
 - For multi-response `Y`, `Calculate_GIC` functions should return GIC as a matrix (e.g., trace for scalar comparison).
 """
 function GIC_Variable_Selection(
-    X::AbstractMatrix,
-    Y::Union{AbstractVector,AbstractMatrix},
-    Init_Columns::AbstractVector{Int64},
-    Calculate_GIC,
+    X::AbstractMatrix, 
+    Y::Union{AbstractVector, AbstractMatrix}, 
+    Init_Columns::AbstractVector{Int}, 
+    Calculate_GIC, 
     Calculate_GIC_short,
-    k::Int64;                          # positional k
-    Nsim::Int64 = 1                    # keyword arg
+    k::Int;
+    Nsim::Int64 = 1
 )
     # --- Input Validation ---
     m, n = size(X)
@@ -72,7 +72,7 @@ function GIC_Variable_Selection(
             # GIC evaluation after removal
             # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
 
-            GIC_i, A_inv = Calculate_GIC(Y, X_subsets,n)
+            GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n)
 
             if tr(GIC_c) < tr(GIC_i)  # Keep change if GIC improves
                 GIC_c = GIC_i
