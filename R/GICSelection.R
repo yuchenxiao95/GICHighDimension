@@ -56,19 +56,34 @@ GICSelection <- function(X, Y, Initial_Column,
     if (file.exists(fp)) JuliaCall::julia_source(fp)
   }
   
-  ## --------- Verify Julia functions exist ---------
+  ## --------- Verify Julia criterion functions exist ---------
   if (!JuliaCall::julia_exists(Calculate_GIC))
     stop("Julia function '", Calculate_GIC, "' not found. Is it defined/loaded?")
   if (!JuliaCall::julia_exists(Calculate_GIC_short))
     stop("Julia function '", Calculate_GIC_short, "' not found. Is it defined/loaded?")
+  
+  ## --------- Build Julia anonymous functions (avoid RCall.RFunction) ---------
+  make_full_fun <- function(jl_name) {
+    JuliaCall::julia_eval(
+      sprintf('(Y,X)->(getfield(Main, Symbol("%s")))(Y, X)', jl_name)
+    )
+  }
+  make_short_fun <- function(jl_name) {
+    JuliaCall::julia_eval(
+      sprintf('(Y,X,Inv)->(getfield(Main, Symbol("%s")))(Y, X, Inv)', jl_name)
+    )
+  }
+  
+  f_full  <- make_full_fun(Calculate_GIC)
+  f_short <- make_short_fun(Calculate_GIC_short)
   
   ## --------- Move data to Julia (typed) ---------
   JuliaCall::julia_assign("X_matrix", X)
   JuliaCall::julia_assign("Y_vector", Y)
   JuliaCall::julia_assign("init_cols", Initial_Column)
   
-  X_jl     <- JuliaCall::julia_eval("convert(Matrix{Float64}, X_matrix)")
-  Y_jl     <- if (is.matrix(Y)) JuliaCall::julia_eval("convert(Matrix{Float64}, Y_vector)")
+  X_jl       <- JuliaCall::julia_eval("convert(Matrix{Float64}, X_matrix)")
+  Y_jl       <- if (is.matrix(Y)) JuliaCall::julia_eval("convert(Matrix{Float64}, Y_vector)")
   else               JuliaCall::julia_eval("convert(Vector{Float64}, Y_vector)")
   InitCol_jl <- JuliaCall::julia_eval("convert(Vector{Int64}, init_cols)")
   
@@ -76,10 +91,9 @@ GICSelection <- function(X, Y, Initial_Column,
   jr <- JuliaCall::julia_call(
     "GIC_Variable_Selection",
     X_jl, Y_jl, InitCol_jl,
-    JuliaCall::julia_eval(Calculate_GIC),
-    JuliaCall::julia_eval(Calculate_GIC_short),
-    k,                                  # positional k :: Int64
-    Nsim = as.integer(Nsim)             # keyword Nsim
+    f_full, f_short,                # pass Julia Functions, not R closures
+    k,                              # positional k :: Int
+    Nsim = as.integer(Nsim)         # keyword Nsim
   )
   
   ## --------- Return ---------
