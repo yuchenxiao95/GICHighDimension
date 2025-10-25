@@ -38,8 +38,12 @@ function GIC_Variable_Selection(
     @assert m == size(Y, 1) "Sample size mismatch between X and Y."
 
     # --- Initialization ---
-    sets = collect(1:n)  # All feature indices
-    repeated_list = repeat(sets, Nsim)  # Feature sequence for iteration
+    # sets = collect(1:n)  # All feature indices
+    # repeated_list = repeat(sets, Nsim)  # Feature sequence for iteration
+
+    sets = collect(1:n)
+    # Option 1 (works for any `sets` vector, not just 1:n):
+    repeated_list = vcat([shuffle(sets) for _ in 1:Nsim]...)
 
     # Initial GIC calculation and inverse covariance
     GIC_coef_sets = Init_Columns
@@ -61,7 +65,6 @@ function GIC_Variable_Selection(
             GIC_coef_sets_temp = deleteat!(copy(GIC_coef_sets), index)
             X_subsets = X[:, GIC_coef_sets_temp]
 
-
             # Block matrix update for inverse covariance (efficient removal)
             # A_hat = M_inv[setdiff(1:end, index), setdiff(1:end, index)]
             # B_hat = M_inv[setdiff(1:end, index), index]
@@ -70,7 +73,7 @@ function GIC_Variable_Selection(
             # A_inv = A_hat - ((B_hat / D_hat) * C_hat)  # Schur complement
 
             # GIC evaluation after removal
-            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv, n)
 
             GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n)
 
@@ -112,16 +115,17 @@ function GIC_Variable_Selection(
             # A_inv = [topleft topright; bottomleft bottomright]
 
             # GIC evaluation after addition
-            # GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv)
+            #GIC_i = Calculate_GIC_short(Y, X_subsets, A_inv, n)
 
             GIC_i, A_inv = Calculate_GIC(Y, X_subsets, n)
 
-            if tr(GIC_c) < tr(GIC_i) - 0.001  # Keep change if GIC improves
+            if tr(GIC_c) < tr(GIC_i)   # Keep change if GIC improves
                 GIC_c = GIC_i
                 GIC_coef_sets = GIC_coef_sets_temp
                 M_inv = A_inv
                 current_X = X_subsets 
             end
+
             GIC_list[w] = tr(GIC_c)
             GIC_coeff[w] = copy(GIC_coef_sets)
         end

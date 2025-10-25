@@ -304,7 +304,7 @@ function Calculate_GIC2(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC2, Inverse)
 end
 
-function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix)
+function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -317,7 +317,7 @@ function Calculate_GIC2_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC2
-    GIC2 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * K^(1/3)
+    GIC2 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * P^(1/3)
 
     return GIC2
 end
@@ -342,7 +342,7 @@ function Calculate_GIC3(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC3, Inverse)
 end
 
-function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix)
+function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -355,7 +355,7 @@ function Calculate_GIC3_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC3
-    GIC3 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * log(K)
+    GIC3 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * log(P)
 
     return GIC3
 end
@@ -380,7 +380,7 @@ function Calculate_GIC4(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC4, Inverse)
 end
 
-function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix)
+function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -393,7 +393,7 @@ function Calculate_GIC4_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC4
-    GIC4 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * (log(K) + log(log(K)))
+    GIC4 = (Y' * Hat_matrix * Y) / T - (2 * K * sample_variance) / T * (log(P) + log(log(P)))
 
     return GIC4
 end
@@ -418,7 +418,7 @@ function Calculate_GIC5(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC5, Inverse)
 end
 
-function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix)
+function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -431,7 +431,7 @@ function Calculate_GIC5_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC5
-    GIC5 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(log(T)) * log(K)
+    GIC5 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(log(T)) * log(P)
 
     return GIC5
 end
@@ -454,7 +454,7 @@ function Calculate_GIC6(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     return (GIC6, Inverse)
 end
 
-function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix)
+function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
 
     # Get dimensions
     T, K = size(X, 1), size(X, 2)
@@ -467,7 +467,7 @@ function Calculate_GIC6_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC5
-    GIC6 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(T) * log(K)
+    GIC6 = (Y' * Hat_matrix * Y) / T - (K * sample_variance) / T * log(T) * log(P)
 
     return GIC6
 end
@@ -487,9 +487,9 @@ function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     # Compute residuals and sample variance
     sample_variance = ((Y - Hat_matrix*Y)' * (Y - Hat_matrix*Y))/ (T-K)
 
-    GIC6 = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + 2 * log(binomial(big(P), K))) 
+    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + 2 * log(binomial(big(P), K))) 
 
-    return (GIC6, Inverse)
+    return (EBIC, Inverse)
 end
 
 function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMatrix, Inverse::AbstractMatrix, P::Integer)
@@ -505,9 +505,9 @@ function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC5
-    GIC6 = (Y' * Hat_matrix * Y) / T - (K*sample_variance)/T * (log(T) + 2 * log(binomial(big(P), K))) 
+    EBIC = (Y' * Hat_matrix * Y) / T - (K*sample_variance)/T * (log(T) + 2 * log(binomial(big(P), K))) 
 
-    return GIC6
+    return EBIC
 end
 
 
