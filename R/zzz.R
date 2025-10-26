@@ -1,10 +1,21 @@
 #' @importFrom cli cli_alert_info cli_alert_success cli_alert_danger cli_alert_warning
 #' @importFrom cli col_red col_blue col_green col_yellow
 
+# =========================
 # Internal package state
+# =========================
 .pkg_env <- new.env(parent = emptyenv())
 
-# ---------------- Internal helpers ----------------
+# Create initial state so first access never errors
+.onLoad <- function(libname, pkgname) {
+  assign(".jl_backend_loaded", FALSE, envir = .pkg_env)
+  assign("julia_initialized", FALSE, envir = .pkg_env)
+  assign("julia_deps_installed", FALSE, envir = .pkg_env)
+}
+
+# =========================
+# Internal helpers
+# =========================
 
 # Is Julia up and responding?
 get_julia_status <- function() {
@@ -18,16 +29,16 @@ get_julia_status <- function() {
 .normalize_julia_home <- function(julia_path) {
   if (is.null(julia_path) || !nzchar(julia_path)) return(NULL)
   
-  # If path points to .../bin/julia (the binary), take its parent dir's parent as JULIA_HOME
+  # If path points to .../bin/julia (the binary), take parent of bin/ as JULIA_HOME
   if (file.exists(julia_path) && grepl("(^|/|\\\\)julia(\\.exe)?$", julia_path)) {
-    # julia_path = .../bin/julia
     bin_dir <- normalizePath(dirname(julia_path), winslash = "/", mustWork = FALSE)
     home <- normalizePath(dirname(bin_dir), winslash = "/", mustWork = FALSE)
     return(home)
   }
   
   # If path contains a bin/julia inside it, assume it's JULIA_HOME already
-  bin_candidate <- file.path(julia_path, "bin", ifelse(.Platform$OS.type == "windows", "julia.exe", "julia"))
+  bin_candidate <- file.path(julia_path, "bin",
+                             ifelse(.Platform$OS.type == "windows", "julia.exe", "julia"))
   if (file.exists(bin_candidate)) {
     return(normalizePath(julia_path, winslash = "/", mustWork = FALSE))
   }
@@ -45,18 +56,20 @@ get_julia_status <- function() {
   
   all_ok <- TRUE
   
-  # Check stdlibs (should always be present; don't try to install)
+  # Stdlib check (should always be present; don't try to install)
   for (pkg in stdlibs) {
-    ok <- tryCatch({ JuliaCall::julia_eval(sprintf("import %s; true", pkg)) }, error = function(e) FALSE)
+    ok <- tryCatch({ JuliaCall::julia_eval(sprintf("import %s; true", pkg)) },
+                   error = function(e) FALSE)
     if (!ok) {
       all_ok <- FALSE
       if (!quiet) cli_alert_warning(sprintf("Julia stdlib not importable: '%s' (unexpected)", pkg))
     }
   }
   
-  # Check externals (installable)
+  # External packages (installable)
   for (pkg in externals) {
-    ok <- tryCatch({ JuliaCall::julia_eval(sprintf("import %s; true", pkg)) }, error = function(e) FALSE)
+    ok <- tryCatch({ JuliaCall::julia_eval(sprintf("import %s; true", pkg)) },
+                   error = function(e) FALSE)
     if (!ok) {
       all_ok <- FALSE
       if (!quiet) cli_alert_warning(sprintf("Missing Julia package: '%s'", pkg))
@@ -72,8 +85,18 @@ get_julia_status <- function() {
 
 # Source the Julia backend only once per session
 .source_julia_backend_once <- function(quiet = FALSE) {
-  if (isTRUE(get(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE))) return(invisible(TRUE))
-  if (!get_julia_status()) stop("Julia is not initialized. Call setup_julia() first.", call. = FALSE)
+  # Ensure flag exists, then short-circuit if already loaded
+  if (!exists(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE)) {
+    assign(".jl_backend_loaded", FALSE, envir = .pkg_env)
+  }
+  if (isTRUE(get(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE))) {
+    if (!quiet) cli_alert_info("Julia backend already loaded; skipping.")
+    return(invisible(TRUE))
+  }
+  
+  if (!get_julia_status()) {
+    stop("Julia is not initialized. Call setup_julia() first.", call. = FALSE)
+  }
   
   jl_dir <- system.file("julia", package = "GICHighDimension")
   if (jl_dir == "" || !dir.exists(jl_dir)) {
@@ -91,7 +114,7 @@ get_julia_status <- function() {
     }
   }
   
-  # Optional: install "arity adapters" so your driver can pass extra args safely
+  # Optional: light "arity adapters" so driver can pass extra args safely
   JuliaCall::julia_eval(
     "
     if !isdefined(Main, :_gic_wrappers_installed) || !_gic_wrappers_installed
@@ -122,7 +145,9 @@ get_julia_status <- function() {
   invisible(TRUE)
 }
 
-# ---------------- Public API ----------------
+# =========================
+# Public API
+# =========================
 
 #' @title Initialize 'Julia' Environment
 #' @description
@@ -153,6 +178,8 @@ setup_julia <- function(julia_path = NULL,
       JuliaCall::julia_setup(installJulia = install_julia)
     }
     
+    if (!exists(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE))
+      assign(".jl_backend_loaded", FALSE, envir = .pkg_env)
     assign("julia_initialized", TRUE, envir = .pkg_env)
     
     if (install_deps) {
@@ -208,9 +235,8 @@ install_julia_packages <- function(
   results <- list()
   
   for (pkg in packages) {
-    ok <- FALSE
-    # Try to import; if fails, install
-    ok <- tryCatch({ JuliaCall::julia_eval(sprintf("import %s; true", pkg)) }, error = function(e) FALSE)
+    ok <- tryCatch({ JuliaCall::julia_eval(sprintf("import %s; true", pkg)) },
+                   error = function(e) FALSE)
     
     if (!ok) {
       tryCatch({
