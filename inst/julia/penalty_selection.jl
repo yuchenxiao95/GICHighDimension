@@ -487,7 +487,7 @@ function Calculate_EBIC(Y::Union{AbstractVector, AbstractMatrix}, X::AbstractMat
     # Compute residuals and sample variance
     sample_variance = ((Y - Hat_matrix*Y)' * (Y - Hat_matrix*Y))/ (T-K)
 
-    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + 2 * log(binomial(big(P), K))) 
+    EBIC = (Y'*Hat_matrix*Y)/ T - (K*sample_variance)/T * (log(T) + 1 * log(binomial(big(P), K))) 
 
     return (EBIC, Inverse)
 end
@@ -505,7 +505,7 @@ function Calculate_EBIC_short(Y::Union{AbstractVector, AbstractMatrix}, X::Abstr
     sample_variance = (residuals' * residuals) / (T-K)
 
     # Compute GIC5
-    EBIC = (Y' * Hat_matrix * Y) / T - (K*sample_variance)/T * (log(T) + 2 * log(binomial(big(P), K))) 
+    EBIC = (Y' * Hat_matrix * Y) / T - (K*sample_variance)/T * (log(T) + 1 * log(binomial(big(P), K))) 
 
     return EBIC
 end
