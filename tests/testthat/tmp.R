@@ -2,7 +2,7 @@
 library(MASS)
 library(GICHighDimension)
 library(devtools)
-library(abess)
+
 
 
 # Remove the installed package and restart R
@@ -105,17 +105,3 @@ time <- system.time(
     Nsim = 4
   )
 )["elapsed"]
-
-indices = result$selected_coeffs[[length(result$selected_coeffs)]]
-
-X_select = X[,indices]
-
-Beta_estimate(X_select,Y,family = "Poisson", add_intercept = F)
-
-
-dat = cbind.data.frame("y" = Y, X)
-time <- system.time(abess_fit <- abess(y ~ ., data = dat))["elapsed"]
-best_size <- abess_fit[["best.size"]]
-print(best_size)
-head(coef(abess_fit, support.size = best_size, sparse = FALSE))
-
