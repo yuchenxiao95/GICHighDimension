@@ -1,0 +1,73 @@
+# Performance
+
+## How the search stays fast
+
+Every criterion in the package depends on the data only through a few
+quantities of the least-squares fit on the selected columns $`X_S`$:
+``` math
+Y^\top H Y = b^\top M b, \qquad
+\mathrm{RSS} = Y^\top Y - Y^\top H Y, \qquad
+b = X_S^\top Y, \quad M = (X_S^\top X_S)^{-1}.
+```
+So the $`n \times n`$ hat matrix $`H`$ is never formed. The search keeps
+$`M`$ and $`b`$ for the current model and scores each proposed move with
+a rank-one update.
+
+- **Adding** a column $`x_z`$: with $`u = X_S^\top x_z`$,
+  $`s = x_z^\top x_z - u^\top M u`$ and $`e = x_z^\top Y - b^\top M u`$,
+  ``` math
+  Y^\top H Y \;\to\; Y^\top H Y + e\,e^\top / s .
+  ```
+- **Removing** column $`j`$: with $`\hat\beta_j = (M b)_j`$,
+  ``` math
+  Y^\top H Y \;\to\; Y^\top H Y - \hat\beta_j^\top \hat\beta_j / M_{jj} .
+  ```
+
+Scoring a move costs $`O(nK + K^2)`$ for a model with $`K`$ variables,
+and $`M`$ is only updated when a move is accepted. Version 0.1.2 rebuilt
+$`H`$ for every proposal, at $`O(n^2 K)`$ cost per move.
+
+## Timings
+
+Speed-up over version 0.1.2 (Julia search only, EBIC or SIC, Apple
+M-series laptop). Both versions select the same variables at every step:
+
+| $`n`$ | $`p`$ |   Passes |  0.1.2 | Current | Speed-up |
+|------:|------:|---------:|-------:|--------:|---------:|
+|  1000 |   100 |        2 | 0.18 s | 0.002 s |      91× |
+|  3000 |   100 |        2 | 1.29 s | 0.005 s |     247× |
+|  3000 |   100 | 2 (EBIC) | 1.61 s | 0.004 s |     371× |
+|  2000 |   400 |        1 | 1.74 s | 0.046 s |      38× |
+
+Larger problems, timed from R with
+[`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md)
+(EBIC, 10 true predictors, start from 20 variables, `k = 100`,
+`Nsim = 3`). The time includes copying `X` from R to Julia, and every
+run recovered exactly the 10 true predictors:
+
+| $`n`$ |  $`p`$ |  Time |
+|------:|-------:|------:|
+|   500 |  1,000 | 0.9 s |
+| 1,000 |  5,000 | 7.6 s |
+| 2,000 | 10,000 |  26 s |
+
+To time your own problem:
+
+``` r
+
+library(GICHighDimension)
+setup_julia()
+
+set.seed(1)
+n <- 1000; p <- 5000
+X <- matrix(rnorm(n * p), n, p)
+Y <- as.numeric(X[, 1:10] %*% rep(1, 10) + rnorm(n))
+
+system.time(
+  fit <- GICSelection(X, Y, 1:20, "Calculate_EBIC", "Calculate_EBIC_short",
+                      k = 100, Nsim = 3)
+)
+```
+
+The first call in a session also compiles the Julia code, which adds a
+few seconds once.

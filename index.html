@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>GICHighDimension: fast variable selection with information criteria • GICHighDimension</title>
+<title>Fast Variable Selection with Information Criteria • GICHighDimension</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="GICHighDimension: fast variable selection with information criteria">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Fast Variable Selection with Information Criteria">
 <meta name="description" content="Provides tools for variable selection in high-dimensional regression using the generalized information criterion (GIC) combined with Hopfield network optimization. Supports generalized linear models (GLMs), including normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and multinomial families. Performance-critical components are implemented in Julia with a user-friendly R interface via JuliaCall. The method is described in Xiao and Walker (2026) &lt;doi:10.1007/s11222-026-10853-5&gt;.">
 <meta property="og:description" content="Provides tools for variable selection in high-dimensional regression using the generalized information criterion (GIC) combined with Hopfield network optimization. Supports generalized linear models (GLMs), including normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and multinomial families. Performance-critical components are implemented in Julia with a user-friendly R interface via JuliaCall. The method is described in Xiao and Walker (2026) &lt;doi:10.1007/s11222-026-10853-5&gt;.">
 </head>
@@ -32,6 +32,12 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/GICHighDimension.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/performance.html">Performance</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -49,128 +55,41 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="gichighdimension">GICHighDimension<a class="anchor" aria-label="anchor" href="#gichighdimension"></a>
 </h1></div>
-<p><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a> <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link"><img src="https://img.shields.io/badge/DOI-10.1007%2Fs11222--026--10853--5-blue" alt="DOI"></a></p>
-<p><strong>GICHighDimension</strong> selects variables in high-dimensional regression by maximizing a generalized information criterion (GIC) with a Hopfield-network style coordinate search. It covers the usual information criteria (AIC, BIC, EBIC, GIC2–GIC6, …), univariate and multivariate responses, and the common generalized linear model families. The search runs in ‘Julia’ and is called from R through ‘JuliaCall’.</p>
-<p>The method is described in <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link">Xiao and Walker (2026), <em>Statistics and Computing</em></a>.</p>
+<p>GICHighDimension is an R package for variable selection in high-dimensional regression. It searches over subsets of predictors for the one that maximizes a generalized information criterion (GIC), such as AIC, BIC, EBIC or GIC2–GIC6, using a fast Hopfield-network style coordinate search. Univariate and multivariate responses are supported, along with the common generalized linear model families.</p>
+<p>The search engine is written in <a href="https://julialang.org/" class="external-link">Julia</a> and called from R through <code>JuliaCall</code>. It never forms the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math> hat matrix: every proposed move is scored with a rank-one update, so a pass over thousands of candidate predictors takes milliseconds. The method is described in <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link">Xiao and Walker (2026)</a>.</p>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>You need R (≥ 3.5), <a href="https://julialang.org/downloads/" class="external-link">Julia</a> (≥ 1.9) and the R package ‘JuliaCall’.</p>
+<p>To get started, install <code>GICHighDimension</code> from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"yuchenxiao95/GICHighDimension"</span><span class="op">)</span></span></code></pre></div>
-<p>Then connect R to Julia once per session (the first call also installs the Julia packages the package needs):</p>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"yuchenxiao95/GICHighDimension"</span><span class="op">)</span></span></code></pre></div>
+<p>You also need Julia (≥ 1.9), which you can download from <a href="https://julialang.org/downloads/" class="external-link uri">https://julialang.org/downloads/</a>. Then connect R to Julia; the first time, also install the Julia packages the package uses:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span>               <span class="co"># or setup_julia("/path/to/julia/bin")</span></span>
-<span><span class="fu"><a href="reference/install_julia_packages.html">install_julia_packages</a></span><span class="op">(</span><span class="op">)</span>    <span class="co"># first time only</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
-</h2>
-<p>Simulate a sparse linear model with 30 candidate predictors, of which 3 are active, and select variables with EBIC:</p>
+<span><span class="fu"><a href="reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/install_julia_packages.html">install_julia_packages</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># first time only</span></span></code></pre></div>
+<p>Now simulate data with 200 candidate predictors, 5 of them active, and select variables with EBIC:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, <span class="va">n</span>, <span class="va">p</span><span class="op">)</span></span>
-<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span> <span class="op">-</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Normal"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/GICSelection.html">GICSelection</a></span><span class="op">(</span></span>
-<span>  <span class="va">X</span>, <span class="va">Y</span>,</span>
-<span>  Initial_Column      <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>,</span>
+<span>  Initial_Column      <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,</span>
 <span>  Calculate_GIC       <span class="op">=</span> <span class="st">"Calculate_EBIC"</span>,</span>
 <span>  Calculate_GIC_short <span class="op">=</span> <span class="st">"Calculate_EBIC_short"</span>,</span>
-<span>  k    <span class="op">=</span> <span class="fl">15</span>,            <span class="co"># skip models with 15 or more variables</span></span>
-<span>  Nsim <span class="op">=</span> <span class="fl">3</span>              <span class="co"># passes over the variables</span></span>
+<span>  k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>   <span class="co"># final selected set</span></span>
-<span><span class="co">#&gt; [1] 1 2 3</span></span></code></pre></div>
-<p><code>fit$GIC_values</code> holds the criterion after every step of the search, and <code>fit$selected_coeffs</code> the selected set.</p>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1 2 3 4 5</span></span></code></pre></div>
+<p>The search starts from 20 variables, removes the 15 noise variables and keeps the 5 true ones within its first pass over the predictors (each dotted line marks a new pass):</p>
+<div class="float">
+<img src="reference/figures/README-search.png" alt="EBIC and model size along the search"><div class="figcaption">EBIC and model size along the search</div>
 </div>
-<div class="section level2">
-<h2 id="what-is-included">What is included<a class="anchor" aria-label="anchor" href="#what-is-included"></a>
-</h2>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr>
-<th align="left">Task</th>
-<th align="left">Functions</th>
-</tr></thead>
-<tbody>
-<tr>
-<td align="left">Variable selection</td>
-<td align="left">
-<code><a href="reference/GICSelection.html">GICSelection()</a></code> (greedy), <code><a href="reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code> (stochastic)</td>
-</tr>
-<tr>
-<td align="left">Information criteria</td>
-<td align="left">
-<code><a href="reference/information_criteria.html">Calculate_AIC()</a></code>, <code><a href="reference/information_criteria.html">Calculate_AICc()</a></code>, <code><a href="reference/information_criteria.html">Calculate_BIC()</a></code>, <code><a href="reference/information_criteria.html">Calculate_SIC()</a></code>, <code><a href="reference/information_criteria.html">Calculate_CAIC()</a></code>, <code><a href="reference/information_criteria.html">Calculate_CAICF()</a></code>, <code><a href="reference/information_criteria.html">Calculate_EBIC()</a></code>, <code><a href="reference/information_criteria.html">Calculate_GIC2()</a></code> … <code><a href="reference/information_criteria.html">Calculate_GIC6()</a></code>, <code><a href="reference/information_criteria.html">Calculate_AttIC()</a></code>
-</td>
-</tr>
-<tr>
-<td align="left">Simulation</td>
-<td align="left">
-<code><a href="reference/LP_to_Y.html">LP_to_Y()</a></code>, <code><a href="reference/Generate_Beta.html">Generate_Beta()</a></code>
-</td>
-</tr>
-<tr>
-<td align="left">Link transforms and estimation</td>
-<td align="left">
-<code><a href="reference/Y_to_LP.html">Y_to_LP()</a></code>, <code><a href="reference/Beta_estimate.html">Beta_estimate()</a></code>
-</td>
-</tr>
-<tr>
-<td align="left">Julia setup</td>
-<td align="left">
-<code><a href="reference/setup_julia.html">setup_julia()</a></code>, <code><a href="reference/install_julia_packages.html">install_julia_packages()</a></code>, <code><a href="reference/install_julia_dependencies.html">install_julia_dependencies()</a></code>
-</td>
-</tr>
-</tbody>
-</table>
-<p>Supported response families in <code><a href="reference/LP_to_Y.html">LP_to_Y()</a></code>, <code><a href="reference/Y_to_LP.html">Y_to_LP()</a></code> and <code><a href="reference/Beta_estimate.html">Beta_estimate()</a></code>: Normal, Bernoulli, Binomial, Poisson, Gamma, Exponential, inverse Gaussian, negative binomial, geometric, multivariate normal and multinomial.</p>
-</div>
-<div class="section level2">
-<h2 id="speed">Speed<a class="anchor" aria-label="anchor" href="#speed"></a>
-</h2>
-<p>The search never forms the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math> hat matrix. Each candidate move is scored with a rank-one update of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">(X_S^\top X_S)^{-1}</annotation></semantics></math>, which costs <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>K</mi><mo>+</mo><msup><mi>K</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(nK + K^2)</annotation></semantics></math> for a model with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math> variables.</p>
-</div>
-<div class="section level2">
-<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
-</h2>
-<p>If you use this package, please cite:</p>
-<blockquote>
-<p>Xiao, Y. and Walker, S. (2026). Fast variable selection under <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math> regularization in high-dimensions. <em>Statistics and Computing</em>, 36(3), 100. <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link uri">https://doi.org/10.1007/s11222-026-10853-5</a></p>
-</blockquote>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">xiao2026fast</span>,</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">title</span>   = {Fast variable selection under $<span class="ch">\ell</span>_0$ regularization in high-dimensions},</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">author</span>  = {Xiao, Yuchen and Walker, Stephen},</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">journal</span> = {Statistics and Computing},</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="dt">volume</span>  = {36},</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="dt">number</span>  = {3},</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="dt">pages</span>   = {100},</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1007/s11222-026-10853-5}</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>}</span></code></pre></div>
-<p><code>citation("GICHighDimension")</code> prints the same reference.</p>
-</div>
-<div class="section level2">
-<h2 id="authors">Authors<a class="anchor" aria-label="anchor" href="#authors"></a>
-</h2>
-<ul>
-<li>Yuchen Xiao (<a href="https://orcid.org/0000-0003-2322-9660" class="external-link">ORCID</a>), author and maintainer</li>
-<li>Stephen G. Walker, author</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
-</h2>
-<p>MIT © Yuchen Xiao and Stephen Walker</p>
+<p>See <a href="https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.html">Get started</a> for the available criteria and response families.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
