@@ -19,9 +19,14 @@
 #' @param Y Numeric response (either a vector of length n or a matrix with n rows).
 #' @param Initial_Column Integer vector of initial feature indices to consider.
 #' @param Calculate_GIC Character name of the 'Julia' function for full GIC calculation.
-#' @param Calculate_GIC_short Character name of the 'Julia' shortcut function for approximate GIC.
-#' @param k Integer tuning/control parameter passed to the Julia driver.
-#' @param Nsim Integer number of simulations to run (default: 1).
+#' @param Calculate_GIC_short Character name of the matching \code{_short} 'Julia' function.
+#'   Kept for backward compatibility; the built-in criteria use fast rank-one updates instead.
+#' @param k Integer model-size cap: a move that would give a model with \code{k}
+#'   or more variables is skipped. Models also never exceed \eqn{n - 1} variables
+#'   (\eqn{n} = sample size), so selected models have at most
+#'   \code{min(k, n) - 1} variables.
+#' @param Nsim Integer number of passes over the variables, each in a new random order (default: 1).
+#' @param gamma EBIC tuning constant \eqn{\gamma} (default 0.6); ignored by other criteria.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -30,7 +35,8 @@
 #' }
 #'
 #' @usage
-#' GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, k, Nsim = 1L)
+#' GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, k,
+#'              Nsim = 1L, gamma = 0.6)
 #'
 #' @examples
 #' \dontrun{
@@ -84,105 +90,49 @@
 #' }
 #' @export
 #' @importFrom JuliaCall julia_setup julia_source julia_call julia_eval julia_exists
+#' @references Xiao, Y. and Walker, S. G. (2026). Fast variable selection under
+#'   \eqn{\ell_0} regularization in high-dimensions. \emph{Statistics and Computing},
+#'   36(3), 100. \doi{10.1007/s11222-026-10853-5}
 GICSelection <- function(X, Y, Initial_Column,
                          Calculate_GIC,
                          Calculate_GIC_short,
                          k,
-                         Nsim = 1L) {
-  
-  ## ---- fast, strict prechecks & coercions ----
-  if (!is.matrix(X)) stop("X must be a matrix")
+                         Nsim = 1L,
+                         gamma = 0.6) {
+
+  ## ---- prechecks & coercions ----
+  if (!is.matrix(X)) stop("X must be a matrix", call. = FALSE)
   storage.mode(X) <- "double"
   if (!(is.numeric(Y) && (is.vector(Y) || is.matrix(Y)))) {
-    stop("Y must be either a numeric vector or a numeric matrix")
+    stop("Y must be either a numeric vector or a numeric matrix", call. = FALSE)
   }
-  if (is.vector(Y)) Y <- as.numeric(Y)           # keep vector if univariate
+  if (is.vector(Y)) Y <- as.numeric(Y)
   if (is.matrix(Y)) storage.mode(Y) <- "double"
-  if (nrow(X) != nrow(as.matrix(Y))) stop("X and Y must have the same number of rows")
+  if (nrow(X) != nrow(as.matrix(Y))) stop("X and Y must have the same number of rows", call. = FALSE)
   if (any(Initial_Column < 1L) || any(Initial_Column > ncol(X))) {
-    stop("Invalid column indices in Initial_Column")
+    stop("Invalid column indices in Initial_Column", call. = FALSE)
   }
-  Initial_Column <- as.integer(Initial_Column)
-  k   <- as.integer(k)
-  Nsim <- as.integer(Nsim)
-  
-  if (!requireNamespace("JuliaCall", quietly = TRUE)) {
-    stop("JuliaCall required. Install with install.packages('JuliaCall')")
+  if (missing(k)) stop("`k` (maximum model size) must be supplied", call. = FALSE)
+
+  .source_julia_backend_once()
+  for (fn in c(Calculate_GIC, Calculate_GIC_short)) {
+    if (!JuliaCall::julia_exists(fn)) stop("Julia function ", fn, " not found", call. = FALSE)
   }
-  
-  tryCatch({
-    ## ---- initialize Julia (no auto-install to keep it fast/predictable) ----
-    JuliaCall::julia_setup(installJulia = FALSE)
-    
-    ## Light libs; avoid loading too much
-    JuliaCall::julia_library("LinearAlgebra")
-    JuliaCall::julia_library("Statistics")
-    # Distributions only needed if your LP_to_Y examples are run, otherwise skip
-    # JuliaCall::julia_library("Distributions")
-    
-    ## ---- source your package's Julia backend ----
-    script_dir <- system.file("julia", package = "GICHighDimension")
-    if (script_dir == "") stop("Julia scripts directory not found")
-    JuliaCall::julia_source(file.path(script_dir, "penalty_selection.jl"))
-    JuliaCall::julia_source(file.path(script_dir, "GIC_Model_Selection.jl"))
-    
-    ## ---- install arity adapters once (idempotent) ----
-    JuliaCall::julia_eval(
-      "
-      if !isdefined(Main, :_gic_wrappers_installed) || !_gic_wrappers_installed
-          for f in (:Calculate_AIC, :Calculate_AIC_c, :Calculate_SIC, :Calculate_BIC,
-                    :Calculate_CAIC, :Calculate_CAICF, :Calculate_AttIC)
-              if isdefined(Main, f) && !hasmethod(getfield(Main, f),
-                       Tuple{Union{AbstractVector,AbstractMatrix}, AbstractMatrix, Integer})
-                  @eval begin
-                      $f(Y::Union{AbstractVector,AbstractMatrix}, X::AbstractMatrix, ::Integer) = $f(Y, X)
-                  end
-              end
-          end
 
-          for f in (:Calculate_AIC_short, :Calculate_AIC_c_short, :Calculate_SIC_short, :Calculate_BIC_short,
-                    :Calculate_CAIC_short, :Calculate_CAICF_short, :Calculate_AttIC_short)
-              if isdefined(Main, f) && !hasmethod(getfield(Main, f),
-                       Tuple{Union{AbstractVector,AbstractMatrix}, AbstractMatrix, AbstractMatrix, Integer})
-                  @eval begin
-                      $f(Y::Union{AbstractVector,AbstractMatrix}, X::AbstractMatrix, Inv::AbstractMatrix, ::Integer) = $f(Y, X, Inv)
-                  end
-              end
-          end
-
-          const _gic_wrappers_installed = true
-      end
-      "
-    )
-    
-    ## ---- resolve metric functions by name once, as callables ----
-    # Validate existence in Julia Main
-    if (!JuliaCall::julia_exists(Calculate_GIC)) {
-      stop("Julia function ", Calculate_GIC, " not found")
-    }
-    if (!JuliaCall::julia_exists(Calculate_GIC_short)) {
-      stop("Julia function ", Calculate_GIC_short, " not found")
-    }
-    # Get callable function objects
-    f_full  <- JuliaCall::julia_eval(Calculate_GIC)
-    f_short <- JuliaCall::julia_eval(Calculate_GIC_short)
-    
-    ## ---- call Julia driver directly with R objects (no manual assign/convert) ----
-    # JuliaCall converts R matrix/vector -> Julia Array{Float64} eagerly & reuses the object during the call
-    julia_result <- JuliaCall::julia_call(
+  julia_result <- tryCatch(
+    JuliaCall::julia_call(
       "GIC_Variable_Selection",
-      X, Y, Initial_Column,
-      f_full, f_short, k,
-      Nsim = Nsim
-    )
-    
-    list(
-      GIC_values = julia_result[[1]],
-      selected_coeffs = julia_result[[2]]
-    )
-    
-  }, error = function(e) {
-    warning("Julia error occurred: ", e$message)
-    list(GIC_values = NA, selected_coeffs = NA)
-  })
+      X, Y, as.integer(Initial_Column),
+      JuliaCall::julia_eval(Calculate_GIC), JuliaCall::julia_eval(Calculate_GIC_short),
+      as.integer(k),
+      Nsim = as.integer(Nsim), gamma = as.numeric(gamma)
+    ),
+    error = function(e) stop("Julia error in GIC_Variable_Selection: ", conditionMessage(e),
+                             call. = FALSE)
+  )
+
+  list(
+    GIC_values = as.numeric(unlist(julia_result[[1]])),
+    selected_coeffs = lapply(julia_result[[2]], as.integer)
+  )
 }

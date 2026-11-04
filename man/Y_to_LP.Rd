@@ -4,18 +4,31 @@
 \alias{Y_to_LP}
 \title{Transform Outcome to Linear Predictor}
 \usage{
-Y_to_LP(Y, family, shape = NULL, n_trials = NULL, std = NULL)
+Y_to_LP(
+  Y,
+  family,
+  shape = NULL,
+  n_trials = NULL,
+  std = NULL,
+  theta = NULL,
+  n_categories = NULL
+)
 }
 \arguments{
 \item{Y}{A numeric vector or matrix of observed responses.}
 
 \item{family}{A character string indicating the GLM family to use.}
 
-\item{shape}{Optional shape parameter (used for the Gamma family).}
+\item{shape}{Optional shape parameter (accepted for consistency; unused).}
 
 \item{n_trials}{Optional number of trials (used for the Binomial family).}
 
-\item{std}{Optional standard deviation (used for the Normal family).}
+\item{std}{Optional standard deviation (accepted for consistency; unused).}
+
+\item{theta}{Optional NegativeBinomial size (accepted for consistency; unused).}
+
+\item{n_categories}{Optional number of categories for "Multinomial"
+(default: the largest observed category).}
 }
 \value{
 A numeric vector or matrix representing the linear predictor.
@@ -25,16 +38,30 @@ Uses the Julia function \code{'Y_to_LP'} to convert observed responses to linear
 using canonical link functions from generalized linear models (GLMs).
 }
 \details{
-This function supports canonical link transformations for the following distribution families:
-\itemize{
-\item "Bernoulli"
-\item "Binomial"
-\item "Normal"
-\item "Poisson"
-\item "Gamma"
-\item "Exponential"
-\item "MultivariateNormal"
+Applies the family's link function to the observed responses, with a small
+adjustment so the link is finite at the boundary: logit with 0 and 1 replaced
+by 0.01 and 0.99 (Bernoulli, Binomial), and \eqn{\log(Y + 0.1)} for the
+log-link families. The families match \code{LP_to_Y()}:
+
+\tabular{lll}{
+\strong{Family} \tab \strong{Link} \tab \strong{Extra arguments} \cr
+"Normal" \tab identity \tab \code{std} (default 1) \cr
+"Bernoulli" \tab logit \tab \cr
+"Binomial" \tab logit \tab \code{n_trials} (required) \cr
+"Poisson" \tab log \tab \cr
+"Gamma" \tab log (mean \eqn{e^\eta}) \tab \code{shape} (default 1) \cr
+"Exponential" \tab log \tab \cr
+"InverseGaussian" \tab log \tab \code{shape} (\eqn{\lambda}, default 1) \cr
+"NegativeBinomial" \tab log \tab \code{theta} (size, default 1) \cr
+"Geometric" \tab log \tab \cr
+"MultivariateNormal" \tab identity \tab \code{cov_matrix} (required) \cr
+"Multinomial" \tab baseline-category logit \tab \code{n_categories} (required)
 }
+
+For "Multinomial", \code{Y} holds categories \eqn{1, \dots, K} and the result is an
+\eqn{n \times (K-1)} matrix of baseline-category logits of the smoothed one-hot vector
+\eqn{(\mathrm{onehot}(Y_i) + 0.01)/(1 + 0.01K)}. For "Binomial", the logit is multiplied
+by \code{n_trials}.
 GLM stands for \emph{generalized linear model}, a common framework for regression models.
 
 The underlying Julia logic is sourced from \code{'Y_to_LP.jl'}, and relies on the 'JuliaCall' interface.

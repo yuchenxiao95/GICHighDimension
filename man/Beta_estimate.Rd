@@ -10,6 +10,7 @@ Beta_estimate(
   family = "auto",
   link = "auto",
   n_trials = NULL,
+  theta = NULL,
   add_intercept = TRUE
 )
 }
@@ -20,12 +21,19 @@ Beta_estimate(
 responses.  A one-column matrix is automatically converted to a
 vector.}
 
-\item{family}{Character/symbol; default \code{"auto"}.}
+\item{family}{One of \code{"auto"} (default, guessed from \code{Y}), \code{"Linear"}
+(or \code{"Normal"}), \code{"MultivariateNormal"}, \code{"Bernoulli"},
+\code{"Binomial"}, \code{"Poisson"}, \code{"Gamma"}, \code{"Exponential"},
+\code{"InverseGaussian"}, \code{"NegativeBinomial"}, \code{"Geometric"}, or
+\code{"Multinomial"} (one-vs-rest logistic). The default links match
+\code{LP_to_Y()}: identity, logit, or log.}
 
 \item{link}{Character/symbol/Julia \code{Link}; default \code{"auto"}.}
 
 \item{n_trials}{Integer trials for a binomial response (default
 \code{NULL}).}
+
+\item{theta}{Optional NegativeBinomial size; estimated from the data if \code{NULL}.}
 
 \item{add_intercept}{Logical.  If \code{TRUE} (default) the wrapper
 asks Julia to prepend a column of 1s and \strong{keeps the intercept

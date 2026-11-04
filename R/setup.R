@@ -17,7 +17,7 @@ install_julia_dependencies <- function(install_julia = FALSE,
   # Optionally install Julia itself (avoid on CRAN)
   if (isTRUE(install_julia)) {
     # JuliaCall exports install_julia(); if not present, fallback to julia_setup(installJulia=TRUE)
-    if (is.function(getFromNamespace("install_julia", "JuliaCall"))) {
+    if (is.function(utils::getFromNamespace("install_julia", "JuliaCall"))) {
       JuliaCall::install_julia()
     } else {
       JuliaCall::julia_setup(installJulia = TRUE)

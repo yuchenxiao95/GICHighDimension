@@ -1,3 +1,41 @@
+# GICHighDimension (development version)
+
+## Speed
+
+* The selection search no longer forms the n x n hat matrix. Every criterion is
+  computed from X'Y and (X'X)^{-1}, and each add/remove move is scored with a
+  rank-one update, at O(nK + K^2) cost. On simulated data this is 38-371 times
+  faster than 0.1.2 and selects the same variables at every step.
+* EBIC computes log(choose(P, K)) in floating point instead of with big integers.
+* The Julia code is loaded once per session instead of on every call.
+
+## New features
+
+* `LP_to_Y()`, `Y_to_LP()` and `Beta_estimate()` support Normal, Bernoulli,
+  Binomial, Poisson, Gamma, Exponential, InverseGaussian, NegativeBinomial,
+  Geometric, MultivariateNormal and Multinomial responses.
+* `GICSelection()` and `GICSelectionBoltzmann()` gain a `gamma` argument for
+  EBIC (default 0.6); `GICSelectionBoltzmann()` gains an optional `k`.
+* `citation("GICHighDimension")` cites Xiao and Walker (2026),
+  *Statistics and Computing* <doi:10.1007/s11222-026-10853-5>.
+* A pkgdown website.
+
+## Bug fixes and behaviour changes
+
+* Models never exceed n - 1 variables (n = sample size), so the search no
+  longer produces a singular fit when p > n.
+* `GICSelectionBoltzmann()` works with criteria that use P (GIC2-GIC6, EBIC)
+  and no longer calls `Pkg.add()` when loaded.
+* `Calculate_EBIC()` and `Calculate_EBIC_short()` use the same gamma (they used
+  0.6 and 1).
+* `GICSelection()` stops with an error instead of returning `NA` with a warning,
+  and `selected_coeffs` is a plain R list.
+* `LP_to_Y()` with `family = "Gamma"` has mean exp(eta) for every `shape`
+  (before, the mean was shape * exp(eta)); univariate families return a vector.
+* `Beta_estimate()` uses the log link by default for Gamma (as `LP_to_Y()` does),
+  treats integer counts as Poisson when `family = "auto"`, and fits Binomial
+  counts as proportions with `n_trials` weights.
+
 # GICHighDimension 0.1.0
 
 * Initial CRAN release.

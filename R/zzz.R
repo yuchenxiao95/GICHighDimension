@@ -11,6 +11,7 @@
   assign(".jl_backend_loaded", FALSE, envir = .pkg_env)
   assign("julia_initialized", FALSE, envir = .pkg_env)
   assign("julia_deps_installed", FALSE, envir = .pkg_env)
+  assign(".jl_glm_loaded", FALSE, envir = .pkg_env)
 }
 
 # =========================
@@ -83,65 +84,45 @@ get_julia_status <- function() {
   all_ok
 }
 
-# Source the Julia backend only once per session
-.source_julia_backend_once <- function(quiet = FALSE) {
-  # Ensure flag exists, then short-circuit if already loaded
-  if (!exists(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE)) {
-    assign(".jl_backend_loaded", FALSE, envir = .pkg_env)
+# Julia scripts that make up the backend, in load order.
+.jl_backend_files <- c("penalty_selection.jl", "GIC_Model_Selection.jl",
+                       "GIC_Model_Selection_Boltzmann.jl", "LP_to_Y.jl", "Y_to_LP.jl")
+
+# Make sure Julia is running and the backend is loaded, once per session.
+# Every exported function calls this, so the Julia code is compiled once
+# instead of being re-sourced (and recompiled) on every call.
+.source_julia_backend_once <- function(quiet = TRUE, glm = FALSE) {
+  if (!requireNamespace("JuliaCall", quietly = TRUE)) {
+    stop("Package 'JuliaCall' is required. Install it with install.packages('JuliaCall').",
+         call. = FALSE)
   }
-  if (isTRUE(get(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE))) {
-    if (!quiet) cli_alert_info("Julia backend already loaded; skipping.")
-    return(invisible(TRUE))
-  }
-  
   if (!get_julia_status()) {
-    stop("Julia is not initialized. Call setup_julia() first.", call. = FALSE)
+    tryCatch(JuliaCall::julia_setup(installJulia = FALSE), error = function(e) {
+      stop("Julia initialization failed. Run setup_julia() first: ", conditionMessage(e),
+           call. = FALSE)
+    })
+    assign("julia_initialized", TRUE, envir = .pkg_env)
   }
-  
+
   jl_dir <- system.file("julia", package = "GICHighDimension")
-  if (jl_dir == "" || !dir.exists(jl_dir)) {
-    stop("Julia scripts directory not found in the package (inst/julia).")
+  if (!nzchar(jl_dir) || !dir.exists(jl_dir)) {
+    stop("Julia scripts directory not found in the package (inst/julia).", call. = FALSE)
   }
-  
-  files <- c("penalty_selection.jl", "GIC_Calculation.jl", "GIC_Model_Selection.jl")
-  for (f in files) {
-    fp <- file.path(jl_dir, f)
-    if (file.exists(fp)) {
+
+  if (!isTRUE(get0(".jl_backend_loaded", envir = .pkg_env, inherits = FALSE))) {
+    for (f in .jl_backend_files) {
       if (!quiet) cli_alert_info(sprintf("Loading Julia script: %s", f))
-      JuliaCall::julia_source(fp)
-    } else if (!quiet) {
-      cli_alert_warning(sprintf("Julia script not found: %s", f))
+      JuliaCall::julia_source(file.path(jl_dir, f))
     }
+    assign(".jl_backend_loaded", TRUE, envir = .pkg_env)
   }
-  
-  # Optional: light "arity adapters" so driver can pass extra args safely
-  JuliaCall::julia_eval(
-    "
-    if !isdefined(Main, :_gic_wrappers_installed) || !_gic_wrappers_installed
-        for f in (:Calculate_AIC, :Calculate_AIC_c, :Calculate_SIC, :Calculate_BIC,
-                  :Calculate_CAIC, :Calculate_CAICF, :Calculate_AttIC)
-            if isdefined(Main, f) && !hasmethod(getfield(Main, f),
-                     Tuple{Union{AbstractVector,AbstractMatrix}, AbstractMatrix, Integer})
-                @eval begin
-                    $f(Y::Union{AbstractVector,AbstractMatrix}, X::AbstractMatrix, ::Integer) = $f(Y, X)
-                end
-            end
-        end
-        for f in (:Calculate_AIC_short, :Calculate_AIC_c_short, :Calculate_SIC_short, :Calculate_BIC_short,
-                  :Calculate_CAIC_short, :Calculate_CAICF_short, :Calculate_AttIC_short)
-            if isdefined(Main, f) && !hasmethod(getfield(Main, f),
-                     Tuple{Union{AbstractVector,AbstractMatrix}, AbstractMatrix, AbstractMatrix, Integer})
-                @eval begin
-                    $f(Y::Union{AbstractVector,AbstractMatrix}, X::AbstractMatrix, Inv::AbstractMatrix, ::Integer) = $f(Y, X, Inv)
-                end
-            end
-        end
-        const _gic_wrappers_installed = true
-    end
-    "
-  )
-  
-  assign(".jl_backend_loaded", TRUE, envir = .pkg_env)
+
+  # Beta_estimate.jl needs GLM.jl, so it is only loaded when first used.
+  if (glm && !isTRUE(get0(".jl_glm_loaded", envir = .pkg_env, inherits = FALSE))) {
+    JuliaCall::julia_install_package_if_needed("GLM")
+    JuliaCall::julia_source(file.path(jl_dir, "Beta_estimate.jl"))
+    assign(".jl_glm_loaded", TRUE, envir = .pkg_env)
+  }
   invisible(TRUE)
 }
 
@@ -189,6 +170,7 @@ setup_julia <- function(julia_path = NULL,
     }
     
     # Load backend once after setup
+    assign(".jl_backend_loaded", FALSE, envir = .pkg_env)
     .source_julia_backend_once(quiet = quiet)
     
     if (!quiet) cli_alert_success("Julia environment initialized successfully.")

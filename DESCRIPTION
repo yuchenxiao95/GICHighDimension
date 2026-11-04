@@ -1,6 +1,6 @@
 Package: GICHighDimension
 Title: Generalized Information Criterion for Variable Selection Using Hopfield Network Optimization
-Version: 0.1.2
+Version: 0.1.2.9000
 Authors@R: 
     c(
       person("Yuchen", "Xiao", 
@@ -14,8 +14,10 @@ Authors@R:
 Description: Provides tools for variable selection in high-dimensional regression
     using the generalized information criterion (GIC) combined with Hopfield
     network optimization. Supports generalized linear models (GLMs), including
-    normal and Poisson families. Performance-critical components are implemented
-    in Julia with a user-friendly R interface via 'JuliaCall'.
+    normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and
+    multinomial families. Performance-critical components are implemented in
+    'Julia' with a user-friendly R interface via 'JuliaCall'. The method is
+    described in Xiao and Walker (2026) <doi:10.1007/s11222-026-10853-5>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
@@ -24,7 +26,6 @@ Depends:
 Imports: 
     cli,
     JuliaCall (>= 0.17.0),
-    stats,
     utils
 Suggests:
     MASS,
@@ -37,9 +38,11 @@ Suggests:
     Matrix
 VignetteBuilder: knitr
 SystemRequirements: 
-    Julia (>= 1.9.0); Julia packages: Distributions, LinearAlgebra, OrderedCollections, Random, Statistics
+    Julia (>= 1.9.0); Julia packages: Distributions, GLM (for Beta_estimate);
+    standard libraries LinearAlgebra, Random, Statistics
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/yuchenxiao95/GICHighDimension
+URL: https://github.com/yuchenxiao95/GICHighDimension,
+    https://yuchenxiao95.github.io/GICHighDimension/
 BugReports: https://github.com/yuchenxiao95/GICHighDimension/issues

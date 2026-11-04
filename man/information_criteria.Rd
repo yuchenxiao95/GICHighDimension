@@ -83,7 +83,8 @@ Calculate_GIC5_Short(Y, X, Inverse, P = ncol(X))
 Calculate_GIC6_Short(Y, X, Inverse, P = ncol(X))
 }
 \arguments{
-\item{Y}{A numeric response (vector of length n). (Current package assumes univariate Y.)}
+\item{Y}{A numeric response: a vector of length n, or an n x q matrix for a
+multivariate response (CAICF supports vector responses only).}
 
 \item{X}{A numeric design matrix (n × p).}
 

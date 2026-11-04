@@ -1,0 +1,53 @@
+url: https://yuchenxiao95.github.io/GICHighDimension/
+
+template:
+  bootstrap: 5
+
+home:
+  title: "GICHighDimension: fast variable selection with information criteria"
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+- title: Variable selection
+  desc: >
+    Search over variable subsets to maximize an information criterion. This is
+    how you will usually use the package.
+  contents:
+  - GICSelection
+  - GICSelectionBoltzmann
+- title: Information criteria
+  desc: >
+    AIC, BIC, EBIC, GIC2–GIC6 and related criteria. Pass the name of a
+    criterion (and of its `_short` version) to `GICSelection()`, or call these
+    functions directly to score a single model.
+  contents:
+  - information_criteria
+- title: Simulation and link transforms
+  desc: >
+    Simulate responses from a linear predictor, map responses to the
+    linear-predictor scale, and generate sparse coefficient vectors. All
+    common GLM families are supported.
+  contents:
+  - LP_to_Y
+  - Y_to_LP
+  - Generate_Beta
+- title: Estimation
+  desc: Estimate the coefficients of a selected model.
+  contents:
+  - Beta_estimate
+- title: Julia setup
+  desc: Connect R to Julia and install the Julia packages the package needs.
+  contents:
+  - setup_julia
+  - install_julia_packages
+  - install_julia_dependencies
+
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - GICHighDimension

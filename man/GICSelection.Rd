@@ -4,7 +4,8 @@
 \alias{GICSelection}
 \title{GIC-Based Variable Selection}
 \usage{
-GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, k, Nsim = 1L)
+GICSelection(X, Y, Initial_Column, Calculate_GIC, Calculate_GIC_short, k,
+             Nsim = 1L, gamma = 0.6)
 }
 \arguments{
 \item{X}{Numeric design matrix (n x p), where n is the number of observations and
@@ -16,11 +17,17 @@ p is the number of predictors.}
 
 \item{Calculate_GIC}{Character name of the 'Julia' function for full GIC calculation.}
 
-\item{Calculate_GIC_short}{Character name of the 'Julia' shortcut function for approximate GIC.}
+\item{Calculate_GIC_short}{Character name of the matching \code{_short} 'Julia' function.
+Kept for backward compatibility; the built-in criteria use fast rank-one updates instead.}
 
-\item{k}{Integer tuning/control parameter passed to the Julia driver.}
+\item{k}{Integer model-size cap: a move that would give a model with \code{k}
+or more variables is skipped. Models also never exceed \eqn{n - 1} variables
+(\eqn{n} = sample size), so selected models have at most
+\code{min(k, n) - 1} variables.}
 
-\item{Nsim}{Integer number of simulations to run (default: 1).}
+\item{Nsim}{Integer number of passes over the variables, each in a new random order (default: 1).}
+
+\item{gamma}{EBIC tuning constant \eqn{\gamma} (default 0.6); ignored by other criteria.}
 }
 \value{
 A list containing:
@@ -93,4 +100,9 @@ if (requireNamespace("JuliaCall", quietly = TRUE)) {
   }
 }
 }
+}
+\references{
+Xiao, Y. and Walker, S. G. (2026). Fast variable selection under
+\eqn{\ell_0} regularization in high-dimensions. \emph{Statistics and Computing},
+36(3), 100. \doi{10.1007/s11222-026-10853-5}
 }

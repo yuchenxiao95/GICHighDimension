@@ -11,6 +11,7 @@ LP_to_Y(
   n_trials = NULL,
   std = NULL,
   shape = NULL,
+  theta = NULL,
   cov_matrix = NULL,
   n_categories = NULL
 )
@@ -26,30 +27,44 @@ LP_to_Y(
 
 \item{std}{Optional numeric, standard deviation for the Normal family.}
 
-\item{shape}{Optional numeric, shape parameter for the Gamma family.}
+\item{shape}{Optional numeric shape parameter (Gamma, InverseGaussian).}
+
+\item{theta}{Optional numeric size parameter for the NegativeBinomial family.}
 
 \item{cov_matrix}{Optional covariance matrix for multivariate families.}
 
 \item{n_categories}{Optional integer, number of categories for Multinomial family.}
 }
 \value{
-A numeric vector or matrix of responses generated from the linear predictor.
+A numeric vector of responses (integer categories for "Multinomial"), or an
+\eqn{n \times q} matrix for "MultivariateNormal".
 }
 \description{
 Converts a linear predictor to observed responses using canonical link functions from
 generalized linear models (GLMs). Supports univariate and multivariate distributions.
 }
 \details{
-This function uses the Julia backend via the 'JuliaCall' interface to compute responses
-from linear predictors efficiently. Supported families include:
-\itemize{
-\item "Normal" (Gaussian)
-\item "Poisson"
-\item "Bernoulli"
-\item "Gamma"
-\item "MultivariateNormal"
-\item "Multinomial" (optional)
+Simulates responses from the linear predictor \eqn{\eta = X\beta} using the
+'Julia' backend. The supported families and links (the same as in
+\code{Y_to_LP()} and \code{Beta_estimate()}) are:
+
+\tabular{lll}{
+\strong{Family} \tab \strong{Link} \tab \strong{Extra arguments} \cr
+"Normal" \tab identity \tab \code{std} (default 1) \cr
+"Bernoulli" \tab logit \tab \cr
+"Binomial" \tab logit \tab \code{n_trials} (required) \cr
+"Poisson" \tab log \tab \cr
+"Gamma" \tab log (mean \eqn{e^\eta}) \tab \code{shape} (default 1) \cr
+"Exponential" \tab log \tab \cr
+"InverseGaussian" \tab log \tab \code{shape} (\eqn{\lambda}, default 1) \cr
+"NegativeBinomial" \tab log \tab \code{theta} (size, default 1) \cr
+"Geometric" \tab log \tab \cr
+"MultivariateNormal" \tab identity \tab \code{cov_matrix} (required) \cr
+"Multinomial" \tab baseline-category logit \tab \code{n_categories} (required)
 }
+
+For "MultivariateNormal", \code{true_beta} is a \eqn{p \times q} matrix; for
+"Multinomial" it is \eqn{p \times (K-1)} and the last category is the baseline.
 GLM stands for \emph{generalized linear model}.
 }
 \examples{

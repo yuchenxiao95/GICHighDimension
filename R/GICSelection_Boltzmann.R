@@ -11,12 +11,14 @@
 #' 'Julia' functions and works with both univariate and multivariate responses.
 #'
 #' @param X A numeric design matrix with \code{n} rows (observations) and \code{p} columns (predictors).
-#' @param Y A numeric response vector (length \code{n}) or matrix compatible with \code{X}.
+#' @param Y A numeric response vector (length \code{n}) or an \code{n x q} matrix.
 #' @param Init_Columns Integer vector of indices specifying the initial set of predictors.
 #' @param Calculate_GIC Character string giving the name of the 'Julia' function to compute full GIC values.
 #' @param Calculate_GIC_short Character string giving the name of the 'Julia' function to compute approximate GIC values.
 #' @param T Numeric scalar. The temperature parameter controlling stochasticity in the simulated annealing process (default: 0.1).
-#' @param Nsim Integer. Number of repeated runs for the optimization procedure (default: 5).
+#' @param Nsim Integer. Number of passes over the (once-shuffled) variables (default: 5).
+#' @param k Optional integer model-size cap, as in \code{GICSelection()}; \code{NULL} (default) means no cap.
+#' @param gamma EBIC tuning constant (default 0.6); ignored by other criteria.
 #'
 #' @return A list with the following components:
 #' \describe{
@@ -61,42 +63,28 @@ GICSelectionBoltzmann <- function(X, Y, Init_Columns,
                                   Calculate_GIC,
                                   Calculate_GIC_short,
                                   T = 0.1,
-                                  Nsim = 5) {
-  if (!requireNamespace("JuliaCall", quietly = TRUE)) {
-    stop("The 'JuliaCall' package is required. Please install it with install.packages('JuliaCall').")
-  }
+                                  Nsim = 5,
+                                  k = NULL,
+                                  gamma = 0.6) {
+  if (!is.matrix(X)) X <- as.matrix(X)
+  storage.mode(X) <- "double"
+  if (is.matrix(Y)) storage.mode(Y) <- "double" else Y <- as.numeric(Y)
+  if (nrow(X) != nrow(as.matrix(Y))) stop("X and Y must have the same number of rows", call. = FALSE)
 
-  JuliaCall::julia_setup(installJulia = FALSE)
+  .source_julia_backend_once()
 
-  X_julia <- as.matrix(X)
-  Y_julia <- as.vector(Y)
-  Nsim <- as.integer(Nsim)
-  T <- as.numeric(T)
+  args <- list("GIC_Variable_Selection_Boltzmann",
+               X, Y, as.integer(Init_Columns),
+               JuliaCall::julia_eval(Calculate_GIC), JuliaCall::julia_eval(Calculate_GIC_short),
+               T = as.numeric(T), Nsim = as.integer(Nsim), gamma = as.numeric(gamma))
+  if (!is.null(k)) args$k <- as.integer(k)
 
-  penalty_script <- system.file("julia", "penalty_selection.jl", package = "GICHighDimension")
-  if (penalty_script == "") stop("penalty_selection.jl not found.")
-  JuliaCall::julia_source(penalty_script)
-
-  gic_boltzmann_script <- system.file("julia", "GIC_Model_Selection_Boltzmann.jl", package = "GICHighDimension")
-  if (gic_boltzmann_script == "") stop("GIC_Model_Selection_Boltzmann.jl not found.")
-  JuliaCall::julia_source(gic_boltzmann_script)
-
-  Calculate_GIC_func <- JuliaCall::julia_eval(Calculate_GIC)
-  Calculate_GIC_short_func <- JuliaCall::julia_eval(Calculate_GIC_short)
-
-  result <- tryCatch({
-    JuliaCall::julia_call(
-      "GIC_Variable_Selection_Boltzmann",
-      X_julia, Y_julia, Init_Columns,
-      Calculate_GIC_func, Calculate_GIC_short_func,
-      T = T, Nsim = Nsim
-    )
-  }, error = function(e) {
-    stop("Error occurred while calling the Julia function: ", e$message)
+  result <- tryCatch(do.call(JuliaCall::julia_call, args), error = function(e) {
+    stop("Error occurred while calling the Julia function: ", conditionMessage(e), call. = FALSE)
   })
 
   list(
-    GIC_list = result[[1]],
-    GIC_coeff = result[[2]]
+    GIC_list = as.numeric(unlist(result[[1]])),
+    GIC_coeff = lapply(result[[2]], as.integer)
   )
 }

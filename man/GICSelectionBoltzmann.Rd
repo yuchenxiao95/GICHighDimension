@@ -11,13 +11,15 @@ GICSelectionBoltzmann(
   Calculate_GIC,
   Calculate_GIC_short,
   T = 0.1,
-  Nsim = 5
+  Nsim = 5,
+  k = NULL,
+  gamma = 0.6
 )
 }
 \arguments{
 \item{X}{A numeric design matrix with \code{n} rows (observations) and \code{p} columns (predictors).}
 
-\item{Y}{A numeric response vector (length \code{n}) or matrix compatible with \code{X}.}
+\item{Y}{A numeric response vector (length \code{n}) or an \code{n x q} matrix.}
 
 \item{Init_Columns}{Integer vector of indices specifying the initial set of predictors.}
 
@@ -27,7 +29,11 @@ GICSelectionBoltzmann(
 
 \item{T}{Numeric scalar. The temperature parameter controlling stochasticity in the simulated annealing process (default: 0.1).}
 
-\item{Nsim}{Integer. Number of repeated runs for the optimization procedure (default: 5).}
+\item{Nsim}{Integer. Number of passes over the (once-shuffled) variables (default: 5).}
+
+\item{k}{Optional integer model-size cap, as in \code{GICSelection()}; \code{NULL} (default) means no cap.}
+
+\item{gamma}{EBIC tuning constant (default 0.6); ignored by other criteria.}
 }
 \value{
 A list with the following components:

@@ -4,3 +4,9 @@
 ^Meta$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^README\.Rmd$
