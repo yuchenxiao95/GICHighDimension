@@ -4,7 +4,7 @@ template:
   bootstrap: 5
 
 home:
-  title: "GICHighDimension: fast variable selection with information criteria"
+  title: "Fast Variable Selection with Information Criteria"
 
 navbar:
   structure:
@@ -50,4 +50,4 @@ articles:
 - title: Articles
   navbar: ~
   contents:
-  - GICHighDimension
+  - performance
