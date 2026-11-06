@@ -58,5 +58,5 @@ marks a new pass):
 
 ![EBIC and model size along the search](man/figures/README-search.png)
 
-See [Get started](https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.html)
-for the available criteria and response families.
+For the available criteria and response families, see the Get started
+article, `vignette("GICHighDimension")`.
