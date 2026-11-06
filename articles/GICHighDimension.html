@@ -129,68 +129,99 @@ the residual variance, and
 the penalty:</p>
 <table class="table">
 <colgroup>
-<col width="50%">
-<col width="50%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Function</th>
+<th align="left">Criterion</th>
 <th align="left">Penalty
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>n</mi></msub><annotation encoding="application/x-tex">c_n</annotation></semantics></math>
 </th>
+<th align="left">Reference</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left"><code>Calculate_AIC</code></td>
+<td align="left">AIC</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></td>
+<td align="left">Akaike (1974)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_BIC</code></td>
+<td align="left">BIC</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math></td>
+<td align="left">Schwarz (1978)</td>
 </tr>
 <tr class="odd">
-<td align="left"><code>Calculate_SIC</code></td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>n</mi></msqrt><annotation encoding="application/x-tex">\sqrt n</annotation></semantics></math></td>
+<td align="left"><code>Calculate_CAIC</code></td>
+<td align="left">Consistent AIC</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + \log n</annotation></semantics></math></td>
+<td align="left">Bozdogan (1987)</td>
 </tr>
 <tr class="even">
-<td align="left"><code>Calculate_CAIC</code></td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + \log n</annotation></semantics></math></td>
+<td align="left"><code>Calculate_SIC</code></td>
+<td align="left">Square-root IC</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>n</mi></msqrt><annotation encoding="application/x-tex">\sqrt n</annotation></semantics></math></td>
+<td align="left">Shao (1997)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC2</code></td>
+<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>2</mn></msub><annotation encoding="application/x-tex">_2</annotation></semantics></math>
+</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup><annotation encoding="application/x-tex">P^{1/3}</annotation></semantics></math></td>
+<td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC3</code></td>
+<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>3</mn></msub><annotation encoding="application/x-tex">_3</annotation></semantics></math>
+</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">2 \log P</annotation></semantics></math></td>
+<td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC4</code></td>
+<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>4</mn></msub><annotation encoding="application/x-tex">_4</annotation></semantics></math>
+</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2(\log P + \log\log P)</annotation></semantics></math></td>
+<td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC5</code></td>
+<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>5</mn></msub><annotation encoding="application/x-tex">_5</annotation></semantics></math>
+</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log\log n \, \log P</annotation></semantics></math></td>
+<td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC6</code></td>
+<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>6</mn></msub><annotation encoding="application/x-tex">_6</annotation></semantics></math>
+</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \, \log P</annotation></semantics></math></td>
+<td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_EBIC</code></td>
+<td align="left">Extended BIC</td>
 <td align="left">
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mo>+</mo><mi>γ</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>P</mi><mi>K</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log n + \gamma \log \binom{P}{K}</annotation></semantics></math>,
-with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>0.6</mn></mrow><annotation encoding="application/x-tex">\gamma = 0.6</annotation></semantics></math>
 by default</td>
+<td align="left">Chen and Chen (2008)</td>
 </tr>
 </tbody>
 </table>
 <p>Here
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
-is the number of candidate variables. <code>Calculate_AICc</code>,
-<code>Calculate_CAICF</code> and <code>Calculate_AttIC</code> use
-slightly different forms; see <code><a href="../reference/information_criteria.html">?information_criteria</a></code>. Pass
-the name of a criterion and of its <code>_short</code> version to
+is the number of candidate variables. Three criteria use slightly
+different forms (see <code><a href="../reference/information_criteria.html">?information_criteria</a></code>):
+<code>Calculate_AICc</code>, the small-sample corrected AIC (Hurvich and
+Tsai, 1989); <code>Calculate_CAICF</code>, the consistent AIC with
+Fisher information (Bozdogan, 1987); and <code>Calculate_AttIC</code>,
+an attention-weighted criterion specific to this package. Pass the name
+of a criterion and of its <code>_short</code> version to
 <code><a href="../reference/GICSelection.html">GICSelection()</a></code>. For EBIC, change
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
 with the <code>gamma</code> argument.</p>
@@ -217,6 +248,33 @@ coefficients of the selected model with
 <p>The supported families are Normal, Bernoulli, Binomial, Poisson,
 Gamma, Exponential, InverseGaussian, NegativeBinomial, Geometric,
 MultivariateNormal and Multinomial.</p>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Akaike, H. (1974). A new look at the statistical model
+identification. <em>IEEE Transactions on Automatic Control</em>, 19(6),
+716–723. <a href="https://doi.org/10.1109/TAC.1974.1100705" class="external-link uri">https://doi.org/10.1109/TAC.1974.1100705</a></p>
+<p>Bozdogan, H. (1987). Model selection and Akaike’s information
+criterion (AIC): The general theory and its analytical extensions.
+<em>Psychometrika</em>, 52(3), 345–370. <a href="https://doi.org/10.1007/BF02294361" class="external-link uri">https://doi.org/10.1007/BF02294361</a></p>
+<p>Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria
+for model selection with large model spaces. <em>Biometrika</em>, 95(3),
+759–771. <a href="https://doi.org/10.1093/biomet/asn034" class="external-link uri">https://doi.org/10.1093/biomet/asn034</a></p>
+<p>Hurvich, C. M. and Tsai, C.-L. (1989). Regression and time series
+model selection in small samples. <em>Biometrika</em>, 76(2), 297–307.
+<a href="https://doi.org/10.1093/biomet/76.2.297" class="external-link uri">https://doi.org/10.1093/biomet/76.2.297</a></p>
+<p>Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection
+criteria on high dimensions. <em>Journal of Machine Learning
+Research</em>, 13, 1037–1057. <a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link uri">https://jmlr.org/papers/v13/kim12a.html</a></p>
+<p>Schwarz, G. (1978). Estimating the dimension of a model. <em>The
+Annals of Statistics</em>, 6(2), 461–464. <a href="https://doi.org/10.1214/aos/1176344136" class="external-link uri">https://doi.org/10.1214/aos/1176344136</a></p>
+<p>Shao, J. (1997). An asymptotic theory for linear model selection.
+<em>Statistica Sinica</em>, 7(2), 221–242.</p>
+<p>Xiao, Y. and Walker, S. (2026). Fast variable selection under
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>
+regularization in high-dimensions. <em>Statistics and Computing</em>,
+36(3), 100. <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link uri">https://doi.org/10.1007/s11222-026-10853-5</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -66,24 +66,27 @@ where $`H`$ is the hat matrix of the selected columns, $`K`$ the number
 of selected variables, $`\hat\sigma^2`$ the residual variance, and
 $`c_n`$ the penalty:
 
-| Function | Penalty $`c_n`$ |
-|:---|:---|
-| `Calculate_AIC` | $`1`$ |
-| `Calculate_BIC` | $`\log n`$ |
-| `Calculate_SIC` | $`\sqrt n`$ |
-| `Calculate_CAIC` | $`1 + \log n`$ |
-| `Calculate_GIC2` | $`P^{1/3}`$ |
-| `Calculate_GIC3` | $`2 \log P`$ |
-| `Calculate_GIC4` | $`2(\log P + \log\log P)`$ |
-| `Calculate_GIC5` | $`\log\log n \, \log P`$ |
-| `Calculate_GIC6` | $`\log n \, \log P`$ |
-| `Calculate_EBIC` | $`\log n + \gamma \log \binom{P}{K}`$, with $`\gamma = 0.6`$ by default |
+| Function | Criterion | Penalty $`c_n`$ | Reference |
+|:---|:---|:---|:---|
+| `Calculate_AIC` | AIC | $`1`$ | Akaike (1974) |
+| `Calculate_BIC` | BIC | $`\log n`$ | Schwarz (1978) |
+| `Calculate_CAIC` | Consistent AIC | $`1 + \log n`$ | Bozdogan (1987) |
+| `Calculate_SIC` | Square-root IC | $`\sqrt n`$ | Shao (1997) |
+| `Calculate_GIC2` | GIC$`_2`$ | $`P^{1/3}`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC3` | GIC$`_3`$ | $`2 \log P`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC4` | GIC$`_4`$ | $`2(\log P + \log\log P)`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC5` | GIC$`_5`$ | $`\log\log n \, \log P`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC6` | GIC$`_6`$ | $`\log n \, \log P`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_EBIC` | Extended BIC | $`\log n + \gamma \log \binom{P}{K}`$, $`\gamma = 0.6`$ by default | Chen and Chen (2008) |
 
-Here $`P`$ is the number of candidate variables. `Calculate_AICc`,
-`Calculate_CAICF` and `Calculate_AttIC` use slightly different forms;
-see
-[`?information_criteria`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md).
-Pass the name of a criterion and of its `_short` version to
+Here $`P`$ is the number of candidate variables. Three criteria use
+slightly different forms (see
+[`?information_criteria`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)):
+`Calculate_AICc`, the small-sample corrected AIC (Hurvich and Tsai,
+1989); `Calculate_CAICF`, the consistent AIC with Fisher information
+(Bozdogan, 1987); and `Calculate_AttIC`, an attention-weighted criterion
+specific to this package. Pass the name of a criterion and of its
+`_short` version to
 [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md).
 For EBIC, change $`\gamma`$ with the `gamma` argument.
 
@@ -112,3 +115,35 @@ Beta_estimate(X[, selected, drop = FALSE], y_count, family = "Poisson")
 The supported families are Normal, Bernoulli, Binomial, Poisson, Gamma,
 Exponential, InverseGaussian, NegativeBinomial, Geometric,
 MultivariateNormal and Multinomial.
+
+## References
+
+Akaike, H. (1974). A new look at the statistical model identification.
+*IEEE Transactions on Automatic Control*, 19(6), 716–723.
+<https://doi.org/10.1109/TAC.1974.1100705>
+
+Bozdogan, H. (1987). Model selection and Akaike’s information criterion
+(AIC): The general theory and its analytical extensions.
+*Psychometrika*, 52(3), 345–370. <https://doi.org/10.1007/BF02294361>
+
+Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for
+model selection with large model spaces. *Biometrika*, 95(3), 759–771.
+<https://doi.org/10.1093/biomet/asn034>
+
+Hurvich, C. M. and Tsai, C.-L. (1989). Regression and time series model
+selection in small samples. *Biometrika*, 76(2), 297–307.
+<https://doi.org/10.1093/biomet/76.2.297>
+
+Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection
+criteria on high dimensions. *Journal of Machine Learning Research*, 13,
+1037–1057. <https://jmlr.org/papers/v13/kim12a.html>
+
+Schwarz, G. (1978). Estimating the dimension of a model. *The Annals of
+Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
+
+Shao, J. (1997). An asymptotic theory for linear model selection.
+*Statistica Sinica*, 7(2), 221–242.
+
+Xiao, Y. and Walker, S. (2026). Fast variable selection under $`\ell_0`$
+regularization in high-dimensions. *Statistics and Computing*, 36(3),
+100. <https://doi.org/10.1007/s11222-026-10853-5>
