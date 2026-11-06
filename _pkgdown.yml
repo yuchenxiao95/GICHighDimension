@@ -8,7 +8,7 @@ home:
 
 navbar:
   structure:
-    left:  [intro, reference, articles, news]
+    left:  [reference, articles, news]
     right: [search, github]
 
 reference:
@@ -50,4 +50,5 @@ articles:
 - title: Articles
   navbar: ~
   contents:
+  - get-started
   - performance

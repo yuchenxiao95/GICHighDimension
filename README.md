@@ -1,4 +1,4 @@
-# GICHighDimension
+# GICHighDimension <img src="man/figures/logo.png" align="right" height="139" alt="GICHighDimension logo" />
 
 GICHighDimension is an R package for variable selection in high-dimensional
 regression. It searches over subsets of predictors for the one that maximizes
@@ -13,9 +13,9 @@ proposed move is scored with a rank-one update, so a pass over thousands of
 candidate predictors takes milliseconds. The method is described in
 [Xiao and Walker (2026)](https://doi.org/10.1007/s11222-026-10853-5).
 
-## Quick start
+## Installation
 
-To get started, install `GICHighDimension` from GitHub:
+Install the development version of `GICHighDimension` from GitHub:
 
 ```r
 devtools::install_github("yuchenxiao95/GICHighDimension")
@@ -31,7 +31,9 @@ setup_julia()
 install_julia_packages()   # first time only
 ```
 
-Now simulate data with 200 candidate predictors, 5 of them active, and select
+## Example
+
+Simulate data with 200 candidate predictors, 5 of them active, and select
 variables with EBIC:
 
 ```r
@@ -59,4 +61,4 @@ marks a new pass):
 ![EBIC and model size along the search](man/figures/README-search.png)
 
 For the available criteria and response families, see the Get started
-article, `vignette("GICHighDimension")`.
+article, `vignette("get-started")`.
