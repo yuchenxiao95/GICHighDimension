@@ -14,9 +14,9 @@ over thousands of candidate predictors takes milliseconds. The method is
 described in [Xiao and Walker
 (2026)](https://doi.org/10.1007/s11222-026-10853-5).
 
-## Quick start
+## Installation
 
-To get started, install `GICHighDimension` from GitHub:
+Install the development version of `GICHighDimension` from GitHub:
 
 ``` r
 
@@ -34,7 +34,9 @@ setup_julia()
 install_julia_packages()   # first time only
 ```
 
-Now simulate data with 200 candidate predictors, 5 of them active, and
+## Example
+
+Simulate data with 200 candidate predictors, 5 of them active, and
 select variables with EBIC:
 
 ``` r
@@ -67,4 +69,4 @@ EBIC and model size along the search
 
 For the available criteria and response families, see the Get started
 article,
-[`vignette("GICHighDimension")`](https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.md).
+[`vignette("get-started")`](https://yuchenxiao95.github.io/GICHighDimension/articles/get-started.md).

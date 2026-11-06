@@ -5,6 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Fast Variable Selection with Information Criteria • GICHighDimension</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -12,6 +17,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Fast Variable Selection with Information Criteria">
 <meta name="description" content="Provides tools for variable selection in high-dimensional regression using the generalized information criterion (GIC) combined with Hopfield network optimization. Supports generalized linear models (GLMs), including normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and multinomial families. Performance-critical components are implemented in Julia with a user-friendly R interface via JuliaCall. The method is described in Xiao and Walker (2026) &lt;doi:10.1007/s11222-026-10853-5&gt;.">
 <meta property="og:description" content="Provides tools for variable selection in high-dimensional regression using the generalized information criterion (GIC) combined with Hopfield network optimization. Supports generalized linear models (GLMs), including normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and multinomial families. Performance-critical components are implemented in Julia with a user-friendly R interface via JuliaCall. The method is described in Xiao and Walker (2026) &lt;doi:10.1007/s11222-026-10853-5&gt;.">
+<meta property="og:image" content="https://yuchenxiao95.github.io/GICHighDimension/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,12 +36,12 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/GICHighDimension.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/performance.html">Performance</a></li>
+<li><a class="dropdown-item" href="articles/get-started.html">Get started with GICHighDimension</a></li>
+    <li><a class="dropdown-item" href="articles/performance.html">Performance</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -53,14 +59,16 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="gichighdimension">GICHighDimension<a class="anchor" aria-label="anchor" href="#gichighdimension"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="gichighdimension-">GICHighDimension <a class="anchor" aria-label="anchor" href="#gichighdimension-"></a>
+</h1>
+</div>
 <p>GICHighDimension is an R package for variable selection in high-dimensional regression. It searches over subsets of predictors for the one that maximizes a generalized information criterion (GIC), such as AIC, BIC, EBIC or GIC2–GIC6, using a fast Hopfield-network style coordinate search. Univariate and multivariate responses are supported, along with the common generalized linear model families.</p>
 <p>The search engine is written in <a href="https://julialang.org/" class="external-link">Julia</a> and called from R through <code>JuliaCall</code>. It never forms the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math> hat matrix: every proposed move is scored with a rank-one update, so a pass over thousands of candidate predictors takes milliseconds. The method is described in <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link">Xiao and Walker (2026)</a>.</p>
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>To get started, install <code>GICHighDimension</code> from GitHub:</p>
+<p>Install the development version of <code>GICHighDimension</code> from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"yuchenxiao95/GICHighDimension"</span><span class="op">)</span></span></code></pre></div>
 <p>You also need Julia (≥ 1.9), which you can download from <a href="https://julialang.org/downloads/" class="external-link uri">https://julialang.org/downloads/</a>. Then connect R to Julia; the first time, also install the Julia packages the package uses:</p>
@@ -68,7 +76,11 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/install_julia_packages.html">install_julia_packages</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># first time only</span></span></code></pre></div>
-<p>Now simulate data with 200 candidate predictors, 5 of them active, and select variables with EBIC:</p>
+</div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<p>Simulate data with 200 candidate predictors, 5 of them active, and select variables with EBIC:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
@@ -89,7 +101,7 @@
 <div class="float">
 <img src="reference/figures/README-search.png" alt="EBIC and model size along the search"><div class="figcaption">EBIC and model size along the search</div>
 </div>
-<p>For the available criteria and response families, see the Get started article, <code><a href="articles/GICHighDimension.html">vignette("GICHighDimension")</a></code>.</p>
+<p>For the available criteria and response families, see the Get started article, <code><a href="articles/get-started.html">vignette("get-started")</a></code>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
