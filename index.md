@@ -65,6 +65,6 @@ search](reference/figures/README-search.png)
 
 EBIC and model size along the search
 
-See [Get
-started](https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.html)
-for the available criteria and response families.
+For the available criteria and response families, see the Get started
+article,
+[`vignette("GICHighDimension")`](https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.md).
