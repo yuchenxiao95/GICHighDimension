@@ -13,8 +13,7 @@
 
 * New article, `vignette("examples")`: worked simulations for a linear model
   with 500 predictors, a multivariate-normal response, and Poisson, binomial
-  and multinomial GLMs, each comparing AIC, BIC and GIC6 with the lasso and
-  adaptive lasso at n = 1000 and 2000.
+  and multinomial GLMs, each comparing AIC, BIC and GIC6 at n = 1000 and 2000.
 * `LP_to_Y()`, `Y_to_LP()` and `Beta_estimate()` support Normal, Bernoulli,
   Binomial, Poisson, Gamma, Exponential, InverseGaussian, NegativeBinomial,
   Geometric, MultivariateNormal and Multinomial responses.

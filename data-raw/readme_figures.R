@@ -1,12 +1,13 @@
-# Runs the "Examples" code in README.md and in vignettes/examples.Rmd,
-# writes the printed output back into each code block (as "#>" lines), and
-# redraws the figure that follows each block in man/figures/.
+# Runs the "Examples" code in README.md, writes the printed output back into
+# each code block (as "#>" lines), redraws the figure that follows each block
+# in man/figures/, and copies the code blocks with their output into
+# vignettes/examples.Rmd, whose code is the same.
 #
 # Run from the package root:
 #   Rscript data-raw/readme_figures.R
 #
-# Only the code from the "Examples" heading (README) or the "Helpers" heading
-# (article) onward is run, so the installation code is skipped.
+# Only the code from the "Examples" heading onward is run, so the installation
+# code is skipped.
 
 devtools::load_all(".", quiet = TRUE)
 setup_julia()
@@ -27,7 +28,7 @@ plot_criteria <- function(fits, p, true_size, file) {
 
   steps  <- seq_along(fits[[1]][[names(palette)[1]]]$GIC_values)
   passes <- seq(p, length(steps) - 1, by = p)
-  # One column per (sample size, criterion); the lasso fits have no search path
+  # One column per (sample size, criterion)
   series <- function(f)
     do.call(cbind, lapply(fits, function(by_crit) sapply(by_crit[names(palette)], f)))
   values <- series(function(fit) fit$GIC_values)
@@ -113,5 +114,30 @@ process <- function(path, start_heading, figure_dir, draw) {
   message("updated ", path)
 }
 
+# Copy the code blocks (with output) of the README examples into the article,
+# after checking that the code itself is the same.
+sync_article <- function(readme, article) {
+  closing <- function(doc, o) o + which(grepl("^```\\s*$", doc[(o + 1):length(doc)]))[1]
+  rd <- readLines(readme)
+  rs <- grep("^## Examples", rd)[1]
+  r_open <- rs - 1 + which(grepl("^```r\\s*$", rd[rs:length(rd)]))
+  art <- readLines(article)
+  as <- grep("^## Helpers", art)[1]
+  a_open <- as - 1 + which(grepl("^```\\{r\\}\\s*$", art[as:length(art)]))
+  stopifnot(length(r_open) == length(a_open))
+  out <- character(0)
+  pos <- 1
+  for (b in seq_along(a_open)) {
+    new <- rd[(r_open[b] + 1):(closing(rd, r_open[b]) - 1)]
+    a_close <- closing(art, a_open[b])
+    old <- art[(a_open[b] + 1):(a_close - 1)]
+    stopifnot(identical(old[!grepl("^#>", old)], new[!grepl("^#>", new)]))
+    out <- c(out, art[pos:a_open[b]], new)
+    pos <- a_close
+  }
+  writeLines(c(out, art[pos:length(art)]), article)
+  message("updated ", article)
+}
+
 process("README.md", "^## Examples", "man/figures", draw = TRUE)
-process("vignettes/examples.Rmd", "^## Helpers", "man/figures", draw = FALSE)
+sync_article("README.md", "vignettes/examples.Rmd")
