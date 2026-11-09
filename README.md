@@ -35,10 +35,8 @@ install_julia_packages()   # first time only
 
 The examples below compare three criteria on the same data. In increasing
 order of penalty per variable, they are AIC ($c_n = 1$), BIC ($\log n$) and
-GIC6 ($\log n \, \log P$). Each example simulates $n = 2000$ observations
-on $p = 500$ candidate predictors and runs every search twice, on the first
-1000 observations and on all 2000, to show how selection improves with more
-data. The
+GIC6 ($\log n \, \log P$), where $P$ is the number of candidate
+predictors. The
 [Examples article](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.html)
 (`vignette("examples")`) explains each step, and the Get started article
 (`vignette("get-started")`) lists all criteria and response families.
@@ -91,11 +89,19 @@ their heights. The script
 [`data-raw/readme_figures.R`](data-raw/readme_figures.R) runs the code in this
 section and redraws the figures.
 
-### Linear model with 500 candidate predictors
+### Linear model
 
-Take $n = 2000$ and $p = 500$, with 5 true coefficients equal to 2 and the
-noise set for a signal-to-noise ratio of $\beta^\top\Sigma\beta/\sigma^2 = 0.71$.
-Start every search from the full model:
+All examples use the same setting. The design matrix $X$ has $n = 2000$
+observations of $p = 500$ independent standard normal predictors, so the
+predictor covariance is $\Sigma = I$, and only a few predictors affect the
+response. Every search runs twice, on the first 1000 observations and on all
+2000.
+
+Here the response is $Y = X\beta + \varepsilon$ with
+$\varepsilon \sim N(0, \sigma^2 I)$. Five randomly chosen coefficients equal
+2 and the rest are 0, and $\sigma^2$ gives a signal-to-noise ratio of
+$\beta^\top\Sigma\beta/\sigma^2 = 0.71$. Every search starts from the full
+model:
 
 ```r
 set_seeds(1)
