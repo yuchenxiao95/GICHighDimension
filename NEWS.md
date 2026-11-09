@@ -17,6 +17,8 @@
 * `LP_to_Y()`, `Y_to_LP()` and `Beta_estimate()` support Normal, Bernoulli,
   Binomial, Poisson, Gamma, Exponential, InverseGaussian, NegativeBinomial,
   Geometric, MultivariateNormal and Multinomial responses.
+* `GICSelection()` also returns `elapsed`, the time in seconds since the
+  search started, after each step.
 * `GICSelection()` and `GICSelectionBoltzmann()` gain a `gamma` argument for
   EBIC (default 0.6); `GICSelectionBoltzmann()` gains an optional `k`.
 * `citation("GICHighDimension")` cites Xiao and Walker (2026),

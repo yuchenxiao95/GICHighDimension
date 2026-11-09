@@ -169,8 +169,9 @@ any function `(Y, X_subset, P) -> (value, Inverse)`. `Calculate_GIC_short` is
 accepted for backward compatibility and is not needed by the fast path.
 `gamma` is the EBIC tuning constant.
 
-Returns `(GIC_list, GIC_coeff)`: the criterion trace and the selected column
-indices after each step.
+Returns `(GIC_list, GIC_coeff, GIC_time)`: the criterion trace, the selected
+column indices, and the elapsed time in seconds since the search started,
+after each step.
 """
 function GIC_Variable_Selection(
     X::AbstractMatrix,
@@ -182,6 +183,7 @@ function GIC_Variable_Selection(
     Nsim::Integer = 1,
     gamma::Real = 0.6
 )
+    t0 = time_ns()
     m, p = size(X)
     kcap = min(k, m)          # models have at most min(k, n) - 1 variables
     @assert length(Init_Columns) ≤ p "Initial columns exceed design matrix size."
@@ -190,7 +192,7 @@ function GIC_Variable_Selection(
     visit = vcat([shuffle(collect(1:p)) for _ in 1:Nsim]...)
     crit = _criterion_symbol(Calculate_GIC)
     crit === nothing &&
-        return _GIC_Variable_Selection_generic(X, Y, Init_Columns, Calculate_GIC, kcap, visit)
+        return _GIC_Variable_Selection_generic(X, Y, Init_Columns, Calculate_GIC, kcap, visit, t0)
 
     d = _SearchData(X, Y, crit, p, gamma)
     f = _refit(d, reverse(collect(Int, Init_Columns)))
@@ -200,6 +202,7 @@ function GIC_Variable_Selection(
 
     GIC_list = zeros(length(visit))
     GIC_coeff = Vector{Any}(undef, length(visit))    # Vector{Any} -> plain R list
+    GIC_time = zeros(length(visit))
 
     for (w, z) in enumerate(visit)
         if inS[z]
@@ -224,17 +227,20 @@ function GIC_Variable_Selection(
         end
         GIC_list[w] = tr(current)
         GIC_coeff[w] = _report(f)
+        GIC_time[w] = (time_ns() - t0) / 1e9
     end
-    return (GIC_list, GIC_coeff)
+    return (GIC_list, GIC_coeff, GIC_time)
 end
 
 # Fallback for user-supplied criterion functions: refit each candidate.
-function _GIC_Variable_Selection_generic(X, Y, Init_Columns, Calculate_GIC, kcap, visit)
+function _GIC_Variable_Selection_generic(X, Y, Init_Columns, Calculate_GIC, kcap, visit,
+                                         t0 = time_ns())
     p = size(X, 2)
     S = collect(Int, Init_Columns)
     current, _ = Calculate_GIC(Y, X[:, S], p)
     GIC_list = zeros(length(visit))
     GIC_coeff = Vector{Any}(undef, length(visit))    # Vector{Any} -> plain R list
+    GIC_time = zeros(length(visit))
     for (w, z) in enumerate(visit)
         idx = findfirst(==(z), S)
         cand = idx === nothing ? (length(S) + 1 < kcap ? vcat(z, S) : nothing) :
@@ -247,6 +253,7 @@ function _GIC_Variable_Selection_generic(X, Y, Init_Columns, Calculate_GIC, kcap
         end
         GIC_list[w] = tr(current)
         GIC_coeff[w] = copy(S)
+        GIC_time[w] = (time_ns() - t0) / 1e9
     end
-    return (GIC_list, GIC_coeff)
+    return (GIC_list, GIC_coeff, GIC_time)
 end

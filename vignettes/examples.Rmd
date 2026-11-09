@@ -21,7 +21,11 @@ GLMs. Each example simulates $n = 2000$ observations on $p = 500$ candidate
 predictors and compares three criteria, on the first 1000 observations and on
 all 2000. In increasing order of penalty per variable, the criteria are AIC
 ($c_n = 1$), BIC ($\log n$) and GIC6 ($\log n \, \log P$), where $P$ is the
-number of candidate predictors. See `vignette("get-started")` for the setup
+number of candidate predictors. Each table reports the size, false
+positives and false negatives of the selected model, and `time_s`, the time
+in seconds until the search reaches the true model and stays there. If it
+never does, `time_s` is the time of the whole search. See
+`vignette("get-started")` for the setup
 steps and the other criteria. The output shown was produced on an Apple
 M-series laptop with Julia 1.11.
 
@@ -56,14 +60,29 @@ compare_criteria <- function(X, Y, init, k, Nsim) {
   })
 }
 
+# Compile each criterion once, so the timings exclude Julia's compilation
+for (crit in criteria) for (Y0 in list(rnorm(50), matrix(rnorm(100), 50)))
+  invisible(GICSelection(matrix(rnorm(500), 50), Y0, 1:2, crit,
+                         paste0(crit, "_short"), k = 5))
+
 last_model <- function(fit) sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
 
-# Size, false positives and false negatives of each final model
+# Seconds until the search reaches the true model and stays there, or the time
+# of the whole search if it never does
+time_to_truth <- function(fit, truth) {
+  hit <- vapply(fit$selected_coeffs, setequal, logical(1), truth)
+  steps <- length(hit)
+  if (!hit[steps]) return(fit$elapsed[steps])
+  fit$elapsed[max(c(0, which(!hit))) + 1]
+}
+
+# Size, false positives, false negatives and search time of each final model
 selection_table <- function(fits, truth) {
   rows <- lapply(fits, function(by_crit) t(sapply(by_crit, function(fit) {
     s <- last_model(fit)
     c(size = length(s), false_pos = length(setdiff(s, truth)),
-      false_neg = length(setdiff(truth, s)))
+      false_neg = length(setdiff(truth, s)),
+      time_s = round(time_to_truth(fit, truth), 2))
   })))
   out <- do.call(rbind, rows)
   rownames(out) <- paste(rep(names(fits), each = length(criteria)), rownames(out))
@@ -104,21 +123,16 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC   230       225         0
-#> n1000 BIC     8         3         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC   197       192         0
-#> n2000 BIC     9         4         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC   230       225         0  25.84
+#> n1000 BIC     8         3         0   9.38
+#> n1000 GIC6    5         0         0   6.40
+#> n2000 AIC   197       192         0  37.68
+#> n2000 BIC     9         4         0  12.20
+#> n2000 GIC6    5         0         0   9.29
 ```
 
 ![Criteria and model size along the search, linear model with p = 500](../man/figures/README-linear.png)
-
-GIC6 selects exactly the 5 true predictors at both sample sizes. BIC keeps
-all 5 but adds 3 noise variables at $n = 1000$ and 4 at $n = 2000$: doubling
-$n$ does not help, because its penalty ignores the 500 candidates. AIC keeps
-about 200 variables at either size.
 
 
 ## Multivariate normal
@@ -140,22 +154,16 @@ true_union <- sort(unique(unlist(true_by_response)))
 
 fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_union)
-#>            size false_pos false_neg
-#> n1000 AIC   268       245         1
-#> n1000 BIC    20         0         4
-#> n1000 GIC6   19         0         5
-#> n2000 AIC   232       208         0
-#> n2000 BIC    20         0         4
-#> n2000 GIC6   19         0         5
+#>            size false_pos false_neg time_s
+#> n1000 AIC   268       245         1  29.18
+#> n1000 BIC    20         0         4   7.93
+#> n1000 GIC6   19         0         5   7.22
+#> n2000 AIC   232       208         0  44.75
+#> n2000 BIC    20         0         4  12.61
+#> n2000 GIC6   19         0         5  12.90
 ```
 
 ![Criteria and model size along the search, multivariate normal response](../man/figures/README-multivariate.png)
-
-Two responses share a predictor, so 24 predictors are truly active. BIC and
-GIC6 select no noise variables at either sample size. Every predictor they
-miss (4 for BIC, 5 for GIC6) has a coefficient of 0.1, which is too small to
-detect with 1000 or 2000 observations. AIC finds all 24 at $n = 2000$, but
-inside a model of 232 variables.
 
 
 ## Generalized linear models
@@ -180,13 +188,13 @@ compare_glm <- function(Y, ...) compare_criteria(X, Y_to_LP(Y, ...), 1:10, k = 5
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
 fits <- compare_glm(y_pois, family = "Poisson")
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC    49        45         1
-#> n1000 BIC     9         4         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC    49        45         1
-#> n2000 BIC    10         5         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC    49        45         1   0.37
+#> n1000 BIC     9         4         0   0.46
+#> n1000 GIC6    5         0         0   0.13
+#> n2000 AIC    49        45         1   0.85
+#> n2000 BIC    10         5         0   1.05
+#> n2000 GIC6    5         0         0   0.23
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -201,13 +209,13 @@ round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"
 y_binom <- LP_to_Y(X, beta, family = "Binomial", n_trials = 10)
 fits <- compare_glm(y_binom, family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC    49        47         3
-#> n1000 BIC     9         4         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC    49        46         2
-#> n2000 BIC     8         3         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC    49        47         3   0.38
+#> n1000 BIC     9         4         0   0.44
+#> n1000 GIC6    5         0         0   0.17
+#> n2000 AIC    49        46         2   0.53
+#> n2000 BIC     8         3         0   0.81
+#> n2000 GIC6    5         0         0   0.24
 ```
 
 ![Criteria and model size along the search, binomial response](../man/figures/README-binomial.png)
@@ -223,19 +231,13 @@ B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
 y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
 fits <- compare_glm(y_mn, family = "Multinomial", n_categories = 3)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC    49        47         3
-#> n1000 BIC     9         4         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC    49        48         4
-#> n2000 BIC     8         3         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC    49        47         3   0.36
+#> n1000 BIC     9         4         0   0.50
+#> n1000 GIC6    5         0         0   0.11
+#> n2000 AIC    49        48         4   0.70
+#> n2000 BIC     8         3         0   0.80
+#> n2000 GIC6    5         0         0   0.29
 ```
 
 ![Criteria and model size along the search, multinomial response](../man/figures/README-multinomial.png)
-
-In all three GLMs, GIC6 selects exactly the 5 true predictors at both sample
-sizes. BIC keeps the true predictors but adds 3 to 5 noise variables, with no
-clear gain from doubling $n$. AIC grows the model until it hits the size cap
-(`k = 50`, so at most 49 variables) and misses 1 to 4 true predictors.
-

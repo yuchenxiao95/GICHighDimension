@@ -11,8 +11,10 @@ test_that("GICSelection recovers the true support (univariate)", {
                       Calculate_GIC_short = "Calculate_EBIC_short",
                       k = 15, Nsim = 3)
 
-  expect_named(res, c("GIC_values", "selected_coeffs"))
+  expect_named(res, c("GIC_values", "selected_coeffs", "elapsed"))
   expect_length(res$GIC_values, 3 * p)
+  expect_length(res$elapsed, 3 * p)
+  expect_true(all(diff(res$elapsed) >= 0))              # cumulative time
   expect_true(all(diff(res$GIC_values) >= -1e-10))      # greedy: never decreases
   expect_setequal(res$selected_coeffs[[length(res$selected_coeffs)]], 1:3)
 })

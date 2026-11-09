@@ -34,6 +34,8 @@ A list containing:
 \itemize{
 \item \code{GIC_values}: Calculated GIC values for all candidate models
 \item \code{selected_coeffs}: Indices of selected variables
+\item \code{elapsed}: Elapsed time in seconds since the search started,
+after each step (the Julia search only, excluding data transfer)
 }
 }
 \description{

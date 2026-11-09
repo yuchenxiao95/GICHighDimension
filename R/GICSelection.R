@@ -32,6 +32,8 @@
 #' \itemize{
 #'   \item \code{GIC_values}: Calculated GIC values for all candidate models
 #'   \item \code{selected_coeffs}: Indices of selected variables
+#'   \item \code{elapsed}: Elapsed time in seconds since the search started,
+#'     after each step (the Julia search only, excluding data transfer)
 #' }
 #'
 #' @usage
@@ -133,6 +135,7 @@ GICSelection <- function(X, Y, Initial_Column,
 
   list(
     GIC_values = as.numeric(unlist(julia_result[[1]])),
-    selected_coeffs = lapply(julia_result[[2]], as.integer)
+    selected_coeffs = lapply(julia_result[[2]], as.integer),
+    elapsed = as.numeric(unlist(julia_result[[3]]))
   )
 }
