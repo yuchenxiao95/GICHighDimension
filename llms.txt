@@ -197,7 +197,7 @@ selection_table(fits, true_cols)
 ```
 
 ![Criteria and model size along the search, linear model with p =
-500](reference/figures/README-linear.png)
+500](reference/figures/README-linear-log.png)
 
 Criteria and model size along the search, linear model with p = 500
 
@@ -231,7 +231,7 @@ selection_table(fits, true_union)
 ```
 
 ![Criteria and model size along the search, multivariate normal
-response](reference/figures/README-multivariate.png)
+response](reference/figures/README-multivariate-log.png)
 
 Criteria and model size along the search, multivariate normal response
 
