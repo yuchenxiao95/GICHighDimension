@@ -25,8 +25,8 @@ $`c_n`$ the penalty per variable. AIC ($`c_n = 2`$) and BIC
 ($`c_n = \log n`$) are special cases; the GIC family of Kim, Kwon and
 Choi (2012) uses penalties that grow with the number of candidate
 predictors $`P`$, which is what makes selection consistent in high
-dimensions. The package implements eleven criteria, listed in [Choosing
-a criterion](#choosing-a-criterion).
+dimensions. The package implements thirteen criteria, listed in
+[Choosing a criterion](#choosing-a-criterion).
 
 The search itself runs in Julia, which R calls through the `JuliaCall`
 package. It never forms the $`n \times n`$ hat matrix and scores each
@@ -160,6 +160,7 @@ The criteria differ only in the penalty $`c_n`$:
 | `Calculate_AIC` | AIC | $`2`$ | Akaike (1974) |
 | `Calculate_BIC` | BIC | $`\log n`$ | Schwarz (1978) |
 | `Calculate_CAIC` | Consistent AIC | $`1 + \log n`$ | Bozdogan (1987) |
+| `Calculate_CAICF` | Consistent AIC with Fisher information | $`1 + \log n + \log\det(X_S^\top X_S / \hat\sigma^2) / K`$ | Bozdogan (1987) |
 | `Calculate_SIC` | Square-root IC | $`\sqrt n`$ | Shao (1997) |
 | `Calculate_GIC2` | GIC$`_2`$ | $`P^{1/3}`$ | Kim, Kwon and Choi (2012) |
 | `Calculate_GIC3` | GIC$`_3`$ | $`2 \log P`$ | Kim, Kwon and Choi (2012) |
@@ -168,13 +169,13 @@ The criteria differ only in the penalty $`c_n`$:
 | `Calculate_GIC6` | GIC$`_6`$ | $`\log n \, \log P`$ | Kim, Kwon and Choi (2012) |
 | `Calculate_EBIC` | Extended BIC | $`\log n + \gamma \log \binom{P}{K}`$, $`\gamma = 0.6`$ by default | Chen and Chen (2008) |
 
-Here $`P`$ is the number of candidate variables. Three criteria use
-slightly different forms (see
+Here $`P`$ is the number of candidate variables and $`X_S`$ the selected
+columns; CAICF supports vector responses only. Two criteria use slightly
+different forms (see
 [`?information_criteria`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)):
 `Calculate_AICc`, the small-sample corrected AIC (Hurvich and Tsai,
-1989); `Calculate_CAICF`, the consistent AIC with Fisher information
-(Bozdogan, 1987); and `Calculate_AttIC`, an attention-weighted criterion
-specific to this package.
+1989), and `Calculate_AttIC`, an attention-weighted criterion specific
+to this package.
 
 AIC is minimax-rate optimal for prediction but is not consistent when a
 true model exists: its penalty is too small to rule out spurious
@@ -496,24 +497,26 @@ system.time(
 
 This appendix compares the search with the lasso and the adaptive lasso
 on larger simulations: a high-dimensional linear model, a multivariate
-normal model, and Poisson, binomial and multinomial GLMs. Each example
-simulates $`n = 2000`$ observations on $`p = 500`$ candidate predictors
-and compares three criteria, on the first 1000 observations and on all
-2000. In increasing order of penalty per variable, the criteria are AIC
-($`c_n = 2`$), BIC ($`\log n`$) and GIC6 ($`\log n \, \log P`$). Each
-example also runs the [Boltzmann search](#boltzmann-search) with GIC6.
-The examples use the default $`T = 0.1`$, and $`T = 0.05`$ for the
-multivariate normal example and $`T = 0.005`$ for the Poisson example.
+normal model, Poisson, binomial and multinomial GLMs, and a Cox model.
+Each example simulates $`n = 2000`$ observations on $`p = 500`$
+candidate predictors and compares three criteria, on the first 1000
+observations and on all 2000. In increasing order of penalty per
+variable, the criteria are AIC ($`c_n = 2`$), BIC ($`\log n`$) and GIC6
+($`\log n \, \log P`$). Each example also runs the [Boltzmann
+search](#boltzmann-search) with GIC6. The examples use the default
+$`T = 0.1`$, and $`T = 0.05`$ for the multivariate normal example and
+$`T = 0.005`$ for the Poisson example.
 
 The lasso and the adaptive lasso are fitted with the
 [glmnet](https://CRAN.R-project.org/package=glmnet) package (Friedman,
 Hastie and Tibshirani, 2010), using `cv.glmnet()` with 10-fold
 cross-validation and `lambda.min`, and `family = "gaussian"`,
-`"mgaussian"`, `"poisson"`, `"binomial"` or `"multinomial"` (with
-`type.multinomial = "grouped"`) to match the response. The adaptive
-lasso uses penalty factors $`1/\lVert\hat\beta_j\rVert`$ from a ridge
-(`alpha = 0`) pilot fit. Their run times are those of glmnet’s own
-fitting routines.
+`"mgaussian"`, `"poisson"`, `"binomial"`, `"multinomial"` (with
+`type.multinomial = "grouped"`) or `"cox"` (with a `Surv()` response and
+`type.measure = "C"`, Simon et al., 2011) to match the response, as in
+glmnet’s own articles. The adaptive lasso uses penalty factors
+$`1/\lVert\hat\beta_j\rVert`$ from a ridge (`alpha = 0`) pilot fit.
+Their run times are those of glmnet’s own fitting routines.
 
 Each table reports the size, false positives and false negatives of the
 selected model, and the wall-clock time of each method in seconds (Apple
@@ -810,6 +813,39 @@ response](../reference/figures/README-multinomial-runtime.png)
 
 Criteria, model size and run time, multinomial response
 
+#### Cox proportional hazards
+
+The survival times follow a Cox model,
+$`h(t \mid x) = h_0(t)\, e^{x^\top\beta}`$, with the same $`\beta`$, an
+exponential baseline hazard $`h_0(t) = 1`$ and independent exponential
+censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` (Bender,
+Augustin and Blettner, 2005). For the searches,
+[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md)
+maps each (time, status) pair to the deviance residual of the null Cox
+model (Therneau, Grambsch and Fleming, 1990), which increases with the
+linear predictor. The lasso fits follow glmnet’s Cox workflow: a
+[`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html)
+response, `family = "cox"` and `type.measure = "C"`. The selected model
+is then fitted with
+[`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html).
+
+``` r
+
+y_cox <- LP_to_Y(X, beta, family = "Cox", censor_rate = 0.3)
+mean(y_cox[, "status"] == 0)       # share of censored observations
+y_surv <- survival::Surv(y_cox[, "time"], y_cox[, "status"])
+fits <- compare_glm(y_cox, y_surv, "cox", family = "Cox", T = 0.005)
+selection_table(fits, true_cols)
+
+# Coefficients of the GIC6 model for n = 2000, from survival::coxph()
+round(unname(coef(survival::coxph(y_surv ~ X[, last_model(fits$n2000$GIC6)]))), 2)
+```
+
+![Criteria, model size and run time, Cox
+model](../reference/figures/README-cox-runtime.png)
+
+Criteria, model size and run time, Cox model
+
 GIC6 has no false positives in any example. It recovers the true model
 exactly in every example except the multivariate normal one, where it
 misses 5 of the 24 true variables. AIC and the lasso keep many noise
@@ -822,6 +858,10 @@ magnitude.
 Akaike, H. (1974). A new look at the statistical model identification.
 *IEEE Transactions on Automatic Control*, 19(6), 716–723.
 <https://doi.org/10.1109/TAC.1974.1100705>
+
+Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival
+times to simulate Cox proportional hazards models. *Statistics in
+Medicine*, 24(11), 1713–1723. <https://doi.org/10.1002/sim.2059>
 
 Bozdogan, H. (1987). Model selection and Akaike’s information criterion
 (AIC): The general theory and its analytical extensions.
@@ -850,6 +890,15 @@ Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
 Shao, J. (1997). An asymptotic theory for linear model selection.
 *Statistica Sinica*, 7(2), 221–264.
 <https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm>
+
+Simon, N., Friedman, J., Hastie, T. and Tibshirani, R. (2011).
+Regularization paths for Cox’s proportional hazards model via coordinate
+descent. *Journal of Statistical Software*, 39(5), 1–13.
+<https://doi.org/10.18637/jss.v039.i05>
+
+Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
+Martingale-based residuals for survival models. *Biometrika*, 77(1),
+147–160. <https://doi.org/10.1093/biomet/77.1.147>
 
 Xiao, Y. and Walker, S. (2026). Fast variable selection under $`\ell_0`$
 regularization in high-dimensions. *Statistics and Computing*, 36(3),
