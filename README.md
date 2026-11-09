@@ -28,7 +28,7 @@ criteria in the literature with different penalties $p(n, d)$:
 | GIC5 | $d \frac{\sigma^2}{n} \log\log n \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
 | GIC6 | $d \frac{\sigma^2}{n} \log n \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
 | CAIC | $d \frac{\sigma^2}{n} (\log n + 1)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
-| SIC | $d \frac{\sigma^2}{n} \sqrt{n}$ | Shao (1997) |
+| SIC | $d \frac{\sigma^2}{n} \sqrt{n}$ | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
 
 The examples below highlight some well-known statistical properties of these
 criteria:
