@@ -77,7 +77,7 @@ variables, $\hat\sigma^2$ the residual variance, and $c_n$ the penalty:
 
 | Function | Criterion | Penalty $c_n$ | Reference |
 |:--|:--|:--|:--|
-| `Calculate_AIC` | AIC | $1$ | Akaike (1974) |
+| `Calculate_AIC` | AIC | $2$ | Akaike (1974) |
 | `Calculate_BIC` | BIC | $\log n$ | Schwarz (1978) |
 | `Calculate_CAIC` | Consistent AIC | $1 + \log n$ | Bozdogan (1987) |
 | `Calculate_SIC` | Square-root IC | $\sqrt n$ | Shao (1997) |

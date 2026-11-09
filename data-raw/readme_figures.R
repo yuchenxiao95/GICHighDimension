@@ -25,16 +25,15 @@ plot_criteria <- function(fits, p, true_size, file) {
             las = 1, cex.axis = 0.95, cex.lab = 1.1, cex.main = 1.1)
   on.exit(par(op), add = TRUE)
 
-  steps  <- seq_along(fits[[1]][[1]]$GIC_values)
+  steps  <- seq_along(fits[[1]][[names(palette)[1]]]$GIC_values)
   passes <- seq(p, length(steps) - 1, by = p)
-  series <- function(f) {                 # one column per (size, criterion)
-    m <- do.call(cbind, lapply(fits, function(by_crit) sapply(by_crit, f)))
-    m
-  }
+  # One column per (sample size, criterion); the lasso fits have no search path
+  series <- function(f)
+    do.call(cbind, lapply(fits, function(by_crit) sapply(by_crit[names(palette)], f)))
   values <- series(function(fit) fit$GIC_values)
   sizes  <- series(function(fit) lengths(fit$selected_coeffs))
-  cols <- rep(palette[names(fits[[1]])], times = length(fits))
-  ltys <- rep(size_lty[names(fits)], each = length(fits[[1]]))
+  cols <- rep(palette, times = length(fits))
+  ltys <- rep(size_lty[names(fits)], each = length(palette))
 
   matplot(steps, values, type = "n", xlab = "Search step", ylab = "",
           main = "Criterion along the search")
@@ -42,15 +41,13 @@ plot_criteria <- function(fits, p, true_size, file) {
   matlines(steps, values, type = "s", lwd = 2, col = cols, lty = ltys)
   title(ylab = "Criterion value", line = 3.4)
 
-  log_y <- max(sizes) > 50       # keep the end of the path visible
   matplot(steps, sizes, type = "n", ylim = range(c(sizes, true_size)),
-          log = if (log_y) "y" else "", xlab = "Search step", ylab = "",
+          xlab = "Search step", ylab = "",
           main = sprintf("Model size (true size = %d)", true_size))
   abline(v = passes, col = "grey85", lwd = 0.8)
   abline(h = true_size, lty = 2, col = "grey35")
   matlines(steps, sizes, type = "s", lwd = 2, col = cols, lty = ltys)
-  title(ylab = if (log_y) "Variables in model (log scale)" else "Variables in model",
-        line = 3.4)
+  title(ylab = "Number of predictors", line = 3.4)
 
   # Legend rows under both panels: criterion colours, then sample-size line types
   par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)

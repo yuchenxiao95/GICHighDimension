@@ -113,7 +113,7 @@ Walker, 2026). With \eqn{\hat\sigma^2 = \mathrm{RSS}/(n - K)} and \eqn{P} the nu
 of candidate predictors, the supported criteria are:
 \itemize{
 \item AIC, Akaike information criterion (Akaike, 1974):
-\eqn{K\hat\sigma^2/n}.
+\eqn{2K\hat\sigma^2/n}.
 \item AICc, AIC corrected for small samples (Hurvich and Tsai, 1989):
 \eqn{(K+1)\hat\sigma^2/(n-K-2)}.
 \item BIC, Bayesian information criterion (Schwarz, 1978):

@@ -49,7 +49,7 @@ function _gic_value(crit::Symbol, YHY, RSS, T::Integer, K::Integer, P::Integer;
     s2 = RSS / (T - K)
     fit = YHY / T
     if crit === :AIC
-        return fit - K * s2 / T
+        return fit - 2 * K * s2 / T
     elseif crit === :AICc
         T - K - 2 <= 0 && return -999.0           # invalid model (as before)
         return fit - (K + 1) * s2 / (T - K - 2)

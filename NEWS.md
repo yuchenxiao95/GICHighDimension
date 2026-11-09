@@ -13,7 +13,8 @@
 
 * New article, `vignette("examples")`: worked simulations for a linear model
   with 500 predictors, a multivariate-normal response, and Poisson, binomial
-  and multinomial GLMs, each comparing AIC, BIC and GIC6 at n = 1000 and 2000.
+  and multinomial GLMs, each comparing AIC, BIC and GIC6 with the lasso and
+  adaptive lasso at n = 1000 and 2000.
 * `LP_to_Y()`, `Y_to_LP()` and `Beta_estimate()` support Normal, Bernoulli,
   Binomial, Poisson, Gamma, Exponential, InverseGaussian, NegativeBinomial,
   Geometric, MultivariateNormal and Multinomial responses.
@@ -27,6 +28,9 @@
 
 ## Bug fixes and behaviour changes
 
+* `Calculate_AIC()` and the AIC search now use the standard AIC penalty,
+  2 K sigma^2 / n (Akaike, 1974). Earlier versions used half of it,
+  K sigma^2 / n, and so kept more variables.
 * Models never exceed n - 1 variables (n = sample size), so the search no
   longer produces a singular fit when p > n.
 * `GICSelectionBoltzmann()` works with criteria that use P (GIC2-GIC6, EBIC)
