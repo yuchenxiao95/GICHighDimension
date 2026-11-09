@@ -145,16 +145,27 @@ package source runs the code in this section and redraws the
 figures.</p>
 </div>
 <div class="section level2">
-<h2 id="linear-model-with-500-candidate-predictors">Linear model with 500 candidate predictors<a class="anchor" aria-label="anchor" href="#linear-model-with-500-candidate-predictors"></a>
+<h2 id="linear-model">Linear model<a class="anchor" aria-label="anchor" href="#linear-model"></a>
 </h2>
-<p>Take
+<p>All examples use the same setting. The design matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+has
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>,
-with 5 true coefficients equal to 2 and the noise set for a
-signal-to-noise ratio of
+observations of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>
+independent standard normal predictors, so the predictor covariance is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">\Sigma = I</annotation></semantics></math>,
+and only a few predictors affect the response. Every search runs twice,
+on the first 1000 observations and on all 2000.</p>
+<p>Here the response is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>X</mi><mi>β</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">Y = X\beta + \varepsilon</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ε</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\varepsilon \sim N(0, \sigma^2 I)</annotation></semantics></math>.
+Five randomly chosen coefficients equal 2 and the rest are 0, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+gives a signal-to-noise ratio of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>β</mi><mi>⊤</mi></msup><mi mathvariant="normal">Σ</mi><mi>β</mi><mi>/</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mn>0.71</mn></mrow><annotation encoding="application/x-tex">\beta^\top\Sigma\beta/\sigma^2 = 0.71</annotation></semantics></math>.
-Start every search from the full model:</p>
+Every search starts from the full model:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">2000</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
