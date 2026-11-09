@@ -120,16 +120,11 @@ z_j(t+1) = \mathbf{1}\left\lbrace
 This establishes a connection between the expected out-of-sample MSE and
 the energy function of the Hopfield network for associative memory,
 where the stable local minima in the energy function of the Hopfield
-network correspond to optimal sparse solutions. AIC is minimax-rate
-optimal but inconsistent when a true model exists; criteria with
-stronger penalties achieve consistency at the expense of underfitting
-(Shao, 1997; Yang, 2005; Kim et al., 2012).
+network correspond to optimal sparse solutions.
 
-A model with $`d`$ selected predictors scores
-$`\mathrm{GIC}_d = y^\top H_d y / n - p(n, d)`$, where $`H_d`$ is its
-hat matrix and $`p(n, d)`$ is a penalty. Table 1 of Xiao and Walker
-(2026) lists some criteria in the literature with different penalties
-$`p(n, d)`$:
+AIC is minimax-rate optimal but inconsistent when a true model exists;
+criteria with stronger penalties achieve consistency. Table 1 lists some
+criteria in the literature with different penalties $`p(n, d)`$:
 
 | Name | $`p(n, d)`$ | Reference |
 |:---|:---|:---|
