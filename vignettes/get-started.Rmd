@@ -116,7 +116,7 @@ Beta_estimate(X[, selected, drop = FALSE], y_count, family = "Poisson")
 
 The supported families are Normal, Bernoulli, Binomial, Poisson, Gamma,
 Exponential, InverseGaussian, NegativeBinomial, Geometric, MultivariateNormal
-and Multinomial.
+and Multinomial. `vignette("examples")` has a worked example for each.
 
 ## References
 

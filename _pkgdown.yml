@@ -51,4 +51,5 @@ articles:
   navbar: ~
   contents:
   - get-started
+  - examples
   - performance
