@@ -1,12 +1,12 @@
-# GICHighDimension
+# IChop
 
 ## Installation
 
-Install the development version of `GICHighDimension` from GitHub:
+Install the development version of `IChop` from GitHub:
 
 ``` r
 
-devtools::install_github("yuchenxiao95/GICHighDimension")
+devtools::install_github("yuchenxiao95/IChop")
 ```
 
 You also need Julia (≥ 1.9), which you can download from
@@ -15,18 +15,18 @@ time, also install the Julia packages the package uses:
 
 ``` r
 
-library(GICHighDimension)
+library(IChop)
 setup_julia()
 install_julia_packages()   # first time only
 ```
 
 The same methods are available as a Julia package,
-[GICVariableSelection](https://github.com/yuchenxiao95/GICVariableSelection),
-if you would rather work in Julia directly.
+[IChop.jl](https://github.com/yuchenxiao95/IChop.jl), if you would
+rather work in Julia directly.
 
 ## Overview
 
-GICHighDimension addresses the computational barrier of solving
+IChop addresses the computational barrier of solving
 $`\ell_0`$-penalized regression in linear models where the number of
 predictors $`p`$ is large, in the hundreds or even the thousands, yet
 smaller than the number of observations $`n`$. Finding the optimal
@@ -152,7 +152,7 @@ specific to this package: it replaces the fit term
 $`\frac{1}{n} y^\top H_d y`$ with $`y^\top \mathrm{softmax}(H_d y)`$ and
 uses the SIC penalty. Each criterion is available as `Calculate_<name>`
 (for example `Calculate_GIC6` or `Calculate_AICc`); see
-[`?information_criteria`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
+[`?information_criteria`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
 for full citations.
 
 ## Examples
@@ -254,11 +254,11 @@ Criteria and model size along the search, multivariate normal response
 ### Generalized linear models
 
 For a non-Gaussian response, map it to the linear-predictor scale with
-[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md),
+[`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md),
 select with
-[`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md),
+[`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md),
 and then fit the selected model with
-[`Beta_estimate()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Beta_estimate.md).
+[`Beta_estimate()`](https://yuchenxiao95.github.io/IChop/reference/Beta_estimate.md).
 The GLM examples reuse the design matrix `X` from above ($`n = 2000`$,
 $`p = 500`$), with 5 true predictors, and start each search from the
 first 10 columns.
@@ -352,15 +352,15 @@ Criteria and model size along the search, multinomial response
 Search over variable subsets to maximize an information criterion. This
 is how you will usually use the package.
 
-- [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md)
+- [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
   : GIC-Based Variable Selection
-- [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelectionBoltzmann.md)
+- [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md)
   : GIC-Based Variable Selection Using Boltzmann Machine
 
 ## Information criteria
 
 Pass the name of a criterion to
-[`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md),
+[`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md),
 or call these functions directly to score a single model. The supported
 criteria are:
 
@@ -378,19 +378,19 @@ criteria are:
 
 Full citations are on the `information_criteria` help page.
 
-- [`Calculate_AIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_AICc()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_AttIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_SIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_BIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_CAIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_CAICF()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_EBIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC2()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC3()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC4()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC5()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC6()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
+- [`Calculate_AIC()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_AICc()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_AttIC()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_SIC()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_BIC()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_CAIC()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_CAICF()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_EBIC()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_GIC2()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_GIC3()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_GIC4()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_GIC5()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
+  [`Calculate_GIC6()`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
   : Information Criterion Calculations via Julia
 
 ## Simulation and link transforms
@@ -399,29 +399,29 @@ Simulate responses from a linear predictor, map responses to the
 linear-predictor scale, and generate sparse coefficient vectors. All
 common GLM families are supported.
 
-- [`LP_to_Y()`](https://yuchenxiao95.github.io/GICHighDimension/reference/LP_to_Y.md)
+- [`LP_to_Y()`](https://yuchenxiao95.github.io/IChop/reference/LP_to_Y.md)
   : Transform Linear Predictor to Response
-- [`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md)
+- [`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
   : Transform Outcome to Linear Predictor
-- [`Generate_Beta()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Generate_Beta.md)
+- [`Generate_Beta()`](https://yuchenxiao95.github.io/IChop/reference/Generate_Beta.md)
   : Generate Sparse Coefficient Vector
 
 ## Estimation
 
 Estimate the coefficients of a selected model.
 
-- [`Beta_estimate()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Beta_estimate.md)
+- [`Beta_estimate()`](https://yuchenxiao95.github.io/IChop/reference/Beta_estimate.md)
   : Coefficient Estimation via Julia
 
 ## Julia setup
 
 Connect R to Julia and install the Julia packages the package needs.
 
-- [`setup_julia()`](https://yuchenxiao95.github.io/GICHighDimension/reference/setup_julia.md)
+- [`setup_julia()`](https://yuchenxiao95.github.io/IChop/reference/setup_julia.md)
   : Initialize 'Julia' Environment
-- [`install_julia_packages()`](https://yuchenxiao95.github.io/GICHighDimension/reference/install_julia_packages.md)
+- [`install_julia_packages()`](https://yuchenxiao95.github.io/IChop/reference/install_julia_packages.md)
   : Install Required 'Julia' Packages
-- [`install_julia_dependencies()`](https://yuchenxiao95.github.io/GICHighDimension/reference/install_julia_dependencies.md)
+- [`install_julia_dependencies()`](https://yuchenxiao95.github.io/IChop/reference/install_julia_dependencies.md)
   : Install Julia and Required Packages
 
 # Articles
@@ -429,4 +429,4 @@ Connect R to Julia and install the Julia packages the package needs.
 ### All vignettes
 
 - [An Introduction to
-  GICHighDimension](https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.md):
+  IChop](https://yuchenxiao95.github.io/IChop/articles/IChop.md):

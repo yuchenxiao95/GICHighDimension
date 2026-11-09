@@ -1,12 +1,12 @@
-# GICHighDimension
+# IChop
 
 ## Installation
 
-Install the development version of `GICHighDimension` from GitHub:
+Install the development version of `IChop` from GitHub:
 
 ``` r
 
-devtools::install_github("yuchenxiao95/GICHighDimension")
+devtools::install_github("yuchenxiao95/IChop")
 ```
 
 You also need Julia (≥ 1.9), which you can download from
@@ -15,18 +15,18 @@ time, also install the Julia packages the package uses:
 
 ``` r
 
-library(GICHighDimension)
+library(IChop)
 setup_julia()
 install_julia_packages()   # first time only
 ```
 
 The same methods are available as a Julia package,
-[GICVariableSelection](https://github.com/yuchenxiao95/GICVariableSelection),
-if you would rather work in Julia directly.
+[IChop.jl](https://github.com/yuchenxiao95/IChop.jl), if you would
+rather work in Julia directly.
 
 ## Overview
 
-GICHighDimension addresses the computational barrier of solving
+IChop addresses the computational barrier of solving
 $`\ell_0`$-penalized regression in linear models where the number of
 predictors $`p`$ is large, in the hundreds or even the thousands, yet
 smaller than the number of observations $`n`$. Finding the optimal
@@ -152,7 +152,7 @@ specific to this package: it replaces the fit term
 $`\frac{1}{n} y^\top H_d y`$ with $`y^\top \mathrm{softmax}(H_d y)`$ and
 uses the SIC penalty. Each criterion is available as `Calculate_<name>`
 (for example `Calculate_GIC6` or `Calculate_AICc`); see
-[`?information_criteria`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
+[`?information_criteria`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
 for full citations.
 
 ## Examples
@@ -254,11 +254,11 @@ Criteria and model size along the search, multivariate normal response
 ### Generalized linear models
 
 For a non-Gaussian response, map it to the linear-predictor scale with
-[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md),
+[`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md),
 select with
-[`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md),
+[`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md),
 and then fit the selected model with
-[`Beta_estimate()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Beta_estimate.md).
+[`Beta_estimate()`](https://yuchenxiao95.github.io/IChop/reference/Beta_estimate.md).
 The GLM examples reuse the design matrix `X` from above ($`n = 2000`$,
 $`p = 500`$), with 5 true predictors, and start each search from the
 first 10 columns.

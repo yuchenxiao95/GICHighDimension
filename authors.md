@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/yuchenxiao95/GICHighDimension/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/yuchenxiao95/IChop/blob/main/inst/CITATION)
 
 Xiao, Y. and Walker, S. (2026). Fast variable selection under l0
 regularization in high-dimensions. Statistics and Computing, 36(3), 100.

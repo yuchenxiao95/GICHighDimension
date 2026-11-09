@@ -67,9 +67,9 @@ an \\n \times q\\ matrix for "MultivariateNormal".
 
 Simulates responses from the linear predictor \\\eta = X\beta\\ using
 the 'Julia' backend. The supported families and links (the same as in
-[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md)
+[`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
 and
-[`Beta_estimate()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Beta_estimate.md))
+[`Beta_estimate()`](https://yuchenxiao95.github.io/IChop/reference/Beta_estimate.md))
 are:
 
 |  |  |  |

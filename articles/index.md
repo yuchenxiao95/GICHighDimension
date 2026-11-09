@@ -3,4 +3,4 @@
 ### All vignettes
 
 - [An Introduction to
-  GICHighDimension](https://yuchenxiao95.github.io/GICHighDimension/articles/GICHighDimension.md):
+  IChop](https://yuchenxiao95.github.io/IChop/articles/IChop.md):

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Fast Variable Selection with Information Criteria • GICHighDimension</title>
+<title>Fast Variable Selection with Information Criteria • IChop</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Fast Variable Selection with Information Criteria">
 <meta name="description" content="Provides tools for variable selection in high-dimensional regression using the generalized information criterion (GIC) combined with Hopfield network optimization. Supports generalized linear models (GLMs), including normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and multinomial families. Performance-critical components are implemented in Julia with a user-friendly R interface via JuliaCall. The method is described in Xiao and Walker (2026) &lt;doi:10.1007/s11222-026-10853-5&gt;.">
 <meta property="og:description" content="Provides tools for variable selection in high-dimensional regression using the generalized information criterion (GIC) combined with Hopfield network optimization. Supports generalized linear models (GLMs), including normal, binomial, Poisson, gamma, inverse Gaussian, negative binomial and multinomial families. Performance-critical components are implemented in Julia with a user-friendly R interface via JuliaCall. The method is described in Xiao and Walker (2026) &lt;doi:10.1007/s11222-026-10853-5&gt;.">
-<meta property="og:image" content="https://yuchenxiao95.github.io/GICHighDimension/logo.png">
+<meta property="og:image" content="https://yuchenxiao95.github.io/IChop/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -25,7 +25,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">GICHighDimension</a>
+    <a class="navbar-brand me-2" href="index.html">IChop</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.9000</small>
 
@@ -36,7 +36,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/GICHighDimension.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/IChop.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
@@ -44,8 +44,8 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICVariableSelection" aria-label="GICVariableSelection, the Julia version of this package">Julia package</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICHighDimension/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/IChop.jl" aria-label="IChop.jl, the Julia version of this package">Julia package</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/IChop/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -55,26 +55,26 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="gichighdimension-">GICHighDimension <a class="anchor" aria-label="anchor" href="#gichighdimension-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="ichop-">IChop <a class="anchor" aria-label="anchor" href="#ichop-"></a>
 </h1>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the development version of <code>GICHighDimension</code> from GitHub:</p>
+<p>Install the development version of <code>IChop</code> from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"yuchenxiao95/GICHighDimension"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"yuchenxiao95/IChop"</span><span class="op">)</span></span></code></pre></div>
 <p>You also need Julia (≥ 1.9), which you can download from <a href="https://julialang.org/downloads/" class="external-link uri">https://julialang.org/downloads/</a>. Then connect R to Julia; the first time, also install the Julia packages the package uses:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/IChop" class="external-link">IChop</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/install_julia_packages.html">install_julia_packages</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># first time only</span></span></code></pre></div>
-<p>The same methods are available as a Julia package, <a href="https://github.com/yuchenxiao95/GICVariableSelection" class="external-link">GICVariableSelection</a>, if you would rather work in Julia directly.</p>
+<p>The same methods are available as a Julia package, <a href="https://github.com/yuchenxiao95/IChop.jl" class="external-link">IChop.jl</a>, if you would rather work in Julia directly.</p>
 </div>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>GICHighDimension addresses the computational barrier of solving <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>-penalized regression in linear models where the number of predictors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> is large, in the hundreds or even the thousands, yet smaller than the number of observations <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>. Finding the optimal solution of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>-penalized regression has been treated as a combinatorial problem that requires discrete optimization and is NP-hard. This package builds on a connection with Hopfield networks, which are used for associative memory retrieval (<a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link">Xiao and Walker, 2026</a>). It makes generalized information criteria (GIC; <a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim, Kwon and Choi, 2012</a>) for variable selection, which are equivalent to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>-penalized regression, computationally feasible. The rationale is that there remains strong interest in GIC, whose statistical properties are superior to those of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\ell_1</annotation></semantics></math>-based regularization.</p>
+<p>IChop addresses the computational barrier of solving <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>-penalized regression in linear models where the number of predictors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> is large, in the hundreds or even the thousands, yet smaller than the number of observations <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>. Finding the optimal solution of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>-penalized regression has been treated as a combinatorial problem that requires discrete optimization and is NP-hard. This package builds on a connection with Hopfield networks, which are used for associative memory retrieval (<a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link">Xiao and Walker, 2026</a>). It makes generalized information criteria (GIC; <a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim, Kwon and Choi, 2012</a>) for variable selection, which are equivalent to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>-penalized regression, computationally feasible. The rationale is that there remains strong interest in GIC, whose statistical properties are superior to those of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\ell_1</annotation></semantics></math>-based regularization.</p>
 <div class="section level3">
 <h3 id="the-hopfield-network">The Hopfield network<a class="anchor" aria-label="anchor" href="#the-hopfield-network"></a>
 </h3>
@@ -391,8 +391,8 @@ section and redraws the figures.
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/yuchenxiao95/GICHighDimension/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/yuchenxiao95/GICHighDimension/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/yuchenxiao95/IChop/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/yuchenxiao95/IChop/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -409,7 +409,7 @@ section and redraws the figures.
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing GICHighDimension</a></li>
+<li><a href="authors.html#citation">Citing IChop</a></li>
 </ul>
 </div>
 

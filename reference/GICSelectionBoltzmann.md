@@ -59,7 +59,7 @@ GICSelectionBoltzmann(
 - k:
 
   Optional integer model-size cap, as in
-  [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md);
+  [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md);
   `NULL` (default) means no cap.
 
 - gamma:

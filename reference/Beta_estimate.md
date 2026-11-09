@@ -36,7 +36,7 @@ Beta_estimate(
   `"Poisson"`, `"Gamma"`, `"Exponential"`, `"InverseGaussian"`,
   `"NegativeBinomial"`, `"Geometric"`, or `"Multinomial"` (one-vs-rest
   logistic). The default links match
-  [`LP_to_Y()`](https://yuchenxiao95.github.io/GICHighDimension/reference/LP_to_Y.md):
+  [`LP_to_Y()`](https://yuchenxiao95.github.io/IChop/reference/LP_to_Y.md):
   identity, logit, or log.
 
 - link:

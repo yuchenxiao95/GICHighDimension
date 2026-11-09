@@ -59,7 +59,7 @@ Applies the family's link function to the observed responses, with a
 small adjustment so the link is finite at the boundary: logit with 0 and
 1 replaced by 0.01 and 0.99 (Bernoulli, Binomial), and \\\log(Y + 0.1)\\
 for the log-link families. The families match
-[`LP_to_Y()`](https://yuchenxiao95.github.io/GICHighDimension/reference/LP_to_Y.md):
+[`LP_to_Y()`](https://yuchenxiao95.github.io/IChop/reference/LP_to_Y.md):
 
 |  |  |  |
 |----|----|----|

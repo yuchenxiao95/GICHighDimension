@@ -1,13 +1,13 @@
 # Information criteria with a precomputed inverse
 
 Variants of the
-[information_criteria](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
+[information_criteria](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
 functions that reuse a precomputed \\(X^\top X)^{-1}\\ and return only
 the criterion value. They are kept for backward compatibility; the
 search in
-[`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md)
+[`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
 and
-[`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelectionBoltzmann.md)
+[`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md)
 does not call them.
 
 ## Usage
