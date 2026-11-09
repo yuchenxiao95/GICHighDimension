@@ -1,5 +1,27 @@
 # GICHighDimension
 
+## Installation
+
+Install the development version of `GICHighDimension` from GitHub:
+
+``` r
+
+devtools::install_github("yuchenxiao95/GICHighDimension")
+```
+
+You also need Julia (≥ 1.9), which you can download from
+<https://julialang.org/downloads/>. Then connect R to Julia; the first
+time, also install the Julia packages the package uses:
+
+``` r
+
+library(GICHighDimension)
+setup_julia()
+install_julia_packages()   # first time only
+```
+
+## Overview
+
 GICHighDimension addresses the computational barrier of solving
 $`\ell_0`$-penalized regression in linear models where the number of
 predictors $`p`$ is large, in the hundreds or even the thousands, yet
@@ -32,39 +54,6 @@ $`p(n, d)`$:
 | CAIC | $`d \frac{\sigma^2}{n} (\log n + 1)`$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
 | SIC | $`d \frac{\sigma^2}{n} \sqrt{n}`$ | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
 
-The examples below highlight some well-known statistical properties of
-these criteria:
-
-1.  In linear regression, AIC is minimax-rate optimal and BIC is
-    consistent. In the linear model figure, AIC (blue line) attains the
-    minimax optimality at the expense of many false positives.
-2.  Criteria in the GIC family achieve consistency at different rates.
-    GIC6 (green line) reaches the true model within two passes of the
-    search, and achieves consistency at a faster rate than BIC (orange
-    line).
-3.  Consistency is an asymptotic result. Doubling the sample size
-    (dotted lines) improves the rate of consistency.
-
-## Installation
-
-Install the development version of `GICHighDimension` from GitHub:
-
-``` r
-
-devtools::install_github("yuchenxiao95/GICHighDimension")
-```
-
-You also need Julia (≥ 1.9), which you can download from
-<https://julialang.org/downloads/>. Then connect R to Julia; the first
-time, also install the Julia packages the package uses:
-
-``` r
-
-library(GICHighDimension)
-setup_julia()
-install_julia_packages()   # first time only
-```
-
 ## Examples
 
 The examples below compare three criteria on the same data. In
@@ -77,57 +66,24 @@ explains each step, and the Get started article
 ([`vignette("get-started")`](https://yuchenxiao95.github.io/GICHighDimension/articles/get-started.md))
 lists all criteria and response families.
 
-Helper functions used in the examples
-
-``` r
-
-set_seeds <- function(seed) {
-  set.seed(seed)
-  JuliaCall::julia_command(sprintf("import Random; Random.seed!(%d);", seed))
-}
-
-criteria <- c(AIC = "Calculate_AIC", BIC = "Calculate_BIC", GIC6 = "Calculate_GIC6")
-sample_sizes <- c(n1000 = 1000, n2000 = 2000)
-
-# Run the search once per criterion, on the first n observations for each n
-compare_criteria <- function(X, Y, init, k, Nsim) {
-  lapply(sample_sizes, function(n) {
-    Xn <- X[1:n, ]
-    Yn <- if (is.matrix(Y)) Y[1:n, , drop = FALSE] else Y[1:n]
-    lapply(criteria, function(crit)
-      GICSelection(Xn, Yn, init, crit, paste0(crit, "_short"), k = k, Nsim = Nsim))
-  })
-}
-
-last_model <- function(fit) sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
-
-# Size, false positives and false negatives of each final model
-selection_table <- function(fits, truth) {
-  rows <- lapply(fits, function(by_crit) t(sapply(by_crit, function(fit) {
-    s <- last_model(fit)
-    c(size = length(s), false_pos = length(setdiff(s, truth)),
-      false_neg = length(setdiff(truth, s)))
-  })))
-  out <- do.call(rbind, rows)
-  rownames(out) <- paste(rep(names(fits), each = length(criteria)), rownames(out))
-  out
-}
-```
-
-Each figure shows, for every criterion, its value and the number of
-selected variables after each search step: solid lines for $`n = 1000`$
-and dotted lines for $`n = 2000`$. Light grey vertical lines mark a new
-pass over the predictors, and the dashed line marks the true model size.
-Criteria with larger penalties take lower values, so compare the shapes
-of the curves, not their heights. The script
-[`data-raw/readme_figures.R`](https://yuchenxiao95.github.io/GICHighDimension/data-raw/readme_figures.R)
-runs the code in this section and redraws the figures.
-
 All examples use the same setting. The design matrix $`X`$ has
 $`n = 2000`$ observations of $`p = 500`$ independent standard normal
 predictors, so the predictor covariance is $`\Sigma = I`$, and only a
 few predictors affect the response. Every search runs twice, on the
 first 1000 observations and on all 2000.
+
+The examples below highlight some well-known statistical properties of
+these criteria:
+
+1.  In linear regression, AIC is minimax-rate optimal and BIC is
+    consistent. In the linear model figure, AIC (blue line) attains the
+    minimax optimality at the expense of many false positives.
+2.  Criteria in the GIC family achieve consistency at different rates.
+    In the linear model figure, GIC6 (green line) reaches the true model
+    within two passes of the search, and achieves consistency at a
+    faster rate than BIC (orange line).
+3.  Consistency is an asymptotic result. Doubling the sample size
+    (dotted lines) improves the rate of consistency.
 
 ### Linear model
 
