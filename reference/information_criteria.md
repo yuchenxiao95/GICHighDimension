@@ -103,7 +103,8 @@ penalty (Xiao and Walker, 2026). With \\\hat\sigma^2 = \mathrm{RSS}/(n -
 K)\\ and \\P\\ the number of candidate predictors, the supported
 criteria are:
 
-- AIC, Akaike information criterion (Akaike, 1974): \\K\hat\sigma^2/n\\.
+- AIC, Akaike information criterion (Akaike, 1974):
+  \\2K\hat\sigma^2/n\\.
 
 - AICc, AIC corrected for small samples (Hurvich and Tsai, 1989):
   \\(K+1)\hat\sigma^2/(n-K-2)\\.

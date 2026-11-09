@@ -49,11 +49,11 @@ $`W = z_s^\top z_s - I`$, so that $`W_{ij} = W_{ji} = z_i z_j`$ and
 $`W_{ii} = 0`$. The network updates one neuron at a time,
 
 ``` math
-z_i(t+1) = \operatorname{sgn}\big(H_i(t)\big), \qquad
+z_i(t+1) = \mathrm{sgn}\big(H_i(t)\big), \qquad
 H_i(t) = \sum_{j \ne i} w_{ij} z_j(t),
 ```
 
-with $`\operatorname{sgn}(H) = 1`$ if $`H \ge 0`$ and $`-1`$ otherwise,
+with $`\mathrm{sgn}(H) = 1`$ if $`H \ge 0`$ and $`-1`$ otherwise,
 cycling through $`i = 1, \dots, p`$ until $`z`$ is stable. Each update
 can only lower the energy
 
@@ -131,6 +131,8 @@ $`p(n, d)`$:
 
 | Name | $`p(n, d)`$ | Reference |
 |:---|:---|:---|
+| AIC | $`2d \frac{\sigma^2}{n}`$ | [Akaike (1974)](https://doi.org/10.1109/TAC.1974.1100705) |
+| BIC | $`d \frac{\sigma^2}{n} \log n`$ | [Schwarz (1978)](https://doi.org/10.1214/aos/1176344136) |
 | GIC2 | $`d \frac{\sigma^2}{n} d^{1/3}`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
 | GIC3 | $`2d \frac{\sigma^2}{n} \log d`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
 | GIC4 | $`2d \frac{\sigma^2}{n} (\log d + \log\log d)`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
@@ -142,12 +144,14 @@ $`p(n, d)`$:
 ## Examples
 
 The examples below compare three criteria on the same data. In
-increasing order of penalty per variable, they are AIC ($`c_n = 1`$),
+increasing order of penalty per variable, they are AIC ($`c_n = 2`$),
 BIC ($`\log n`$) and GIC6 ($`\log n \log P`$), where $`P`$ is the number
-of candidate predictors. Each table reports the size, false positives
-and false negatives of the selected model, and `time_s`, the time in
-seconds until the search reaches the true model and stays there. If it
-never does, `time_s` is the time of the whole search.
+of candidate predictors. For reference, they also fit the lasso and the
+adaptive lasso with `glmnet`, tuned by 10-fold cross-validation
+(`lambda.min`); the adaptive lasso uses weights from a ridge pilot fit.
+
+Each table reports the size, false positives and false negatives of the
+selected model.
 
 All examples use the same setting. The design matrix $`X`$ has
 $`n = 2000`$ observations of $`p = 500`$ independent standard normal
@@ -187,13 +191,17 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg time_s
-#> n1000 AIC   230       225         0  24.27
-#> n1000 BIC     8         3         0   8.09
-#> n1000 GIC6    5         0         0   6.35
-#> n2000 AIC   197       192         0  36.08
-#> n2000 BIC     9         4         0  10.60
-#> n2000 GIC6    5         0         0   9.17
+#>                size false_pos false_neg
+#> n1000 AIC       152       147         0
+#> n1000 BIC         8         3         0
+#> n1000 GIC6        5         0         0
+#> n1000 Lasso      47        42         0
+#> n1000 AdaLasso   84        79         0
+#> n2000 AIC       107       102         0
+#> n2000 BIC         9         4         0
+#> n2000 GIC6        5         0         0
+#> n2000 Lasso      27        22         0
+#> n2000 AdaLasso   24        19         0
 ```
 
 ![Criteria and model size along the search, linear model with p =
@@ -219,15 +227,20 @@ for (i in 1:m) {
 Y_multi <- LP_to_Y(X, B, family = "MultivariateNormal", cov_matrix = diag(m))
 true_union <- sort(unique(unlist(true_by_response)))
 
-fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5)
+fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5,
+                         lasso_family = "mgaussian")
 selection_table(fits, true_union)
-#>            size false_pos false_neg time_s
-#> n1000 AIC   268       245         1  28.63
-#> n1000 BIC    20         0         4   7.41
-#> n1000 GIC6   19         0         5   6.85
-#> n2000 AIC   232       208         0  42.81
-#> n2000 BIC    20         0         4  12.57
-#> n2000 GIC6   19         0         5  12.87
+#>                size false_pos false_neg
+#> n1000 AIC        90        67         1
+#> n1000 BIC        20         0         4
+#> n1000 GIC6       19         0         5
+#> n1000 Lasso     135       111         0
+#> n1000 AdaLasso   22         2         4
+#> n2000 AIC        76        53         1
+#> n2000 BIC        20         0         4
+#> n2000 GIC6       19         0         5
+#> n2000 Lasso     157       133         0
+#> n2000 AdaLasso   29         8         3
 ```
 
 ![Criteria and model size along the search, multivariate normal
@@ -253,7 +266,11 @@ set_seeds(2)
 true_cols <- c(3, 17, 42, 88, 150)
 beta <- numeric(p); beta[true_cols] <- c(1, -1, 0.8, -0.8, 0.6)
 
-compare_glm <- function(Y, ...) compare_criteria(X, Y_to_LP(Y, ...), 1:10, k = 50, Nsim = 3)
+# `y` is the response, `lasso_y` and `lasso_family` its form for glmnet, and
+# `...` the family arguments for Y_to_LP()
+compare_glm <- function(y, lasso_y, lasso_family, ...)
+  compare_criteria(X, Y_to_LP(y, ...), 1:10, k = 50, Nsim = 3,
+                   lasso_y = lasso_y, lasso_family = lasso_family)
 ```
 
 #### Poisson regression
@@ -261,15 +278,19 @@ compare_glm <- function(Y, ...) compare_criteria(X, Y_to_LP(Y, ...), 1:10, k = 5
 ``` r
 
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
-fits <- compare_glm(y_pois, family = "Poisson")
+fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson")
 selection_table(fits, true_cols)
-#>            size false_pos false_neg time_s
-#> n1000 AIC    49        45         1   0.37
-#> n1000 BIC     9         4         0   0.47
-#> n1000 GIC6    5         0         0   0.24
-#> n2000 AIC    49        45         1   0.78
-#> n2000 BIC    10         5         0   1.03
-#> n2000 GIC6    5         0         0   0.39
+#>                size false_pos false_neg
+#> n1000 AIC        48        43         0
+#> n1000 BIC         9         4         0
+#> n1000 GIC6        5         0         0
+#> n1000 Lasso      28        23         0
+#> n1000 AdaLasso    5         0         0
+#> n2000 AIC        49        44         0
+#> n2000 BIC        10         5         0
+#> n2000 GIC6        5         0         0
+#> n2000 Lasso      40        35         0
+#> n2000 AdaLasso    5         0         0
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -286,15 +307,20 @@ Criteria and model size along the search, Poisson response
 ``` r
 
 y_binom <- LP_to_Y(X, beta, family = "Binomial", n_trials = 10)
-fits <- compare_glm(y_binom, family = "Binomial", n_trials = 10)
+fits <- compare_glm(y_binom, cbind(10 - y_binom, y_binom), "binomial",
+                    family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg time_s
-#> n1000 AIC    49        47         3   0.46
-#> n1000 BIC     9         4         0   0.56
-#> n1000 GIC6    5         0         0   0.17
-#> n2000 AIC    49        46         2   0.69
-#> n2000 BIC     8         3         0   0.84
-#> n2000 GIC6    5         0         0   0.24
+#>                size false_pos false_neg
+#> n1000 AIC        49        44         0
+#> n1000 BIC         9         4         0
+#> n1000 GIC6        5         0         0
+#> n1000 Lasso      45        40         0
+#> n1000 AdaLasso   41        36         0
+#> n2000 AIC        49        45         1
+#> n2000 BIC         8         3         0
+#> n2000 GIC6        5         0         0
+#> n2000 Lasso      60        55         0
+#> n2000 AdaLasso    5         0         0
 ```
 
 ![Criteria and model size along the search, binomial
@@ -313,15 +339,20 @@ B_mn <- matrix(0, p, 2)
 B_mn[true_cols, 1] <- 1.5
 B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
 y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
-fits <- compare_glm(y_mn, family = "Multinomial", n_categories = 3)
+fits <- compare_glm(y_mn, y_mn, "multinomial", family = "Multinomial",
+                    n_categories = 3)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg time_s
-#> n1000 AIC    49        47         3   0.34
-#> n1000 BIC     9         4         0   0.49
-#> n1000 GIC6    5         0         0   0.15
-#> n2000 AIC    49        48         4   0.82
-#> n2000 BIC     8         3         0   0.84
-#> n2000 GIC6    5         0         0   0.26
+#>                size false_pos false_neg
+#> n1000 AIC        49        47         3
+#> n1000 BIC         9         4         0
+#> n1000 GIC6        5         0         0
+#> n1000 Lasso     144       139         0
+#> n1000 AdaLasso   87        82         0
+#> n2000 AIC        49        44         0
+#> n2000 BIC         8         3         0
+#> n2000 GIC6        5         0         0
+#> n2000 Lasso      77        72         0
+#> n2000 AdaLasso  104        99         0
 ```
 
 ![Criteria and model size along the search, multinomial

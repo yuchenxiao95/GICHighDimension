@@ -79,20 +79,21 @@ observations on
 candidate predictors and compares three criteria, on the first 1000
 observations and on all 2000. In increasing order of penalty per
 variable, the criteria are AIC
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c_n = 1</annotation></semantics></math>),
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_n = 2</annotation></semantics></math>),
 BIC
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>)
 and GIC6
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \, \log P</annotation></semantics></math>),
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
-is the number of candidate predictors. Each table reports the size,
-false positives and false negatives of the selected model, and
-<code>time_s</code>, the time in seconds until the search reaches the
-true model and stays there. If it never does, <code>time_s</code> is the
-time of the whole search. See <code><a href="../articles/get-started.html">vignette("get-started")</a></code> for
-the setup steps and the other criteria. The output shown was produced on
-an Apple M-series laptop with Julia 1.11.</p>
+is the number of candidate predictors. For reference, each example also
+fits the lasso and the adaptive lasso with <code>glmnet</code>, tuned by
+10-fold cross-validation (<code>lambda.min</code>); the adaptive lasso
+uses weights from a ridge pilot fit.</p>
+<p>Each table reports the size, false positives and false negatives of
+the selected model. See <code><a href="../articles/get-started.html">vignette("get-started")</a></code> for the
+setup steps and the other criteria. The output shown was produced on an
+Apple M-series laptop with Julia 1.11.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -112,42 +113,54 @@ order shown to reproduce the output.</p>
 <span><span class="va">criteria</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>AIC <span class="op">=</span> <span class="st">"Calculate_AIC"</span>, BIC <span class="op">=</span> <span class="st">"Calculate_BIC"</span>, GIC6 <span class="op">=</span> <span class="st">"Calculate_GIC6"</span><span class="op">)</span></span>
 <span><span class="va">sample_sizes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>n1000 <span class="op">=</span> <span class="fl">1000</span>, n2000 <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Run the search once per criterion, on the first n observations for each n</span></span>
-<span><span class="va">compare_criteria</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="va">init</span>, <span class="va">k</span>, <span class="va">Nsim</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">first_rows</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">n</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">is.matrix</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="va">Y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="kw">else</span> <span class="va">Y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Coefficients at lambda.min without the intercept, one column per response</span></span>
+<span><span class="va">lasso_coef</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">cvfit</span>, s <span class="op">=</span> <span class="st">"lambda.min"</span><span class="op">)</span></span>
+<span>  <span class="va">b</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">is.list</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">cbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">b</span>, <span class="va">as.matrix</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span></span>
+<span>  <span class="va">b</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Lasso, or adaptive lasso with ridge pilot weights, tuned by 10-fold</span></span>
+<span><span class="co"># cross-validation (lambda.min)</span></span>
+<span><span class="va">fit_lasso</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, <span class="va">family</span>, <span class="va">adaptive</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">args</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, family <span class="op">=</span> <span class="va">family</span>, foldid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep_len</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">family</span> <span class="op">==</span> <span class="st">"multinomial"</span><span class="op">)</span> <span class="va">args</span><span class="op">$</span><span class="va">type.multinomial</span> <span class="op">&lt;-</span> <span class="st">"grouped"</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">adaptive</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">ridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">glmnet</span><span class="fu">::</span><span class="va"><a href="https://glmnet.stanford.edu/reference/cv.glmnet.html" class="external-link">cv.glmnet</a></span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">args</span>, alpha <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">args</span><span class="op">$</span><span class="va">penalty.factor</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">lasso_coef</span><span class="op">(</span><span class="va">ridge</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">glmnet</span><span class="fu">::</span><span class="va"><a href="https://glmnet.stanford.edu/reference/cv.glmnet.html" class="external-link">cv.glmnet</a></span>, <span class="va">args</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">lasso_coef</span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># For each n, run the search once per criterion on the first n observations,</span></span>
+<span><span class="co"># then the lasso and adaptive lasso on the original response `lasso_y`</span></span>
+<span><span class="va">compare_criteria</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="va">init</span>, <span class="va">k</span>, <span class="va">Nsim</span>,</span>
+<span>                             <span class="va">lasso_y</span> <span class="op">=</span> <span class="va">Y</span>, <span class="va">lasso_family</span> <span class="op">=</span> <span class="st">"gaussian"</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sample_sizes</span>, <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">Xn</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="op">]</span></span>
-<span>    <span class="va">Yn</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">is.matrix</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="va">Y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span> <span class="kw">else</span> <span class="va">Y</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span><span class="op">]</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">criteria</span>, <span class="kw">function</span><span class="op">(</span><span class="va">crit</span><span class="op">)</span></span>
-<span>      <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">Xn</span>, <span class="va">Yn</span>, <span class="va">init</span>, <span class="va">crit</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">crit</span>, <span class="st">"_short"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, Nsim <span class="op">=</span> <span class="va">Nsim</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">yn</span> <span class="op">&lt;-</span> <span class="fu">first_rows</span><span class="op">(</span><span class="va">lasso_y</span>, <span class="va">n</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">criteria</span>, <span class="kw">function</span><span class="op">(</span><span class="va">crit</span><span class="op">)</span></span>
+<span>        <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">Xn</span>, <span class="fu">first_rows</span><span class="op">(</span><span class="va">Y</span>, <span class="va">n</span><span class="op">)</span>, <span class="va">init</span>, <span class="va">crit</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">crit</span>, <span class="st">"_short"</span><span class="op">)</span>,</span>
+<span>                     k <span class="op">=</span> <span class="va">k</span>, Nsim <span class="op">=</span> <span class="va">Nsim</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Lasso    <span class="op">=</span> <span class="fu">fit_lasso</span><span class="op">(</span><span class="va">Xn</span>, <span class="va">yn</span>, <span class="va">lasso_family</span><span class="op">)</span>,</span>
+<span>           AdaLasso <span class="op">=</span> <span class="fu">fit_lasso</span><span class="op">(</span><span class="va">Xn</span>, <span class="va">yn</span>, <span class="va">lasso_family</span>, adaptive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Compile each criterion once, so the timings exclude Julia's compilation</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">crit</span> <span class="kw">in</span> <span class="va">criteria</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">Y0</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span>, <span class="fl">50</span><span class="op">)</span>, <span class="va">Y0</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">crit</span>,</span>
-<span>                         <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">crit</span>, <span class="st">"_short"</span><span class="op">)</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">last_model</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Seconds until the search reaches the true model and stays there, or the time</span></span>
-<span><span class="co"># of the whole search if it never does</span></span>
-<span><span class="va">time_to_truth</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">truth</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">hit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span>, <span class="va">setequal</span>, <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, <span class="va">truth</span><span class="op">)</span></span>
-<span>  <span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">hit</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">hit</span><span class="op">[</span><span class="va">steps</span><span class="op">]</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">elapsed</span><span class="op">[</span><span class="va">steps</span><span class="op">]</span><span class="op">)</span></span>
-<span>  <span class="va">fit</span><span class="op">$</span><span class="va">elapsed</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="op">!</span><span class="va">hit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Size, false positives, false negatives and search time of each final model</span></span>
+<span><span class="co"># Size, false positives and false negatives of each final model</span></span>
 <span><span class="va">selection_table</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fits</span>, <span class="va">truth</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">by_crit</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">by_crit</span>, <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">by_method</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">by_method</span>, <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">fit</span><span class="op">[[</span><span class="st">"selected"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="kw">else</span> <span class="va">fit</span><span class="op">[[</span><span class="st">"selected"</span><span class="op">]</span><span class="op">]</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>, false_pos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">truth</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      false_neg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      time_s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">time_to_truth</span><span class="op">(</span><span class="va">fit</span>, <span class="va">truth</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>      false_neg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">rows</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">criteria</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fits</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">out</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Each figure shows, for every criterion, its value and the number of
@@ -194,13 +207,17 @@ Every search starts from the full model:</p>
 <span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
-<span><span class="co">#&gt; n1000 AIC   230       225         0  25.84</span></span>
-<span><span class="co">#&gt; n1000 BIC     8         3         0   9.38</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0   6.40</span></span>
-<span><span class="co">#&gt; n2000 AIC   197       192         0  37.68</span></span>
-<span><span class="co">#&gt; n2000 BIC     9         4         0  12.20</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0   9.29</span></span></code></pre></div>
+<span><span class="co">#&gt;                size false_pos false_neg</span></span>
+<span><span class="co">#&gt; n1000 AIC       152       147         0</span></span>
+<span><span class="co">#&gt; n1000 BIC         8         3         0</span></span>
+<span><span class="co">#&gt; n1000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n1000 Lasso      47        42         0</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso   84        79         0</span></span>
+<span><span class="co">#&gt; n2000 AIC       107       102         0</span></span>
+<span><span class="co">#&gt; n2000 BIC         9         4         0</span></span>
+<span><span class="co">#&gt; n2000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n2000 Lasso      27        22         0</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso   24        19         0</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-linear.png" alt="Criteria and model size along the search, linear model with p = 500"><div class="figcaption">Criteria and model size along the search, linear
 model with p = 500</div>
@@ -225,15 +242,20 @@ response matrix as <code>Y</code>:</p>
 <span><span class="va">Y_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B</span>, family <span class="op">=</span> <span class="st">"MultivariateNormal"</span>, cov_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">true_union</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">true_by_response</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                         lasso_family <span class="op">=</span> <span class="st">"mgaussian"</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
-<span><span class="co">#&gt; n1000 AIC   268       245         1  29.18</span></span>
-<span><span class="co">#&gt; n1000 BIC    20         0         4   7.93</span></span>
-<span><span class="co">#&gt; n1000 GIC6   19         0         5   7.22</span></span>
-<span><span class="co">#&gt; n2000 AIC   232       208         0  44.75</span></span>
-<span><span class="co">#&gt; n2000 BIC    20         0         4  12.61</span></span>
-<span><span class="co">#&gt; n2000 GIC6   19         0         5  12.90</span></span></code></pre></div>
+<span><span class="co">#&gt;                size false_pos false_neg</span></span>
+<span><span class="co">#&gt; n1000 AIC        90        67         1</span></span>
+<span><span class="co">#&gt; n1000 BIC        20         0         4</span></span>
+<span><span class="co">#&gt; n1000 GIC6       19         0         5</span></span>
+<span><span class="co">#&gt; n1000 Lasso     135       111         0</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso   22         2         4</span></span>
+<span><span class="co">#&gt; n2000 AIC        76        53         1</span></span>
+<span><span class="co">#&gt; n2000 BIC        20         0         4</span></span>
+<span><span class="co">#&gt; n2000 GIC6       19         0         5</span></span>
+<span><span class="co">#&gt; n2000 Lasso     157       133         0</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso   29         8         3</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-multivariate.png" alt="Criteria and model size along the search, multivariate normal response"><div class="figcaption">Criteria and model size along the search,
 multivariate normal response</div>
@@ -255,21 +277,29 @@ columns.</p>
 <span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">17</span>, <span class="fl">42</span>, <span class="fl">88</span>, <span class="fl">150</span><span class="op">)</span></span>
 <span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>; <span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="fl">0.6</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">compare_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="../reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># `y` is the response, `lasso_y` and `lasso_family` its form for glmnet, and</span></span>
+<span><span class="co"># `...` the family arguments for Y_to_LP()</span></span>
+<span><span class="va">compare_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">lasso_y</span>, <span class="va">lasso_family</span>, <span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="../reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                   lasso_y <span class="op">=</span> <span class="va">lasso_y</span>, lasso_family <span class="op">=</span> <span class="va">lasso_family</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="poisson-regression">Poisson regression<a class="anchor" aria-label="anchor" href="#poisson-regression"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_pois</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, <span class="va">y_pois</span>, <span class="st">"poisson"</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        45         1   0.37</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0   0.46</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0   0.13</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        45         1   0.85</span></span>
-<span><span class="co">#&gt; n2000 BIC    10         5         0   1.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0   0.23</span></span>
+<span><span class="co">#&gt;                size false_pos false_neg</span></span>
+<span><span class="co">#&gt; n1000 AIC        48        43         0</span></span>
+<span><span class="co">#&gt; n1000 BIC         9         4         0</span></span>
+<span><span class="co">#&gt; n1000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n1000 Lasso      28        23         0</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    5         0         0</span></span>
+<span><span class="co">#&gt; n2000 AIC        49        44         0</span></span>
+<span><span class="co">#&gt; n2000 BIC        10         5         0</span></span>
+<span><span class="co">#&gt; n2000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n2000 Lasso      40        35         0</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    5         0         0</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, intercept first</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -284,15 +314,20 @@ Poisson response</div>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_binom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_binom</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">-</span> <span class="va">y_binom</span>, <span class="va">y_binom</span><span class="op">)</span>, <span class="st">"binomial"</span>,</span>
+<span>                    family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        47         3   0.38</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0   0.44</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0   0.17</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        46         2   0.53</span></span>
-<span><span class="co">#&gt; n2000 BIC     8         3         0   0.81</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0   0.24</span></span></code></pre></div>
+<span><span class="co">#&gt;                size false_pos false_neg</span></span>
+<span><span class="co">#&gt; n1000 AIC        49        44         0</span></span>
+<span><span class="co">#&gt; n1000 BIC         9         4         0</span></span>
+<span><span class="co">#&gt; n1000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n1000 Lasso      45        40         0</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso   41        36         0</span></span>
+<span><span class="co">#&gt; n2000 AIC        49        45         1</span></span>
+<span><span class="co">#&gt; n2000 BIC         8         3         0</span></span>
+<span><span class="co">#&gt; n2000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n2000 Lasso      60        55         0</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    5         0         0</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-binomial.png" alt="Criteria and model size along the search, binomial response"><div class="figcaption">Criteria and model size along the search,
 binomial response</div>
@@ -309,15 +344,20 @@ matrix, and category 3 is the baseline:</p>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="va">y_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, <span class="va">y_mn</span>, <span class="st">"multinomial"</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>,</span>
+<span>                    n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        47         3   0.36</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0   0.50</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0   0.11</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        48         4   0.70</span></span>
-<span><span class="co">#&gt; n2000 BIC     8         3         0   0.80</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0   0.29</span></span></code></pre></div>
+<span><span class="co">#&gt;                size false_pos false_neg</span></span>
+<span><span class="co">#&gt; n1000 AIC        49        47         3</span></span>
+<span><span class="co">#&gt; n1000 BIC         9         4         0</span></span>
+<span><span class="co">#&gt; n1000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n1000 Lasso     144       139         0</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso   87        82         0</span></span>
+<span><span class="co">#&gt; n2000 AIC        49        44         0</span></span>
+<span><span class="co">#&gt; n2000 BIC         8         3         0</span></span>
+<span><span class="co">#&gt; n2000 GIC6        5         0         0</span></span>
+<span><span class="co">#&gt; n2000 Lasso      77        72         0</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso  104        99         0</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-multinomial.png" alt="Criteria and model size along the search, multinomial response"><div class="figcaption">Criteria and model size along the search,
 multinomial response</div>

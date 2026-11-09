@@ -19,7 +19,8 @@
   [`vignette("examples")`](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.md):
   worked simulations for a linear model with 500 predictors, a
   multivariate-normal response, and Poisson, binomial and multinomial
-  GLMs, each comparing AIC, BIC and GIC6 at n = 1000 and 2000.
+  GLMs, each comparing AIC, BIC and GIC6 with the lasso and adaptive
+  lasso at n = 1000 and 2000.
 - [`LP_to_Y()`](https://yuchenxiao95.github.io/GICHighDimension/reference/LP_to_Y.md),
   [`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md)
   and
@@ -42,6 +43,10 @@
 
 ### Bug fixes and behaviour changes
 
+- [`Calculate_AIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
+  and the AIC search now use the standard AIC penalty, 2 K sigma^2 / n
+  (Akaike, 1974). Earlier versions used half of it, K sigma^2 / n, and
+  so kept more variables.
 - Models never exceed n - 1 variables (n = sample size), so the search
   no longer produces a singular fit when p \> n.
 - [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelectionBoltzmann.md)
