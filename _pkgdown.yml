@@ -9,7 +9,12 @@ home:
 navbar:
   structure:
     left:  [reference, articles, news]
-    right: [search, github]
+    right: [search, julia, github]
+  components:
+    julia:
+      text: Julia package
+      href: https://github.com/yuchenxiao95/GICVariableSelection
+      aria-label: GICVariableSelection, the Julia version of this package
 
 reference:
 - title: Variable selection

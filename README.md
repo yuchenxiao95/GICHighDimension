@@ -18,6 +18,10 @@ setup_julia()
 install_julia_packages()   # first time only
 ```
 
+The same methods are available as a Julia package,
+[GICVariableSelection](https://github.com/yuchenxiao95/GICVariableSelection),
+if you would rather work in Julia directly.
+
 ## Overview
 
 GICHighDimension addresses the computational barrier of solving
