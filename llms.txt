@@ -1,18 +1,34 @@
 # GICHighDimension
 
-GICHighDimension is an R package for variable selection in
-high-dimensional regression. It searches over subsets of predictors for
-the one that maximizes a generalized information criterion (GIC), such
-as AIC, BIC, EBIC or GIC2–GIC6, using a fast Hopfield-network style
-coordinate search. Univariate and multivariate responses are supported,
-along with the common generalized linear model families.
+GICHighDimension addresses the computational barrier of solving
+$`\ell_0`$-penalized regression in linear models where the number of
+predictors $`p`$ is large, in the hundreds or even the thousands, yet
+smaller than the number of observations $`n`$. Finding the optimal
+solution of $`\ell_0`$-penalized regression has been treated as a
+combinatorial problem that requires discrete optimization and is
+NP-hard. This package builds on a connection with Hopfield networks,
+which are used for associative memory retrieval ([Xiao and Walker,
+2026](https://doi.org/10.1007/s11222-026-10853-5)). It makes generalized
+information criteria (GIC) for variable selection, which are equivalent
+to $`\ell_0`$-penalized regression, computationally feasible. The
+rationale is that there remains strong interest in GIC, whose
+statistical properties are superior to those of $`\ell_1`$-based
+regularization.
 
-The search engine is written in [Julia](https://julialang.org/) and
-called from R through `JuliaCall`. It never forms the $`n \times n`$ hat
-matrix: every proposed move is scored with a rank-one update, so a pass
-over thousands of candidate predictors takes milliseconds. The method is
-described in [Xiao and Walker
-(2026)](https://doi.org/10.1007/s11222-026-10853-5).
+The examples below highlight some well-known statistical properties of
+these criteria:
+
+1.  In linear regression, AIC is minimax-rate optimal and BIC is
+    consistent. In the linear-model figure, AIC (blue line) attains the
+    largest criterion value at the expense of many false positives.
+2.  Criteria in the GIC family achieve consistency at different rates.
+    GIC6 (green line) reaches the true model within two passes of the
+    search, while BIC (orange line) still includes noise variables at
+    the end.
+3.  Consistency is an asymptotic result. Doubling the sample size
+    (dotted lines) is not yet enough for BIC: with 500 candidate
+    predictors, it still adds a few noise variables at $`n = 2000`$ and
+    needs a much larger sample to select the true model.
 
 ## Installation
 
@@ -45,6 +61,8 @@ article](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.html)
 explains each step, and the Get started article
 ([`vignette("get-started")`](https://yuchenxiao95.github.io/GICHighDimension/articles/get-started.md))
 lists all criteria and response families.
+
+Helper functions used in the examples
 
 ``` r
 
