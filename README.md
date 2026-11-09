@@ -122,22 +122,22 @@ to optimal sparse solutions.
 AIC is minimax-rate optimal but inconsistent when a true model exists;
 criteria with stronger penalties achieve consistency. Table 1 lists the
 criteria in the package and their penalties $p(n, d)$, where $d$ is the number
-of selected variables and $P$ the number of candidate predictors:
+of selected variables and $p$ the number of candidate predictors:
 
 | Name | $p(n, d)$ | Reference |
 |:--|:--|:--|
 | AIC | $2d \frac{\sigma^2}{n}$ | [Akaike (1974)](https://doi.org/10.1109/TAC.1974.1100705) |
 | BIC | $d \frac{\sigma^2}{n} \log n$ | [Schwarz (1978)](https://doi.org/10.1214/aos/1176344136) |
-| GIC2 | $d \frac{\sigma^2}{n} P^{1/3}$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC3 | $2d \frac{\sigma^2}{n} \log P$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC4 | $2d \frac{\sigma^2}{n} (\log P + \log\log P)$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC5 | $d \frac{\sigma^2}{n} \log\log n \log P$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC6 | $d \frac{\sigma^2}{n} \log n \log P$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC2 | $d \frac{\sigma^2}{n} p^{1/3}$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC3 | $2d \frac{\sigma^2}{n} \log p$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC4 | $2d \frac{\sigma^2}{n} (\log p + \log\log p)$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC5 | $d \frac{\sigma^2}{n} \log\log n \log p$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC6 | $d \frac{\sigma^2}{n} \log n \log p$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
 | CAIC | $d \frac{\sigma^2}{n} (\log n + 1)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
 | CAICF | $d \frac{\sigma^2}{n} (\log n + 1) + \frac{\sigma^2}{n} \log\det(X_d^\top X_d / \sigma^2)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
 | SIC | $d \frac{\sigma^2}{n} \sqrt{n}$ | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
 | AICc | $(d + 1) \frac{\sigma^2}{n - d - 2}$ | [Hurvich and Tsai (1989)](https://doi.org/10.1093/biomet/76.2.297) |
-| EBIC | $d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{P}{d}\right)$, $\gamma = 0.6$ by default | [Chen and Chen (2008)](https://doi.org/10.1093/biomet/asn034) |
+| EBIC | $d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{p}{d}\right)$, $\gamma = 0.6$ by default | [Chen and Chen (2008)](https://doi.org/10.1093/biomet/asn034) |
 
 The package also provides AttIC, an attention-weighted criterion specific to
 this package: it replaces the fit term $\frac{1}{n} y^\top H_d y$ with
@@ -149,7 +149,7 @@ available as `Calculate_<name>` (for example `Calculate_GIC6` or
 
 The examples below compare three criteria on the same data. In increasing
 order of penalty per variable, they are AIC ($c_n = 2$), BIC ($\log n$) and
-GIC6 ($\log n \log P$), where $P$ is the number of candidate
+GIC6 ($\log n \log p$), where $p$ is the number of candidate
 predictors. Each example also runs the Boltzmann search (`GICSelectionBoltzmann()`)
 with GIC6, which accepts a move that lowers the criterion by $\Delta$ with
 probability $1/(1 + e^{\Delta/T})$, so it can leave a local optimum. The

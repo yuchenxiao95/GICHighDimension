@@ -8,7 +8,7 @@
 #' @details
 #' Every criterion has the form \eqn{Y^\top H Y / n - p(n, K)}, where \eqn{H} is the hat
 #' matrix of the \eqn{K} selected columns and \eqn{p(n, K)} is the penalty (Xiao and
-#' Walker, 2026). With \eqn{\hat\sigma^2 = \mathrm{RSS}/(n - K)} and \eqn{P} the number
+#' Walker, 2026). With \eqn{\hat\sigma^2 = \mathrm{RSS}/(n - K)} and \eqn{p} the number
 #' of candidate predictors, the supported criteria are:
 #' \itemize{
 #'   \item AIC, Akaike information criterion (Akaike, 1974):
@@ -24,9 +24,9 @@
 #'   \item SIC, square-root information criterion (Shao, 1997; Xiao and Walker, 2026):
 #'     \eqn{K\hat\sigma^2/\sqrt{n}}.
 #'   \item GIC2--GIC6, generalized information criteria for high dimensions
-#'     (Kim, Kwon and Choi, 2012), with penalties \eqn{K\hat\sigma^2 P^{1/3}/n},
-#'     \eqn{2K\hat\sigma^2\log(P)/n}, \eqn{2K\hat\sigma^2(\log P + \log\log P)/n},
-#'     \eqn{K\hat\sigma^2\log\log(n)\log(P)/n} and \eqn{K\hat\sigma^2\log(n)\log(P)/n}.
+#'     (Kim, Kwon and Choi, 2012), with penalties \eqn{K\hat\sigma^2 p^{1/3}/n},
+#'     \eqn{2K\hat\sigma^2\log(p)/n}, \eqn{2K\hat\sigma^2(\log p + \log\log p)/n},
+#'     \eqn{K\hat\sigma^2\log\log(n)\log(p)/n} and \eqn{K\hat\sigma^2\log(n)\log(p)/n}.
 #'   \item EBIC, extended BIC (Chen and Chen, 2008):
 #'     \eqn{K\hat\sigma^2\{\log n + \gamma\log\binom{P}{K}\}/n}, with \eqn{\gamma = 0.6}
 #'     by default.

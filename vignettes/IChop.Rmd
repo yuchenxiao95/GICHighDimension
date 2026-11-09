@@ -40,7 +40,7 @@ where $H$ is the hat matrix of the selected columns, $K$ the number of
 selected variables, $\hat\sigma^2$ the residual variance, and $c_n$ the
 penalty per variable. AIC ($c_n = 2$) and BIC ($c_n = \log n$) are special
 cases; the GIC family of Kim, Kwon and Choi (2012) uses penalties that grow
-with the number of candidate predictors $P$, which is what makes selection
+with the number of candidate predictors $p$, which is what makes selection
 consistent in high dimensions. The package implements thirteen criteria, listed
 in [Choosing a criterion](#choosing-a-criterion).
 
@@ -166,14 +166,14 @@ The criteria differ only in the penalty $c_n$:
 | `Calculate_CAIC` | Consistent AIC | $1 + \log n$ | Bozdogan (1987) |
 | `Calculate_CAICF` | Consistent AIC with Fisher information | $1 + \log n + \log\det(X_S^\top X_S / \hat\sigma^2) / K$ | Bozdogan (1987) |
 | `Calculate_SIC` | Square-root IC | $\sqrt n$ | Shao (1997) |
-| `Calculate_GIC2` | GIC$_2$ | $P^{1/3}$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC3` | GIC$_3$ | $2 \log P$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC4` | GIC$_4$ | $2(\log P + \log\log P)$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC5` | GIC$_5$ | $\log\log n \, \log P$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC6` | GIC$_6$ | $\log n \, \log P$ | Kim, Kwon and Choi (2012) |
-| `Calculate_EBIC` | Extended BIC | $\log n + \gamma \log \binom{P}{K}$, $\gamma = 0.6$ by default | Chen and Chen (2008) |
+| `Calculate_GIC2` | GIC$_2$ | $p^{1/3}$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC3` | GIC$_3$ | $2 \log p$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC4` | GIC$_4$ | $2(\log p + \log\log p)$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC5` | GIC$_5$ | $\log\log n \, \log p$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC6` | GIC$_6$ | $\log n \, \log p$ | Kim, Kwon and Choi (2012) |
+| `Calculate_EBIC` | Extended BIC | $\log n + \gamma \log \binom{p}{K}$, $\gamma = 0.6$ by default | Chen and Chen (2008) |
 
-Here $P$ is the number of candidate variables and $X_S$ the selected columns;
+Here $p$ is the number of candidate variables and $X_S$ the selected columns;
 CAICF supports vector responses only. Two criteria use slightly different
 forms (see `?information_criteria`): `Calculate_AICc`, the small-sample
 corrected AIC (Hurvich and Tsai, 1989), and `Calculate_AttIC`, an
@@ -470,7 +470,7 @@ model, Poisson, binomial and multinomial GLMs, and a Cox model. Each example sim
 $n = 2000$ observations on $p = 500$ candidate predictors and compares three
 criteria, on the first 1000 observations and on all 2000. In increasing order
 of penalty per variable, the criteria are AIC ($c_n = 2$), BIC ($\log n$) and
-GIC6 ($\log n \, \log P$). Each example also runs the
+GIC6 ($\log n \, \log p$). Each example also runs the
 [Boltzmann search](#boltzmann-search) with GIC6. The examples use the default
 $T = 0.1$, and $T = 0.05$ for the multivariate normal example and
 $T = 0.001$ for the Poisson and Cox examples.
