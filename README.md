@@ -41,7 +41,7 @@ regularization.
 
 ### The Hopfield network
 
-A Hopfield network (Hopfield, 1982) is a model of associative memory with $p$
+A Hopfield network ([Hopfield, 1982](https://doi.org/10.1073/pnas.79.8.2554)) is a model of associative memory with $p$
 neurons, each connected to every other neuron by undirected edges with no
 self-connections. The state $z \in \lbrace 1, -1 \rbrace^p$ evolves through a
 symmetric weight matrix $W$, built from a stored pattern $z_s$ by Hebb's law,
@@ -525,6 +525,10 @@ simulate Cox proportional hazards models. *Statistics in Medicine*, 24(11),
 Friedman, J., Hastie, T. and Tibshirani, R. (2010). Regularization paths for
 generalized linear models via coordinate descent. *Journal of Statistical
 Software*, 33(1), 1–22. <https://doi.org/10.18637/jss.v033.i01>
+
+Hopfield, J. J. (1982). Neural networks and physical systems with emergent
+collective computational abilities. *Proceedings of the National Academy of
+Sciences*, 79(8), 2554–2558. <https://doi.org/10.1073/pnas.79.8.2554>
 
 Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990). Martingale-based
 residuals for survival models. *Biometrika*, 77(1), 147–160.
