@@ -101,7 +101,7 @@ and BIC
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">c_n = \log n</annotation></semantics></math>)
 are special cases; the GIC family of Kim, Kwon and Choi (2012) uses
 penalties that grow with the number of candidate predictors
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>,
 which is what makes selection consistent in high dimensions. The package
 implements thirteen criteria, listed in <a href="#choosing-a-criterion">Choosing a criterion</a>.</p>
 <p>The search itself runs in Julia, which R calls through the
@@ -259,42 +259,42 @@ the Boltzmann variant of the search. We keep using <code>X</code> and
 <td align="left"><code>Calculate_GIC2</code></td>
 <td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>2</mn></msub><annotation encoding="application/x-tex">_2</annotation></semantics></math>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup><annotation encoding="application/x-tex">P^{1/3}</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>p</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup><annotation encoding="application/x-tex">p^{1/3}</annotation></semantics></math></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC3</code></td>
 <td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>3</mn></msub><annotation encoding="application/x-tex">_3</annotation></semantics></math>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">2 \log P</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">2 \log p</annotation></semantics></math></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC4</code></td>
 <td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>4</mn></msub><annotation encoding="application/x-tex">_4</annotation></semantics></math>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2(\log P + \log\log P)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2(\log p + \log\log p)</annotation></semantics></math></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC5</code></td>
 <td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>5</mn></msub><annotation encoding="application/x-tex">_5</annotation></semantics></math>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log\log n \, \log P</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log\log n \, \log p</annotation></semantics></math></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC6</code></td>
 <td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>6</mn></msub><annotation encoding="application/x-tex">_6</annotation></semantics></math>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \, \log P</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log n \, \log p</annotation></semantics></math></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_EBIC</code></td>
 <td align="left">Extended BIC</td>
 <td align="left">
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mo>+</mo><mi>γ</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>P</mi><mi>K</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log n + \gamma \log \binom{P}{K}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mo>+</mo><mi>γ</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>p</mi><mi>K</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log n + \gamma \log \binom{p}{K}</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>0.6</mn></mrow><annotation encoding="application/x-tex">\gamma = 0.6</annotation></semantics></math>
 by default</td>
 <td align="left">Chen and Chen (2008)</td>
@@ -302,7 +302,7 @@ by default</td>
 </tbody>
 </table>
 <p>Here
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
 is the number of candidate variables and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>S</mi></msub><annotation encoding="application/x-tex">X_S</annotation></semantics></math>
 the selected columns; CAICF supports vector responses only. Two criteria
@@ -701,18 +701,25 @@ variable, the criteria are AIC
 BIC
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>)
 and GIC6
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \, \log P</annotation></semantics></math>).
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log n \, \log p</annotation></semantics></math>).
 Each example also runs the <a href="#boltzmann-search">Boltzmann
-search</a> with GIC6. The examples use the default
+search</a> with GIC6, whose temperature
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is a tuning parameter. The temperature used in each example is: linear
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>,
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">T = 0.05</annotation></semantics></math>
-for the multivariate normal example and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>
-for the Poisson and Cox examples.</p>
-<p>The lasso and the adaptive lasso are fitted with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package
-(Friedman, Hastie and Tibshirani, 2010), using <code>cv.glmnet()</code>
-with 10-fold cross-validation and <code>lambda.min</code>, and
+multivariate normal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">T = 0.05</annotation></semantics></math>,
+Poisson
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>,
+binomial
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>,
+multinomial
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>
+and Cox
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>.</p>
+<p>The lasso and the adaptive lasso are fitted with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package (<a href="https://doi.org/10.18637/jss.v033.i01" class="external-link">Friedman, Hastie and
+Tibshirani, 2010</a>), using <code>cv.glmnet()</code> with 10-fold
+cross-validation and <code>lambda.min</code>, and
 <code>family = "gaussian"</code>, <code>"mgaussian"</code>,
 <code>"poisson"</code> or <code>"binomial"</code> to match the response,
 as in glmnet’s own articles. The multinomial and Cox examples leave the
@@ -1018,10 +1025,10 @@ with the same
 an exponential baseline hazard
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">h_0(t) = 1</annotation></semantics></math>
 and independent exponential censoring at rate 0.3, simulated by
-<code>LP_to_Y(family = "Cox")</code> (Bender, Augustin and Blettner,
-2005). For the searches, <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code> maps each (time, status)
-pair to the deviance residual of the null Cox model (Therneau, Grambsch
-and Fleming, 1990), which increases with the linear predictor. The
+<code>LP_to_Y(family = "Cox")</code> (<a href="https://doi.org/10.1002/sim.2059" class="external-link">Bender, Augustin and Blettner,
+2005</a>). For the searches, <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code> maps each (time,
+status) pair to the deviance residual of the null Cox model (<a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link">Therneau, Grambsch and
+Fleming, 1990</a>), which increases with the linear predictor. The
 selected model is then fitted with <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code>.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Cox"</span>, censor_rate <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>

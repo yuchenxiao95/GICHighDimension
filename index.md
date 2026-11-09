@@ -130,23 +130,23 @@ network correspond to optimal sparse solutions.
 AIC is minimax-rate optimal but inconsistent when a true model exists;
 criteria with stronger penalties achieve consistency. Table 1 lists the
 criteria in the package and their penalties $`p(n, d)`$, where $`d`$ is
-the number of selected variables and $`P`$ the number of candidate
+the number of selected variables and $`p`$ the number of candidate
 predictors:
 
 | Name | $`p(n, d)`$ | Reference |
 |:---|:---|:---|
 | AIC | $`2d \frac{\sigma^2}{n}`$ | [Akaike (1974)](https://doi.org/10.1109/TAC.1974.1100705) |
 | BIC | $`d \frac{\sigma^2}{n} \log n`$ | [Schwarz (1978)](https://doi.org/10.1214/aos/1176344136) |
-| GIC2 | $`d \frac{\sigma^2}{n} P^{1/3}`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC3 | $`2d \frac{\sigma^2}{n} \log P`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC4 | $`2d \frac{\sigma^2}{n} (\log P + \log\log P)`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC5 | $`d \frac{\sigma^2}{n} \log\log n \log P`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC6 | $`d \frac{\sigma^2}{n} \log n \log P`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC2 | $`d \frac{\sigma^2}{n} p^{1/3}`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC3 | $`2d \frac{\sigma^2}{n} \log p`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC4 | $`2d \frac{\sigma^2}{n} (\log p + \log\log p)`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC5 | $`d \frac{\sigma^2}{n} \log\log n \log p`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC6 | $`d \frac{\sigma^2}{n} \log n \log p`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
 | CAIC | $`d \frac{\sigma^2}{n} (\log n + 1)`$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
 | CAICF | $`d \frac{\sigma^2}{n} (\log n + 1) + \frac{\sigma^2}{n} \log\det(X_d^\top X_d / \sigma^2)`$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
 | SIC | $`d \frac{\sigma^2}{n} \sqrt{n}`$ | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
 | AICc | $`(d + 1) \frac{\sigma^2}{n - d - 2}`$ | [Hurvich and Tsai (1989)](https://doi.org/10.1093/biomet/76.2.297) |
-| EBIC | $`d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{P}{d}\right)`$, $`\gamma = 0.6`$ by default | [Chen and Chen (2008)](https://doi.org/10.1093/biomet/asn034) |
+| EBIC | $`d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{p}{d}\right)`$, $`\gamma = 0.6`$ by default | [Chen and Chen (2008)](https://doi.org/10.1093/biomet/asn034) |
 
 The package also provides AttIC, an attention-weighted criterion
 specific to this package: it replaces the fit term
@@ -160,20 +160,20 @@ for full citations.
 
 The examples below compare three criteria on the same data. In
 increasing order of penalty per variable, they are AIC ($`c_n = 2`$),
-BIC ($`\log n`$) and GIC6 ($`\log n \log P`$), where $`P`$ is the number
+BIC ($`\log n`$) and GIC6 ($`\log n \log p`$), where $`p`$ is the number
 of candidate predictors. Each example also runs the Boltzmann search
 ([`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md))
 with GIC6, which accepts a move that lowers the criterion by $`\Delta`$
 with probability $`1/(1 + e^{\Delta/T})`$, so it can leave a local
-optimum. The temperature $`T`$ is a tuning parameter: the size of a
-criterion change differs between models, so the same $`T`$ can be almost
-greedy in one example and too permissive in another. The examples use
-the default $`T = 0.1`$, and $`T = 0.05`$ for the multivariate normal
-example and $`T = 0.001`$ for the Poisson and Cox examples.
+optimum. The temperature $`T`$ is a tuning parameter. The temperature
+used in each example is: linear $`T = 0.1`$, multivariate normal
+$`T = 0.05`$, Poisson $`T = 0.001`$, binomial $`T = 0.1`$, multinomial
+$`T = 0.1`$ and Cox $`T = 0.001`$.
 
 For reference, the examples also fit the lasso and the adaptive lasso
 with the [glmnet](https://CRAN.R-project.org/package=glmnet) package
-(Friedman, Hastie and Tibshirani, 2010), using `cv.glmnet()` with
+([Friedman, Hastie and Tibshirani,
+2010](https://doi.org/10.18637/jss.v033.i01)), using `cv.glmnet()` with
 10-fold cross-validation and `lambda.min`, and `family = "gaussian"`,
 `"mgaussian"`, `"poisson"` or `"binomial"` to match the response, as in
 glmnet’s own articles. The multinomial and Cox examples leave the lasso
@@ -409,12 +409,14 @@ Criteria, model size and run time, multinomial response
 The survival times follow a Cox model,
 $`h(t \mid x) = h_0(t)\, e^{x^\top\beta}`$, with the same $`\beta`$, an
 exponential baseline hazard $`h_0(t) = 1`$ and independent exponential
-censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` (Bender,
-Augustin and Blettner, 2005). For the searches,
+censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` ([Bender,
+Augustin and Blettner, 2005](https://doi.org/10.1002/sim.2059)). For the
+searches,
 [`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
 maps each (time, status) pair to the deviance residual of the null Cox
-model (Therneau, Grambsch and Fleming, 1990), which increases with the
-linear predictor. The selected model is then fitted with
+model ([Therneau, Grambsch and Fleming,
+1990](https://doi.org/10.1093/biomet/77.1.147)), which increases with
+the linear predictor. The selected model is then fitted with
 [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html).
 
 ``` r

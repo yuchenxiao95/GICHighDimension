@@ -23,7 +23,7 @@ of selected variables, $`\hat\sigma^2`$ the residual variance, and
 $`c_n`$ the penalty per variable. AIC ($`c_n = 2`$) and BIC
 ($`c_n = \log n`$) are special cases; the GIC family of Kim, Kwon and
 Choi (2012) uses penalties that grow with the number of candidate
-predictors $`P`$, which is what makes selection consistent in high
+predictors $`p`$, which is what makes selection consistent in high
 dimensions. The package implements thirteen criteria, listed in
 [Choosing a criterion](#choosing-a-criterion).
 
@@ -161,14 +161,14 @@ The criteria differ only in the penalty $`c_n`$:
 | `Calculate_CAIC` | Consistent AIC | $`1 + \log n`$ | Bozdogan (1987) |
 | `Calculate_CAICF` | Consistent AIC with Fisher information | $`1 + \log n + \log\det(X_S^\top X_S / \hat\sigma^2) / K`$ | Bozdogan (1987) |
 | `Calculate_SIC` | Square-root IC | $`\sqrt n`$ | Shao (1997) |
-| `Calculate_GIC2` | GIC$`_2`$ | $`P^{1/3}`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC3` | GIC$`_3`$ | $`2 \log P`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC4` | GIC$`_4`$ | $`2(\log P + \log\log P)`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC5` | GIC$`_5`$ | $`\log\log n \, \log P`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC6` | GIC$`_6`$ | $`\log n \, \log P`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_EBIC` | Extended BIC | $`\log n + \gamma \log \binom{P}{K}`$, $`\gamma = 0.6`$ by default | Chen and Chen (2008) |
+| `Calculate_GIC2` | GIC$`_2`$ | $`p^{1/3}`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC3` | GIC$`_3`$ | $`2 \log p`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC4` | GIC$`_4`$ | $`2(\log p + \log\log p)`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC5` | GIC$`_5`$ | $`\log\log n \, \log p`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC6` | GIC$`_6`$ | $`\log n \, \log p`$ | Kim, Kwon and Choi (2012) |
+| `Calculate_EBIC` | Extended BIC | $`\log n + \gamma \log \binom{p}{K}`$, $`\gamma = 0.6`$ by default | Chen and Chen (2008) |
 
-Here $`P`$ is the number of candidate variables and $`X_S`$ the selected
+Here $`p`$ is the number of candidate variables and $`X_S`$ the selected
 columns; CAICF supports vector responses only. Two criteria use slightly
 different forms (see
 [`?information_criteria`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)):
@@ -501,22 +501,24 @@ Each example simulates $`n = 2000`$ observations on $`p = 500`$
 candidate predictors and compares three criteria, on the first 1000
 observations and on all 2000. In increasing order of penalty per
 variable, the criteria are AIC ($`c_n = 2`$), BIC ($`\log n`$) and GIC6
-($`\log n \, \log P`$). Each example also runs the [Boltzmann
-search](#boltzmann-search) with GIC6. The examples use the default
-$`T = 0.1`$, and $`T = 0.05`$ for the multivariate normal example and
-$`T = 0.001`$ for the Poisson and Cox examples.
+($`\log n \, \log p`$). Each example also runs the [Boltzmann
+search](#boltzmann-search) with GIC6, whose temperature $`T`$ is a
+tuning parameter. The temperature used in each example is: linear
+$`T = 0.1`$, multivariate normal $`T = 0.05`$, Poisson $`T = 0.001`$,
+binomial $`T = 0.1`$, multinomial $`T = 0.1`$ and Cox $`T = 0.001`$.
 
 The lasso and the adaptive lasso are fitted with the
-[glmnet](https://CRAN.R-project.org/package=glmnet) package (Friedman,
-Hastie and Tibshirani, 2010), using `cv.glmnet()` with 10-fold
-cross-validation and `lambda.min`, and `family = "gaussian"`,
-`"mgaussian"`, `"poisson"` or `"binomial"` to match the response, as in
-glmnet’s own articles. The multinomial and Cox examples leave the lasso
-out: glmnet’s cross-validated fits for those families (grouped
-multinomial, and Cox) take several minutes each at this size, against
-well under a second for each search. The adaptive lasso uses penalty
-factors $`1/\lVert\hat\beta_j\rVert`$ from a ridge (`alpha = 0`) pilot
-fit. Their run times are those of glmnet’s own fitting routines.
+[glmnet](https://CRAN.R-project.org/package=glmnet) package ([Friedman,
+Hastie and Tibshirani, 2010](https://doi.org/10.18637/jss.v033.i01)),
+using `cv.glmnet()` with 10-fold cross-validation and `lambda.min`, and
+`family = "gaussian"`, `"mgaussian"`, `"poisson"` or `"binomial"` to
+match the response, as in glmnet’s own articles. The multinomial and Cox
+examples leave the lasso out: glmnet’s cross-validated fits for those
+families (grouped multinomial, and Cox) take several minutes each at
+this size, against well under a second for each search. The adaptive
+lasso uses penalty factors $`1/\lVert\hat\beta_j\rVert`$ from a ridge
+(`alpha = 0`) pilot fit. Their run times are those of glmnet’s own
+fitting routines.
 
 Each table reports the size, false positives and false negatives of the
 selected model, and the wall-clock time of each method in seconds (Apple
@@ -816,12 +818,14 @@ Criteria, model size and run time, multinomial response
 The survival times follow a Cox model,
 $`h(t \mid x) = h_0(t)\, e^{x^\top\beta}`$, with the same $`\beta`$, an
 exponential baseline hazard $`h_0(t) = 1`$ and independent exponential
-censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` (Bender,
-Augustin and Blettner, 2005). For the searches,
+censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` ([Bender,
+Augustin and Blettner, 2005](https://doi.org/10.1002/sim.2059)). For the
+searches,
 [`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
 maps each (time, status) pair to the deviance residual of the null Cox
-model (Therneau, Grambsch and Fleming, 1990), which increases with the
-linear predictor. The selected model is then fitted with
+model ([Therneau, Grambsch and Fleming,
+1990](https://doi.org/10.1093/biomet/77.1.147)), which increases with
+the linear predictor. The selected model is then fitted with
 [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html).
 
 ``` r

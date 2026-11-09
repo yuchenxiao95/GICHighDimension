@@ -68,7 +68,7 @@ A named list with components:
 Every criterion has the form \\Y^\top H Y / n - p(n, K)\\, where \\H\\
 is the hat matrix of the \\K\\ selected columns and \\p(n, K)\\ is the
 penalty (Xiao and Walker, 2026). With \\\hat\sigma^2 = \mathrm{RSS}/(n -
-K)\\ and \\P\\ the number of candidate predictors, the supported
+K)\\ and \\p\\ the number of candidate predictors, the supported
 criteria are:
 
 - AIC, Akaike information criterion (Akaike, 1974):
@@ -90,10 +90,10 @@ criteria are:
   2026): \\K\hat\sigma^2/\sqrt{n}\\.
 
 - GIC2–GIC6, generalized information criteria for high dimensions (Kim,
-  Kwon and Choi, 2012), with penalties \\K\hat\sigma^2 P^{1/3}/n\\,
-  \\2K\hat\sigma^2\log(P)/n\\, \\2K\hat\sigma^2(\log P + \log\log
-  P)/n\\, \\K\hat\sigma^2\log\log(n)\log(P)/n\\ and
-  \\K\hat\sigma^2\log(n)\log(P)/n\\.
+  Kwon and Choi, 2012), with penalties \\K\hat\sigma^2 p^{1/3}/n\\,
+  \\2K\hat\sigma^2\log(p)/n\\, \\2K\hat\sigma^2(\log p + \log\log
+  p)/n\\, \\K\hat\sigma^2\log\log(n)\log(p)/n\\ and
+  \\K\hat\sigma^2\log(n)\log(p)/n\\.
 
 - EBIC, extended BIC (Chen and Chen, 2008): \\K\hat\sigma^2\\\log n +
   \gamma\log\binom{P}{K}\\/n\\, with \\\gamma = 0.6\\ by default.
