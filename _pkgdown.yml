@@ -1,4 +1,4 @@
-url: https://yuchenxiao95.github.io/GICHighDimension/
+url: https://yuchenxiao95.github.io/IChop/
 
 template:
   bootstrap: 5
@@ -13,8 +13,8 @@ navbar:
   components:
     julia:
       text: Julia package
-      href: https://github.com/yuchenxiao95/GICVariableSelection
-      aria-label: GICVariableSelection, the Julia version of this package
+      href: https://github.com/yuchenxiao95/IChop.jl
+      aria-label: IChop.jl, the Julia version of this package
 
 reference:
 - title: Variable selection

@@ -1,12 +1,12 @@
 ---
-title: "An Introduction to GICHighDimension"
+title: "An Introduction to IChop"
 author:
   - Yuchen Xiao
   - Stephen Walker
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{An Introduction to GICHighDimension}
+  %\VignetteIndexEntry{An Introduction to IChop}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-`GICHighDimension` is a package that selects variables in high-dimensional
+`IChop` is a package that selects variables in high-dimensional
 regression by maximizing a generalized information criterion (GIC). Finding
 the best subset of variables under an $\ell_0$ penalty is a combinatorial
 problem, and an exhaustive search is out of reach once there are more than a
@@ -57,22 +57,22 @@ through each case in turn, and
 with the lasso and adaptive lasso from `glmnet` on larger simulations.
 
 The same methods are available as a Julia package,
-[GICVariableSelection](https://github.com/yuchenxiao95/GICVariableSelection).
+[IChop.jl](https://github.com/yuchenxiao95/IChop.jl).
 
 ## Installation
 
 Install the development version from GitHub:
 
 ```{r}
-devtools::install_github("yuchenxiao95/GICHighDimension")
+devtools::install_github("yuchenxiao95/IChop")
 ```
 
 The search needs Julia (≥ 1.9), which you can download from
 <https://julialang.org/downloads/>. Then connect R to Julia; the first time,
-also install the Julia packages that `GICHighDimension` uses:
+also install the Julia packages that `IChop` uses:
 
 ```{r}
-library(GICHighDimension)
+library(IChop)
 setup_julia()               # or setup_julia("/path/to/julia/bin")
 install_julia_packages()    # first time only
 ```

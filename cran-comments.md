@@ -16,7 +16,7 @@
 * The terms ‘GIC’ and ‘Hopfield’ are domain-specific and appropriately used in the context of model selection and neural optimization.
 
 ## Submission purpose
-* Initial CRAN submission of the package `GICHighDimension`.
+* Initial CRAN submission of the package `IChop`.
 
 ## Additional Information
 * The package requires an external Julia installation but does not initiate installation automatically.

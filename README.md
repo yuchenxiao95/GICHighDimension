@@ -1,11 +1,11 @@
-# GICHighDimension <img src="man/figures/logo.png" align="right" height="139" alt="GICHighDimension logo" />
+# IChop <img src="man/figures/logo.png" align="right" height="139" alt="IChop logo" />
 
 ## Installation
 
-Install the development version of `GICHighDimension` from GitHub:
+Install the development version of `IChop` from GitHub:
 
 ```r
-devtools::install_github("yuchenxiao95/GICHighDimension")
+devtools::install_github("yuchenxiao95/IChop")
 ```
 
 You also need Julia (≥ 1.9), which you can download from
@@ -13,18 +13,18 @@ You also need Julia (≥ 1.9), which you can download from
 also install the Julia packages the package uses:
 
 ```r
-library(GICHighDimension)
+library(IChop)
 setup_julia()
 install_julia_packages()   # first time only
 ```
 
 The same methods are available as a Julia package,
-[GICVariableSelection](https://github.com/yuchenxiao95/GICVariableSelection),
+[IChop.jl](https://github.com/yuchenxiao95/IChop.jl),
 if you would rather work in Julia directly.
 
 ## Overview
 
-GICHighDimension addresses the computational barrier of solving
+IChop addresses the computational barrier of solving
 $\ell_0$-penalized regression in linear models where the number of
 predictors $p$ is large, in the hundreds or even the thousands, yet smaller
 than the number of observations $n$. Finding the optimal solution of

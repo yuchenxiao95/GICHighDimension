@@ -1,4 +1,4 @@
-Package: GICHighDimension
+Package: IChop
 Title: Generalized Information Criterion for Variable Selection Using Hopfield Network Optimization
 Version: 0.1.2.9000
 Authors@R: 
@@ -43,6 +43,6 @@ SystemRequirements:
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/yuchenxiao95/GICHighDimension,
-    https://yuchenxiao95.github.io/GICHighDimension/
-BugReports: https://github.com/yuchenxiao95/GICHighDimension/issues
+URL: https://github.com/yuchenxiao95/IChop,
+    https://yuchenxiao95.github.io/IChop/
+BugReports: https://github.com/yuchenxiao95/IChop/issues

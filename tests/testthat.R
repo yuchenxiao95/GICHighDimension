@@ -1,8 +1,8 @@
-# testthat.R - Test suite for GICHighDimension package
+# testthat.R - Test suite for IChop package
 
 library(testthat)
 library(MASS)
-library(GICHighDimension)
+library(IChop)
 
 # Safe check for Julia availability
 setup_julia_for_tests <- function() {

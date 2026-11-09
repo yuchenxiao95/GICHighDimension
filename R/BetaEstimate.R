@@ -1,6 +1,6 @@
 # =====================================================================
 #  Beta_estimate.R  –  R wrapper around inst/julia/Beta_estimate.jl
-#  Part of the GICHighDimension package
+#  Part of the IChop package
 # =====================================================================
 
 #' @title Coefficient Estimation via Julia

@@ -1,7 +1,11 @@
-# GICHighDimension 0.1.2.9000
+# IChop 0.1.2.9000
 
 This is the first entry in the changelog. It describes the package as it
 stands; later entries will list changes relative to this version.
+
+* The package is renamed from GICHighDimension to **IChop** (information
+  criterion selection by Hopfield networks). The Julia version is renamed
+  from GICVariableSelection to IChop.jl.
 
 ## Variable selection
 
@@ -48,8 +52,8 @@ stands; later entries will list changes relative to this version.
 
 ## Documentation
 
-* A pkgdown website, <https://yuchenxiao95.github.io/GICHighDimension/>, with
-  a function reference and one article, "An Introduction to GICHighDimension",
+* A pkgdown website, <https://yuchenxiao95.github.io/IChop/>, with
+  a function reference and one article, "An Introduction to IChop",
   covering every response family and comparing the search with the lasso and
   adaptive lasso from glmnet.
-* `citation("GICHighDimension")` cites Xiao and Walker (2026).
+* `citation("IChop")` cites Xiao and Walker (2026).

@@ -104,7 +104,7 @@ get_julia_status <- function() {
     assign("julia_initialized", TRUE, envir = .pkg_env)
   }
 
-  jl_dir <- system.file("julia", package = "GICHighDimension")
+  jl_dir <- system.file("julia", package = "IChop")
   if (!nzchar(jl_dir) || !dir.exists(jl_dir)) {
     stop("Julia scripts directory not found in the package (inst/julia).", call. = FALSE)
   }
