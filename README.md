@@ -34,8 +34,8 @@ The examples below highlight some well-known statistical properties of these
 criteria:
 
 1. In linear regression, AIC is minimax-rate optimal and BIC is consistent.
-   In the linear model figure, AIC (blue line) attains the largest criterion
-   value at the expense of many false positives.
+   In the linear model figure, AIC (blue line) attains the minimax optimality
+   at the expense of many false positives.
 2. Criteria in the GIC family achieve consistency at different rates. GIC6
    (green line) reaches the true model within two passes of the search, and
    achieves consistency at a faster rate than BIC (orange line).

@@ -174,7 +174,7 @@ Schwarz, G. (1978). Estimating the dimension of a model. \emph{The Annals of
 Statistics}, 6(2), 461--464. \doi{10.1214/aos/1176344136}
 
 Shao, J. (1997). An asymptotic theory for linear model selection.
-\emph{Statistica Sinica}, 7(2), 221--242.
+\emph{Statistica Sinica}, 7(2), 221--264. \url{https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm}
 
 Xiao, Y. and Walker, S. (2026). Fast variable selection under \eqn{\ell_0}
 regularization in high-dimensions. \emph{Statistics and Computing}, 36(3), 100.
