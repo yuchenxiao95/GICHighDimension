@@ -164,9 +164,8 @@ For reference, the examples also fit the lasso and the adaptive lasso with the
 `"binomial"` to match the response, as in glmnet's own articles.
 
 Each table reports the size, false positives and false negatives of the
-selected model, and the wall-clock time of each method in seconds (Apple
-M-series laptop, Julia 1.11, after Julia has compiled; the search times
-include copying the data from R to Julia). The right-hand panel of each
+selected model, and the wall-clock time of each method in seconds. The
+right-hand panel of each
 figure shows the same times, and the middle panel also shows the lasso
 paths: the number of nonzero coefficients along the $\lambda$ grid, from the
 smallest $\lambda$ on the left to the largest on the right.
