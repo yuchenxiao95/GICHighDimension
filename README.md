@@ -41,11 +41,6 @@ predictors. The
 (`vignette("examples")`) explains each step, and the Get started article
 (`vignette("get-started")`) lists all criteria and response families.
 
-First define a few helpers. Data simulation and the search order use Julia's
-random number generator, which `set.seed()` does not control, so
-`set_seeds()` seeds both. Run the examples in the order shown to reproduce the
-output.
-
 ```r
 set_seeds <- function(seed) {
   set.seed(seed)
