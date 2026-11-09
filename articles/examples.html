@@ -72,369 +72,297 @@
     
 <p>This article works through complete simulations: a high-dimensional
 linear model, a model with several responses, and one example for each
-non-Gaussian GLM family. The output shown was produced on an Apple
-M-series laptop with Julia 1.11; timings will differ on your machine.
-See <code><a href="../articles/get-started.html">vignette("get-started")</a></code> for the setup steps.</p>
+non-Gaussian GLM family. Each example compares four criteria. In
+increasing order of penalty per variable, they are AIC
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c_n = 1</annotation></semantics></math>),
+BIC
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>),
+GIC5
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log\log n \, \log P</annotation></semantics></math>)
+and GIC6
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \, \log P</annotation></semantics></math>),
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is the sample size and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+the number of candidate predictors. See
+<code><a href="../articles/get-started.html">vignette("get-started")</a></code> for the setup steps and the other
+criteria. The output shown was produced on an Apple M-series laptop with
+Julia 1.11.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/LP_to_Y.html">LP_to_Y()</a></code> and the random visiting order of the search
-use Julia’s random number generator, which <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> does
-not control. To make a run reproducible, seed both:</p>
+<div class="section level2">
+<h2 id="helpers">Helpers<a class="anchor" aria-label="anchor" href="#helpers"></a>
+</h2>
+<p>First define a few helpers. Data simulation and the search order use
+Julia’s random number generator, which <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> does not
+control, so <code>set_seeds()</code> seeds both. Run the examples in the
+order shown to reproduce the output.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">set_seeds</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">seed</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span>
 <span>  <span class="fu">JuliaCall</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/JuliaCall/man/julia_command.html" class="external-link">julia_command</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"import Random; Random.seed!(%d);"</span>, <span class="va">seed</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">criteria</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>AIC <span class="op">=</span> <span class="st">"Calculate_AIC"</span>, BIC <span class="op">=</span> <span class="st">"Calculate_BIC"</span>,</span>
+<span>              GIC5 <span class="op">=</span> <span class="st">"Calculate_GIC5"</span>, GIC6 <span class="op">=</span> <span class="st">"Calculate_GIC6"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run the search once per criterion</span></span>
+<span><span class="va">compare_criteria</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="va">init</span>, <span class="va">k</span>, <span class="va">Nsim</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">criteria</span>, <span class="kw">function</span><span class="op">(</span><span class="va">crit</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="va">init</span>, <span class="va">crit</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">crit</span>, <span class="st">"_short"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, Nsim <span class="op">=</span> <span class="va">Nsim</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">last_model</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Size, false positives and false negatives of each final model</span></span>
+<span><span class="va">selection_table</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fits</span>, <span class="va">truth</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>, false_pos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">truth</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      false_neg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
+<p>Each figure shows, for every criterion, its value and the number of
+selected variables after each search step. Dotted lines mark a new pass
+over the predictors, and the dashed line marks the true model size.
+Criteria with larger penalties take lower values, so compare the shapes
+of the curves, not their heights. The script
+<code>data-raw/readme_figures.R</code> in the package source runs the
+code in this section and redraws the figures.</p>
+</div>
 <div class="section level2">
 <h2 id="linear-model-with-500-candidate-predictors">Linear model with 500 candidate predictors<a class="anchor" aria-label="anchor" href="#linear-model-with-500-candidate-predictors"></a>
 </h2>
 <p>Take
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>
-observations and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>
-independent standard-normal predictors, 5 of which have coefficient 2.
-The noise variance is set so the signal-to-noise ratio is
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">N</mi><mi mathvariant="normal">R</mi></mrow><mo>=</mo><mfrac><mrow><msup><mi>β</mi><mi>⊤</mi></msup><mi mathvariant="normal">Σ</mi><mi>β</mi></mrow><msup><mi>σ</mi><mn>2</mn></msup></mfrac><mo>=</mo><mn>0.71</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
-\mathrm{SNR} = \frac{\beta^\top \Sigma \beta}{\sigma^2} = 0.71 ,
-</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math>
-is the covariance of a row of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
-(here the identity).</p>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>,
+with 5 true coefficients equal to 2 and the noise set for a
+signal-to-noise ratio of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>β</mi><mi>⊤</mi></msup><mi mathvariant="normal">Σ</mi><mi>β</mi><mi>/</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mn>0.71</mn></mrow><annotation encoding="application/x-tex">\beta^\top\Sigma\beta/\sigma^2 = 0.71</annotation></semantics></math>.
+Start every search from the full model:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">500</span>; <span class="va">k_true</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, <span class="va">n</span>, <span class="va">p</span><span class="op">)</span></span>
+<span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">p</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>; <span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Normal"</span>, std <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">beta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">0.71</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">p</span>, <span class="va">k_true</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
-<span></span>
-<span><span class="va">snr</span>   <span class="op">&lt;-</span> <span class="fl">0.71</span>                       <span class="co"># one of 0.09, 0.14, 0.25, ..., 6.00</span></span>
-<span><span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">beta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">snr</span><span class="op">)</span>    <span class="co"># beta' Sigma beta / SNR, with Sigma = I</span></span>
-<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Normal"</span>, std <span class="op">=</span> <span class="va">sigma</span><span class="op">)</span></span></code></pre></div>
-<p>Start from the full model (all 500 columns) and let the search remove
-variables, using BIC and 5 passes:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>,</span>
-<span>                      Initial_Column      <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">p</span>,</span>
-<span>                      Calculate_GIC       <span class="op">=</span> <span class="st">"Calculate_BIC"</span>,</span>
-<span>                      Calculate_GIC_short <span class="op">=</span> <span class="st">"Calculate_BIC_short"</span>,</span>
-<span>                      k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;    user  system elapsed</span></span>
-<span><span class="co">#&gt;  54.955  19.565  11.118</span></span>
-<span></span>
-<span><span class="va">selected</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">true_cols</span></span>
-<span><span class="co">#&gt; [1]  21 153 270 375 479</span></span>
-<span><span class="va">selected</span></span>
-<span><span class="co">#&gt; [1]  21 153 266 270 375 479</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">selected</span>, <span class="va">true_cols</span><span class="op">)</span>   <span class="co"># false positives</span></span>
-<span><span class="co">#&gt; [1] 266</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">true_cols</span>, <span class="va">selected</span><span class="op">)</span>   <span class="co"># false negatives</span></span>
-<span><span class="co">#&gt; integer(0)</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC   211       206         0</span></span>
+<span><span class="co">#&gt; BIC     6         1         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-linear-bic.png" alt="BIC and model size along the search"><div class="figcaption">BIC and model size along the search</div>
+<img src="../reference/figures/README-linear.png" alt="Criteria and model size along the search, linear model with p = 500"><div class="figcaption">Criteria and model size along the search, linear
+model with p = 500</div>
 </div>
-<p>BIC finds all 5 true predictors but adds one noise variable. Its
-penalty,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>,
-does not grow with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>.
-With 500 candidates, some noise variables look useful by chance. EBIC
-adds a penalty for the number of candidate models and drops it:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_ebic</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="st">"Calculate_EBIC"</span>, <span class="st">"Calculate_EBIC_short"</span>,</span>
-<span>                         k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit_ebic</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit_ebic</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]  21 153 270 375 479</span></span></code></pre></div>
-<div class="float">
-<img src="../reference/figures/README-linear-ebic.png" alt="EBIC and model size along the search"><div class="figcaption">EBIC and model size along the search</div>
-</div>
-<p>Start EBIC from a small model, as here. Its extra penalty,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>P</mi><mi>K</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\gamma \log\binom{P}{K}</annotation></semantics></math>,
-is 0 for the full model
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">K = P</annotation></semantics></math>)
-and grows when a variable is removed, so a search started from all 500
-columns does not move.</p>
-<p>Each figure in this article shows the criterion and the number of
-selected variables after every search step. Dotted lines mark a new pass
-over the predictors, and the dashed line marks the true model size. The
-figures are drawn from <code>fit$GIC_values</code>, the criterion after
-each of the <code>Nsim * p</code> = 2,500 steps, and
-<code>fit$selected_coeffs</code>, the model after each step:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">GIC_values</span>, type <span class="op">=</span> <span class="st">"s"</span>, xlab <span class="op">=</span> <span class="st">"Search step"</span>, ylab <span class="op">=</span> <span class="st">"BIC"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"s"</span>, log <span class="op">=</span> <span class="st">"y"</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"Search step"</span>, ylab <span class="op">=</span> <span class="st">"Variables in model"</span><span class="op">)</span></span></code></pre></div>
+<p>AIC keeps about 200 variables, because its penalty does not grow with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.
+BIC keeps all 5 true predictors and one noise variable. GIC5 and GIC6,
+whose penalties grow with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log P</annotation></semantics></math>,
+select exactly the true model, and GIC6, the largest penalty, gets there
+fastest.</p>
 </div>
 <div class="section level2">
 <h2 id="several-responses-multivariate-normal">Several responses (multivariate normal)<a class="anchor" aria-label="anchor" href="#several-responses-multivariate-normal"></a>
 </h2>
-<p>Now there are
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m = 5</annotation></semantics></math>
-responses. Each depends on its own 5 predictors, with coefficients
-evenly spaced from 10 down to 0.1. The errors are independent across
-responses (<code>cov_matrix</code> is the identity).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>Five responses, each with its own 5 predictors and coefficients from
+10 down to 0.1. Pass the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">n \times 5</annotation></semantics></math>
+response matrix as <code>Y</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="va">m</span><span class="op">)</span></span>
-<span><span class="va">true_cols_by_response</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="va">m</span><span class="op">)</span></span>
+<span><span class="va">true_by_response</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="va">m</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">p</span>, <span class="va">k_true</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">true_cols_by_response</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">cols</span></span>
-<span>  <span class="va">B</span><span class="op">[</span><span class="va">cols</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, length.out <span class="op">=</span> <span class="va">k_true</span><span class="op">)</span>   <span class="co"># 10, 7.525, 5.05, 2.575, 0.1</span></span>
+<span>  <span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">p</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">true_by_response</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">cols</span></span>
+<span>  <span class="va">B</span><span class="op">[</span><span class="va">cols</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span></span>
 <span><span class="va">Y_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B</span>, family <span class="op">=</span> <span class="st">"MultivariateNormal"</span>, cov_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">Y_multi</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1000    5</span></span></code></pre></div>
-<p>Pass the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math>
-matrix as <code>Y</code>. Each selected variable is shared by all
-responses, so the target is the union of the five true sets. SIC scores
-a model by the trace of an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">m \times m</annotation></semantics></math>
-matrix:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>,</span>
-<span>                            <span class="st">"Calculate_SIC"</span>, <span class="st">"Calculate_SIC_short"</span>,</span>
-<span>                            k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;    user  system elapsed</span></span>
-<span><span class="co">#&gt;  51.035  16.768   9.632</span></span>
+<span><span class="va">true_union</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">true_by_response</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">selected_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit_multi</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit_multi</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">true_union</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">true_cols_by_response</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">selected_multi</span>, <span class="va">true_union</span><span class="op">)</span>   <span class="co"># false positives</span></span>
-<span><span class="co">#&gt; integer(0)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">true_union</span>, <span class="va">selected_multi</span><span class="op">)</span>   <span class="co"># false negatives</span></span>
-<span><span class="co">#&gt; [1] 313 365 415 463 476</span></span></code></pre></div>
-<p>There are no false positives. All 20 predictors with coefficients of
-2.575 or more are found. The 5 that are missed are the predictors with
-coefficient 0.1, one per response:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">B</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">true_union</span>, <span class="va">selected_multi</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5]</span></span>
-<span><span class="co">#&gt; [1,]  0.0  0.0  0.0  0.1  0.0</span></span>
-<span><span class="co">#&gt; [2,]  0.0  0.0  0.1  0.0  0.0</span></span>
-<span><span class="co">#&gt; [3,]  0.0  0.1  0.0  0.0  0.0</span></span>
-<span><span class="co">#&gt; [4,]  0.0  0.0  0.0  0.0  0.1</span></span>
-<span><span class="co">#&gt; [5,]  0.1  0.0  0.0  0.0  0.0</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC   276       251         0</span></span>
+<span><span class="co">#&gt; BIC    20         0         5</span></span>
+<span><span class="co">#&gt; GIC5   20         0         5</span></span>
+<span><span class="co">#&gt; GIC6   20         0         5</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-multivariate.png" alt="SIC and model size along the search"><div class="figcaption">SIC and model size along the search</div>
+<img src="../reference/figures/README-multivariate.png" alt="Criteria and model size along the search, multivariate normal response"><div class="figcaption">Criteria and model size along the search,
+multivariate normal response</div>
 </div>
-<p>A coefficient of 0.1 with unit noise is below what
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>
-observations can detect against 500 candidates.</p>
+<p>BIC, GIC5 and GIC6 select the same 20 predictors with no false
+positives. The 5 they miss are the predictors with coefficient 0.1, one
+per response, which are too small to detect with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>.
+AIC finds those 5 too, but only inside a model of 276 variables.</p>
 </div>
 <div class="section level2">
 <h2 id="generalized-linear-models">Generalized linear models<a class="anchor" aria-label="anchor" href="#generalized-linear-models"></a>
 </h2>
-<p>For a non-Gaussian response, the workflow has three steps:</p>
-<ol style="list-style-type: decimal">
-<li>Map the response to the linear-predictor scale with
-<code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code>.</li>
-<li>Select variables on that scale with
-<code><a href="../reference/GICSelection.html">GICSelection()</a></code>.</li>
-<li>Estimate the coefficients of the selected model with
-<code><a href="../reference/Beta_estimate.html">Beta_estimate()</a></code>. It fits the GLM by maximum likelihood on
-the original response.</li>
-</ol>
-<p>All examples below share one design:
+<p>For a non-Gaussian response, map it to the linear-predictor scale
+with <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code>, select with <code><a href="../reference/GICSelection.html">GICSelection()</a></code>,
+and then fit the selected model with <code><a href="../reference/Beta_estimate.html">Beta_estimate()</a></code>. All
+GLM examples share this setup:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>200</mn></mrow><annotation encoding="application/x-tex">p = 200</annotation></semantics></math>,
-and 5 active predictors with coefficients of mixed sign. Each search
-uses EBIC, starts from the first 10 columns, caps the model size at 50,
-and makes 3 passes.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+5 true predictors, and searches that start from the first 10
+columns.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, <span class="va">n</span>, <span class="va">p</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">17</span>, <span class="fl">42</span>, <span class="fl">88</span>, <span class="fl">150</span><span class="op">)</span></span>
-<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>; <span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="fl">0.6</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">select_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="../reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
-<span>                      <span class="st">"Calculate_EBIC"</span>, <span class="st">"Calculate_EBIC_short"</span>,</span>
-<span>                      k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><code>select_glm()</code> passes <code>...</code> (the family and its
-parameters) to <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code>.</p>
+<span><span class="va">compare_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="../reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="logistic-regression-bernoulli">Logistic regression (Bernoulli)<a class="anchor" aria-label="anchor" href="#logistic-regression-bernoulli"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_bern</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y_bern</span><span class="op">)</span></span>
-<span><span class="co">#&gt; y_bern</span></span>
-<span><span class="co">#&gt;   0   1</span></span>
-<span><span class="co">#&gt; 493 507</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    49        45         1</span></span>
+<span><span class="co">#&gt; BIC     7         2         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span>
 <span></span>
-<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu">select_glm</span><span class="op">(</span><span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
-<span><span class="va">sel</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="va">sel</span><span class="op">]</span>, <span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co"># Coefficients of the GIC6 model, intercept first</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] -0.07  0.81 -1.05  0.78 -0.85  0.59</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-bernoulli.png" alt="EBIC and model size, Bernoulli"><div class="figcaption">EBIC and model size, Bernoulli</div>
+<img src="../reference/figures/README-bernoulli.png" alt="Criteria and model size along the search, Bernoulli response"><div class="figcaption">Criteria and model size along the search,
+Bernoulli response</div>
 </div>
-<p>The first coefficient is the intercept. The others are close to the
-true values
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>0.8</mn><mo>,</mo><mi>−</mi><mn>0.8</mn><mo>,</mo><mn>0.6</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1, -1, 0.8, -0.8, 0.6)</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
-<h3 id="binomial-counts">Binomial counts<a class="anchor" aria-label="anchor" href="#binomial-counts"></a>
+<h3 id="binomial-counts-10-trials">Binomial counts (10 trials)<a class="anchor" aria-label="anchor" href="#binomial-counts-10-trials"></a>
 </h3>
-<p>Each response is the number of successes in <code>n_trials</code>
-trials. Pass the same <code>n_trials</code> to
-<code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_binom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    49        47         3</span></span>
+<span><span class="co">#&gt; BIC     5         0         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-binomial.png" alt="EBIC and model size, binomial"><div class="figcaption">EBIC and model size, binomial</div>
+<img src="../reference/figures/README-binomial.png" alt="Criteria and model size along the search, binomial response"><div class="figcaption">Criteria and model size along the search,
+binomial response</div>
 </div>
 </div>
 <div class="section level3">
 <h3 id="poisson-regression">Poisson regression<a class="anchor" aria-label="anchor" href="#poisson-regression"></a>
 </h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_pois</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
-<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu">select_glm</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
-<span><span class="va">sel</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    49        45         1</span></span>
+<span><span class="co">#&gt; BIC     8         3         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="va">sel</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -0.05  1.03 -1.00  0.82 -0.81  0.60</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.02  1.01 -1.01  0.81 -0.80  0.59</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-poisson.png" alt="EBIC and model size, Poisson"><div class="figcaption">EBIC and model size, Poisson</div>
+<img src="../reference/figures/README-poisson.png" alt="Criteria and model size along the search, Poisson response"><div class="figcaption">Criteria and model size along the search,
+Poisson response</div>
 </div>
 </div>
 <div class="section level3">
-<h3 id="overdispersed-counts-negative-binomial">Overdispersed counts (negative binomial)<a class="anchor" aria-label="anchor" href="#overdispersed-counts-negative-binomial"></a>
+<h3 id="overdispersed-counts-negative-binomial-size-2">Overdispersed counts (negative binomial, size 2)<a class="anchor" aria-label="anchor" href="#overdispersed-counts-negative-binomial-size-2"></a>
 </h3>
-<p><code>theta</code> is the size parameter: the variance is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>+</mo><msup><mi>μ</mi><mn>2</mn></msup><mi>/</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\mu + \mu^2/\theta</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_nb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span>, theta <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_nb</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_nb</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    49        44         0</span></span>
+<span><span class="co">#&gt; BIC     5         0         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-negbin.png" alt="EBIC and model size, negative binomial"><div class="figcaption">EBIC and model size, negative binomial</div>
+<img src="../reference/figures/README-negbin.png" alt="Criteria and model size along the search, negative binomial response"><div class="figcaption">Criteria and model size along the search,
+negative binomial response</div>
 </div>
 </div>
 <div class="section level3">
-<h3 id="positive-continuous-responses-gamma-and-inverse-gaussian">Positive continuous responses (gamma and inverse Gaussian)<a class="anchor" aria-label="anchor" href="#positive-continuous-responses-gamma-and-inverse-gaussian"></a>
+<h3 id="gamma-log-link">Gamma (log link)<a class="anchor" aria-label="anchor" href="#gamma-log-link"></a>
 </h3>
-<p>Both use a log link, so the mean is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mi>η</mi></msup><annotation encoding="application/x-tex">e^{\eta}</annotation></semantics></math>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Gamma"</span>, shape <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_gamma</span>, family <span class="op">=</span> <span class="st">"Gamma"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_gamma</span>, family <span class="op">=</span> <span class="st">"Gamma"</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    48        43         0</span></span>
+<span><span class="co">#&gt; BIC     6         1         0</span></span>
+<span><span class="co">#&gt; GIC5    6         1         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-gamma.png" alt="EBIC and model size, gamma"><div class="figcaption">EBIC and model size, gamma</div>
+<img src="../reference/figures/README-gamma.png" alt="Criteria and model size along the search, gamma response"><div class="figcaption">Criteria and model size along the search, gamma
+response</div>
 </div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+</div>
+<div class="section level3">
+<h3 id="inverse-gaussian-log-link">Inverse Gaussian (log link)<a class="anchor" aria-label="anchor" href="#inverse-gaussian-log-link"></a>
+</h3>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_ig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span>, shape <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_ig</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_ig</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    49        44         0</span></span>
+<span><span class="co">#&gt; BIC     5         0         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-invgauss.png" alt="EBIC and model size, inverse Gaussian"><div class="figcaption">EBIC and model size, inverse Gaussian</div>
+<img src="../reference/figures/README-invgauss.png" alt="Criteria and model size along the search, inverse Gaussian response"><div class="figcaption">Criteria and model size along the search,
+inverse Gaussian response</div>
 </div>
-<p>The Exponential and Geometric families work the same way.</p>
 </div>
 <div class="section level3">
 <h3 id="multinomial-three-categories">Multinomial (three categories)<a class="anchor" aria-label="anchor" href="#multinomial-three-categories"></a>
 </h3>
-<p>For
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-categories, the coefficients form a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p \times (K-1)</annotation></semantics></math>
-matrix, and the last category is the baseline. <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code>
-turns the category labels into an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n \times (K-1)</annotation></semantics></math>
-matrix of baseline-category logits, and the search selects the
-predictors that are shared across the logits:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<p>The coefficients form a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>×</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">p \times 2</annotation></semantics></math>
+matrix, and category 3 is the baseline:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">B_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">y_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y_mn</span><span class="op">)</span></span>
-<span><span class="co">#&gt; y_mn</span></span>
-<span><span class="co">#&gt;   1   2   3</span></span>
-<span><span class="co">#&gt; 412 345 243</span></span>
-<span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      size false_pos false_neg</span></span>
+<span><span class="co">#&gt; AIC    49        45         1</span></span>
+<span><span class="co">#&gt; BIC     6         1         0</span></span>
+<span><span class="co">#&gt; GIC5    5         0         0</span></span>
+<span><span class="co">#&gt; GIC6    5         0         0</span></span></code></pre></div>
 <div class="float">
-<img src="../reference/figures/README-multinomial.png" alt="EBIC and model size, multinomial"><div class="figcaption">EBIC and model size, multinomial</div>
+<img src="../reference/figures/README-multinomial.png" alt="Criteria and model size along the search, multinomial response"><div class="figcaption">Criteria and model size along the search,
+multinomial response</div>
 </div>
-</div>
-<div class="section level3">
-<h3 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th align="left">Family</th>
-<th align="left">Simulated with</th>
-<th align="left">Selected</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Bernoulli</td>
-<td align="left"><code>family = "Bernoulli"</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-<tr class="even">
-<td align="left">Binomial</td>
-<td align="left"><code>n_trials = 10</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-<tr class="odd">
-<td align="left">Poisson</td>
-<td align="left"><code>family = "Poisson"</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-<tr class="even">
-<td align="left">Negative binomial</td>
-<td align="left"><code>theta = 2</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-<tr class="odd">
-<td align="left">Gamma</td>
-<td align="left"><code>shape = 2</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-<tr class="even">
-<td align="left">Inverse Gaussian</td>
-<td align="left"><code>shape = 2</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-<tr class="odd">
-<td align="left">Multinomial</td>
-<td align="left"><code>n_categories = 3</code></td>
-<td align="left">3 17 42 88 150</td>
-</tr>
-</tbody>
-</table>
-<p>Every search finds exactly the 5 true predictors. Each takes well
-under a second, except the first call in a session, which includes
-Julia’s one-time compilation.</p>
+<p>Across the seven families, GIC6 selects exactly the 5 true predictors
+every time, and GIC5 does so in all but the gamma example. BIC adds up
+to 3 noise variables. AIC grows the model until it hits the size cap
+(<code>k = 50</code>, so at most 49 variables), and once that cap blocks
+further additions it can miss a true predictor.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -2,11 +2,14 @@
 
 This article works through complete simulations: a high-dimensional
 linear model, a model with several responses, and one example for each
-non-Gaussian GLM family. The output shown was produced on an Apple
-M-series laptop with Julia 1.11; timings will differ on your machine.
-See
+non-Gaussian GLM family. Each example compares four criteria. In
+increasing order of penalty per variable, they are AIC ($`c_n = 1`$),
+BIC ($`\log n`$), GIC5 ($`\log\log n \, \log P`$) and GIC6
+($`\log n \, \log P`$), where $`n`$ is the sample size and $`P`$ the
+number of candidate predictors. See
 [`vignette("get-started")`](https://yuchenxiao95.github.io/GICHighDimension/articles/get-started.md)
-for the setup steps.
+for the setup steps and the other criteria. The output shown was
+produced on an Apple M-series laptop with Julia 1.11.
 
 ``` r
 
@@ -14,10 +17,13 @@ library(GICHighDimension)
 setup_julia()
 ```
 
-[`LP_to_Y()`](https://yuchenxiao95.github.io/GICHighDimension/reference/LP_to_Y.md)
-and the random visiting order of the search use Julia’s random number
-generator, which [`set.seed()`](https://rdrr.io/r/base/Random.html) does
-not control. To make a run reproducible, seed both:
+## Helpers
+
+First define a few helpers. Data simulation and the search order use
+Julia’s random number generator, which
+[`set.seed()`](https://rdrr.io/r/base/Random.html) does not control, so
+`set_seeds()` seeds both. Run the examples in the order shown to
+reproduce the output.
 
 ``` r
 
@@ -25,357 +31,278 @@ set_seeds <- function(seed) {
   set.seed(seed)
   JuliaCall::julia_command(sprintf("import Random; Random.seed!(%d);", seed))
 }
+
+criteria <- c(AIC = "Calculate_AIC", BIC = "Calculate_BIC",
+              GIC5 = "Calculate_GIC5", GIC6 = "Calculate_GIC6")
+
+# Run the search once per criterion
+compare_criteria <- function(X, Y, init, k, Nsim) {
+  lapply(criteria, function(crit)
+    GICSelection(X, Y, init, crit, paste0(crit, "_short"), k = k, Nsim = Nsim))
+}
+
+last_model <- function(fit) sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
+
+# Size, false positives and false negatives of each final model
+selection_table <- function(fits, truth) {
+  t(sapply(fits, function(fit) {
+    s <- last_model(fit)
+    c(size = length(s), false_pos = length(setdiff(s, truth)),
+      false_neg = length(setdiff(truth, s)))
+  }))
+}
 ```
+
+Each figure shows, for every criterion, its value and the number of
+selected variables after each search step. Dotted lines mark a new pass
+over the predictors, and the dashed line marks the true model size.
+Criteria with larger penalties take lower values, so compare the shapes
+of the curves, not their heights. The script `data-raw/readme_figures.R`
+in the package source runs the code in this section and redraws the
+figures.
 
 ## Linear model with 500 candidate predictors
 
-Take $`n = 1000`$ observations and $`p = 500`$ independent
-standard-normal predictors, 5 of which have coefficient 2. The noise
-variance is set so the signal-to-noise ratio is
-``` math
-\mathrm{SNR} = \frac{\beta^\top \Sigma \beta}{\sigma^2} = 0.71 ,
-```
-where $`\Sigma`$ is the covariance of a row of $`X`$ (here the
-identity).
+Take $`n = 1000`$ and $`p = 500`$, with 5 true coefficients equal to 2
+and the noise set for a signal-to-noise ratio of
+$`\beta^\top\Sigma\beta/\sigma^2 = 0.71`$. Start every search from the
+full model:
 
 ``` r
 
 set_seeds(1)
-n <- 1000; p <- 500; k_true <- 5
+n <- 1000; p <- 500
 X <- matrix(rnorm(n * p), n, p)
+true_cols <- sort(sample(p, 5))
+beta <- numeric(p); beta[true_cols] <- 2
+Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 
-true_cols <- sort(sample(p, k_true))
-beta <- numeric(p)
-beta[true_cols] <- 2
-
-snr   <- 0.71                       # one of 0.09, 0.14, 0.25, ..., 6.00
-sigma <- sqrt(sum(beta^2) / snr)    # beta' Sigma beta / SNR, with Sigma = I
-Y <- LP_to_Y(X, beta, family = "Normal", std = sigma)
+fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC   211       206         0
+#> BIC     6         1         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 ```
 
-Start from the full model (all 500 columns) and let the search remove
-variables, using BIC and 5 passes:
+![Criteria and model size along the search, linear model with p =
+500](../reference/figures/README-linear.png)
 
-``` r
+Criteria and model size along the search, linear model with p = 500
 
-system.time(
-  fit <- GICSelection(X, Y,
-                      Initial_Column      = 1:p,
-                      Calculate_GIC       = "Calculate_BIC",
-                      Calculate_GIC_short = "Calculate_BIC_short",
-                      k = p, Nsim = 5)
-)
-#>    user  system elapsed
-#>  54.955  19.565  11.118
-
-selected <- sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
-true_cols
-#> [1]  21 153 270 375 479
-selected
-#> [1]  21 153 266 270 375 479
-
-setdiff(selected, true_cols)   # false positives
-#> [1] 266
-setdiff(true_cols, selected)   # false negatives
-#> integer(0)
-```
-
-![BIC and model size along the
-search](../reference/figures/README-linear-bic.png)
-
-BIC and model size along the search
-
-BIC finds all 5 true predictors but adds one noise variable. Its
-penalty, $`\log n`$, does not grow with $`p`$. With 500 candidates, some
-noise variables look useful by chance. EBIC adds a penalty for the
-number of candidate models and drops it:
-
-``` r
-
-fit_ebic <- GICSelection(X, Y, 1:10, "Calculate_EBIC", "Calculate_EBIC_short",
-                         k = 50, Nsim = 5)
-sort(fit_ebic$selected_coeffs[[length(fit_ebic$selected_coeffs)]])
-#> [1]  21 153 270 375 479
-```
-
-![EBIC and model size along the
-search](../reference/figures/README-linear-ebic.png)
-
-EBIC and model size along the search
-
-Start EBIC from a small model, as here. Its extra penalty,
-$`\gamma \log\binom{P}{K}`$, is 0 for the full model ($`K = P`$) and
-grows when a variable is removed, so a search started from all 500
-columns does not move.
-
-Each figure in this article shows the criterion and the number of
-selected variables after every search step. Dotted lines mark a new pass
-over the predictors, and the dashed line marks the true model size. The
-figures are drawn from `fit$GIC_values`, the criterion after each of the
-`Nsim * p` = 2,500 steps, and `fit$selected_coeffs`, the model after
-each step:
-
-``` r
-
-plot(fit$GIC_values, type = "s", xlab = "Search step", ylab = "BIC")
-plot(lengths(fit$selected_coeffs), type = "s", log = "y",
-     xlab = "Search step", ylab = "Variables in model")
-```
+AIC keeps about 200 variables, because its penalty does not grow with
+$`n`$ or $`P`$. BIC keeps all 5 true predictors and one noise variable.
+GIC5 and GIC6, whose penalties grow with $`\log P`$, select exactly the
+true model, and GIC6, the largest penalty, gets there fastest.
 
 ## Several responses (multivariate normal)
 
-Now there are $`m = 5`$ responses. Each depends on its own 5 predictors,
-with coefficients evenly spaced from 10 down to 0.1. The errors are
-independent across responses (`cov_matrix` is the identity).
+Five responses, each with its own 5 predictors and coefficients from 10
+down to 0.1. Pass the $`n \times 5`$ response matrix as `Y`:
 
 ``` r
 
 m <- 5
 B <- matrix(0, p, m)
-true_cols_by_response <- vector("list", m)
+true_by_response <- vector("list", m)
 for (i in 1:m) {
-  cols <- sort(sample(p, k_true))
-  true_cols_by_response[[i]] <- cols
-  B[cols, i] <- seq(10, 0.1, length.out = k_true)   # 10, 7.525, 5.05, 2.575, 0.1
+  cols <- sort(sample(p, 5))
+  true_by_response[[i]] <- cols
+  B[cols, i] <- seq(10, 0.1, length.out = 5)
 }
-
 Y_multi <- LP_to_Y(X, B, family = "MultivariateNormal", cov_matrix = diag(m))
-dim(Y_multi)
-#> [1] 1000    5
+true_union <- sort(unique(unlist(true_by_response)))
+
+fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5)
+selection_table(fits, true_union)
+#>      size false_pos false_neg
+#> AIC   276       251         0
+#> BIC    20         0         5
+#> GIC5   20         0         5
+#> GIC6   20         0         5
 ```
 
-Pass the $`n \times m`$ matrix as `Y`. Each selected variable is shared
-by all responses, so the target is the union of the five true sets. SIC
-scores a model by the trace of an $`m \times m`$ matrix:
+![Criteria and model size along the search, multivariate normal
+response](../reference/figures/README-multivariate.png)
 
-``` r
+Criteria and model size along the search, multivariate normal response
 
-system.time(
-  fit_multi <- GICSelection(X, Y_multi, 1:p,
-                            "Calculate_SIC", "Calculate_SIC_short",
-                            k = p, Nsim = 5)
-)
-#>    user  system elapsed
-#>  51.035  16.768   9.632
-
-selected_multi <- sort(fit_multi$selected_coeffs[[length(fit_multi$selected_coeffs)]])
-true_union     <- sort(unique(unlist(true_cols_by_response)))
-
-setdiff(selected_multi, true_union)   # false positives
-#> integer(0)
-setdiff(true_union, selected_multi)   # false negatives
-#> [1] 313 365 415 463 476
-```
-
-There are no false positives. All 20 predictors with coefficients of
-2.575 or more are found. The 5 that are missed are the predictors with
-coefficient 0.1, one per response:
-
-``` r
-
-B[setdiff(true_union, selected_multi), ]
-#>      [,1] [,2] [,3] [,4] [,5]
-#> [1,]  0.0  0.0  0.0  0.1  0.0
-#> [2,]  0.0  0.0  0.1  0.0  0.0
-#> [3,]  0.0  0.1  0.0  0.0  0.0
-#> [4,]  0.0  0.0  0.0  0.0  0.1
-#> [5,]  0.1  0.0  0.0  0.0  0.0
-```
-
-![SIC and model size along the
-search](../reference/figures/README-multivariate.png)
-
-SIC and model size along the search
-
-A coefficient of 0.1 with unit noise is below what $`n = 1000`$
-observations can detect against 500 candidates.
+BIC, GIC5 and GIC6 select the same 20 predictors with no false
+positives. The 5 they miss are the predictors with coefficient 0.1, one
+per response, which are too small to detect with $`n = 1000`$. AIC finds
+those 5 too, but only inside a model of 276 variables.
 
 ## Generalized linear models
 
-For a non-Gaussian response, the workflow has three steps:
-
-1.  Map the response to the linear-predictor scale with
-    [`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md).
-2.  Select variables on that scale with
-    [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md).
-3.  Estimate the coefficients of the selected model with
-    [`Beta_estimate()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Beta_estimate.md).
-    It fits the GLM by maximum likelihood on the original response.
-
-All examples below share one design: $`n = 1000`$, $`p = 200`$, and 5
-active predictors with coefficients of mixed sign. Each search uses
-EBIC, starts from the first 10 columns, caps the model size at 50, and
-makes 3 passes.
+For a non-Gaussian response, map it to the linear-predictor scale with
+[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md),
+select with
+[`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md),
+and then fit the selected model with
+[`Beta_estimate()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Beta_estimate.md).
+All GLM examples share this setup: $`n = 1000`$, $`p = 200`$, 5 true
+predictors, and searches that start from the first 10 columns.
 
 ``` r
 
 set_seeds(2)
 n <- 1000; p <- 200
 X <- matrix(rnorm(n * p), n, p)
-
 true_cols <- c(3, 17, 42, 88, 150)
-beta <- numeric(p)
-beta[true_cols] <- c(1, -1, 0.8, -0.8, 0.6)
+beta <- numeric(p); beta[true_cols] <- c(1, -1, 0.8, -0.8, 0.6)
 
-select_glm <- function(Y, ...) {
-  fit <- GICSelection(X, Y_to_LP(Y, ...), 1:10,
-                      "Calculate_EBIC", "Calculate_EBIC_short",
-                      k = 50, Nsim = 3)
-  sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
-}
+compare_glm <- function(Y, ...) compare_criteria(X, Y_to_LP(Y, ...), 1:10, k = 50, Nsim = 3)
 ```
-
-`select_glm()` passes `...` (the family and its parameters) to
-[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md).
 
 ### Logistic regression (Bernoulli)
 
 ``` r
 
 y_bern <- LP_to_Y(X, beta, family = "Bernoulli")
-table(y_bern)
-#> y_bern
-#>   0   1
-#> 493 507
+fits <- compare_glm(y_bern, family = "Bernoulli")
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    49        45         1
+#> BIC     7         2         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 
-sel <- select_glm(y_bern, family = "Bernoulli")
-sel
-#> [1]   3  17  42  88 150
-
-round(Beta_estimate(X[, sel], y_bern, family = "Bernoulli"), 2)
+# Coefficients of the GIC6 model, intercept first
+round(Beta_estimate(X[, last_model(fits$GIC6)], y_bern, family = "Bernoulli"), 2)
 #> [1] -0.07  0.81 -1.05  0.78 -0.85  0.59
 ```
 
-![EBIC and model size,
-Bernoulli](../reference/figures/README-bernoulli.png)
+![Criteria and model size along the search, Bernoulli
+response](../reference/figures/README-bernoulli.png)
 
-EBIC and model size, Bernoulli
+Criteria and model size along the search, Bernoulli response
 
-The first coefficient is the intercept. The others are close to the true
-values $`(1, -1, 0.8, -0.8, 0.6)`$.
-
-### Binomial counts
-
-Each response is the number of successes in `n_trials` trials. Pass the
-same `n_trials` to
-[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md):
+### Binomial counts (10 trials)
 
 ``` r
 
 y_binom <- LP_to_Y(X, beta, family = "Binomial", n_trials = 10)
-select_glm(y_binom, family = "Binomial", n_trials = 10)
-#> [1]   3  17  42  88 150
+fits <- compare_glm(y_binom, family = "Binomial", n_trials = 10)
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    49        47         3
+#> BIC     5         0         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 ```
 
-![EBIC and model size,
-binomial](../reference/figures/README-binomial.png)
+![Criteria and model size along the search, binomial
+response](../reference/figures/README-binomial.png)
 
-EBIC and model size, binomial
+Criteria and model size along the search, binomial response
 
 ### Poisson regression
 
 ``` r
 
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
-sel <- select_glm(y_pois, family = "Poisson")
-sel
-#> [1]   3  17  42  88 150
+fits <- compare_glm(y_pois, family = "Poisson")
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    49        45         1
+#> BIC     8         3         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 
-round(Beta_estimate(X[, sel], y_pois, family = "Poisson"), 2)
-#> [1] -0.05  1.03 -1.00  0.82 -0.81  0.60
+round(Beta_estimate(X[, last_model(fits$GIC6)], y_pois, family = "Poisson"), 2)
+#> [1] -0.02  1.01 -1.01  0.81 -0.80  0.59
 ```
 
-![EBIC and model size, Poisson](../reference/figures/README-poisson.png)
+![Criteria and model size along the search, Poisson
+response](../reference/figures/README-poisson.png)
 
-EBIC and model size, Poisson
+Criteria and model size along the search, Poisson response
 
-### Overdispersed counts (negative binomial)
-
-`theta` is the size parameter: the variance is $`\mu + \mu^2/\theta`$.
+### Overdispersed counts (negative binomial, size 2)
 
 ``` r
 
 y_nb <- LP_to_Y(X, beta, family = "NegativeBinomial", theta = 2)
-select_glm(y_nb, family = "NegativeBinomial")
-#> [1]   3  17  42  88 150
+fits <- compare_glm(y_nb, family = "NegativeBinomial")
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    49        44         0
+#> BIC     5         0         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 ```
 
-![EBIC and model size, negative
-binomial](../reference/figures/README-negbin.png)
+![Criteria and model size along the search, negative binomial
+response](../reference/figures/README-negbin.png)
 
-EBIC and model size, negative binomial
+Criteria and model size along the search, negative binomial response
 
-### Positive continuous responses (gamma and inverse Gaussian)
-
-Both use a log link, so the mean is $`e^{\eta}`$:
+### Gamma (log link)
 
 ``` r
 
 y_gamma <- LP_to_Y(X, beta, family = "Gamma", shape = 2)
-select_glm(y_gamma, family = "Gamma")
-#> [1]   3  17  42  88 150
+fits <- compare_glm(y_gamma, family = "Gamma")
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    48        43         0
+#> BIC     6         1         0
+#> GIC5    6         1         0
+#> GIC6    5         0         0
 ```
 
-![EBIC and model size, gamma](../reference/figures/README-gamma.png)
+![Criteria and model size along the search, gamma
+response](../reference/figures/README-gamma.png)
 
-EBIC and model size, gamma
+Criteria and model size along the search, gamma response
+
+### Inverse Gaussian (log link)
 
 ``` r
 
 y_ig <- LP_to_Y(X, beta, family = "InverseGaussian", shape = 2)
-select_glm(y_ig, family = "InverseGaussian")
-#> [1]   3  17  42  88 150
+fits <- compare_glm(y_ig, family = "InverseGaussian")
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    49        44         0
+#> BIC     5         0         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 ```
 
-![EBIC and model size, inverse
-Gaussian](../reference/figures/README-invgauss.png)
+![Criteria and model size along the search, inverse Gaussian
+response](../reference/figures/README-invgauss.png)
 
-EBIC and model size, inverse Gaussian
-
-The Exponential and Geometric families work the same way.
+Criteria and model size along the search, inverse Gaussian response
 
 ### Multinomial (three categories)
 
-For $`K`$ categories, the coefficients form a $`p \times (K-1)`$ matrix,
-and the last category is the baseline.
-[`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md)
-turns the category labels into an $`n \times (K-1)`$ matrix of
-baseline-category logits, and the search selects the predictors that are
-shared across the logits:
+The coefficients form a $`p \times 2`$ matrix, and category 3 is the
+baseline:
 
 ``` r
 
 B_mn <- matrix(0, p, 2)
 B_mn[true_cols, 1] <- 1.5
 B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
-
 y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
-table(y_mn)
-#> y_mn
-#>   1   2   3
-#> 412 345 243
-
-select_glm(y_mn, family = "Multinomial", n_categories = 3)
-#> [1]   3  17  42  88 150
+fits <- compare_glm(y_mn, family = "Multinomial", n_categories = 3)
+selection_table(fits, true_cols)
+#>      size false_pos false_neg
+#> AIC    49        45         1
+#> BIC     6         1         0
+#> GIC5    5         0         0
+#> GIC6    5         0         0
 ```
 
-![EBIC and model size,
-multinomial](../reference/figures/README-multinomial.png)
+![Criteria and model size along the search, multinomial
+response](../reference/figures/README-multinomial.png)
 
-EBIC and model size, multinomial
+Criteria and model size along the search, multinomial response
 
-### Summary
-
-| Family            | Simulated with         | Selected       |
-|:------------------|:-----------------------|:---------------|
-| Bernoulli         | `family = "Bernoulli"` | 3 17 42 88 150 |
-| Binomial          | `n_trials = 10`        | 3 17 42 88 150 |
-| Poisson           | `family = "Poisson"`   | 3 17 42 88 150 |
-| Negative binomial | `theta = 2`            | 3 17 42 88 150 |
-| Gamma             | `shape = 2`            | 3 17 42 88 150 |
-| Inverse Gaussian  | `shape = 2`            | 3 17 42 88 150 |
-| Multinomial       | `n_categories = 3`     | 3 17 42 88 150 |
-
-Every search finds exactly the 5 true predictors. Each takes well under
-a second, except the first call in a session, which includes Julia’s
-one-time compilation.
+Across the seven families, GIC6 selects exactly the 5 true predictors
+every time, and GIC5 does so in all but the gamma example. BIC adds up
+to 3 noise variables. AIC grows the model until it hits the size cap
+(`k = 50`, so at most 49 variables), and once that cap blocks further
+additions it can miss a true predictor.
