@@ -233,7 +233,7 @@ selection_table(fits, true_cols)
 #> n2000 GIC6    5         0         0
 ```
 
-![Criteria and model size along the search, linear model with p = 500](man/figures/README-linear.png)
+![Criteria and model size along the search, linear model with p = 500](man/figures/README-linear-log.png)
 
 
 ### Multivariate normal
@@ -264,7 +264,7 @@ selection_table(fits, true_union)
 #> n2000 GIC6   19         0         5
 ```
 
-![Criteria and model size along the search, multivariate normal response](man/figures/README-multivariate.png)
+![Criteria and model size along the search, multivariate normal response](man/figures/README-multivariate-log.png)
 
 
 ### Generalized linear models

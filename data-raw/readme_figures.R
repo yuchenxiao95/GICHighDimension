@@ -108,7 +108,7 @@ process <- function(path, start_heading, figure_dir, draw) {
         m <- regmatches(doc[nxt], regexpr("README-[a-z-]+\\.png", doc[nxt]))
         if (length(m)) {
           if (draw) {
-            truth <- if (!is.null(env$true_union) && identical(m, "README-multivariate.png"))
+            truth <- if (!is.null(env$true_union) && identical(m, "README-multivariate-log.png"))
               env$true_union else env$true_cols
             plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, m))
           }
