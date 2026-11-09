@@ -33,8 +33,6 @@
 #'   \item AttIC, an attention-weighted criterion specific to this package: the fit
 #'     term is replaced by \eqn{Y^\top \mathrm{softmax}(HY)} and the penalty is that of SIC.
 #' }
-#' Short versions (e.g., `Calculate_AIC_Short`) allow reusing a precomputed inverse matrix
-#' to save computational time.
 #'
 #' @references
 #' Akaike, H. (1974). A new look at the statistical model identification.
@@ -69,17 +67,15 @@
 #' @param Y A numeric response: a vector of length n, or an n x q matrix for a
 #'   multivariate response (CAICF supports vector responses only).
 #' @param X A numeric design matrix (n × p).
-#' @param Inverse (for `_Short` variants only) a numeric matrix — the inverse of X'X.
 #' @param P (only for EBIC and GIC2–GIC6) integer total number of candidate predictors.
 #'   Defaults to `ncol(X)`.
 #'
 #' @return
-#' For full versions: a named list with components:
+#' A named list with components:
 #' \describe{
 #'   \item{CriterionValue}{Numeric scalar of the selected information criterion.}
 #'   \item{InverseMatrix}{Matrix inverse used in computation (if applicable).}
 #' }
-#' For `_Short` versions: a numeric scalar of the criterion value.
 #'
 #' @examples
 #' \dontrun{
@@ -89,7 +85,6 @@
 #'   Y <- rnorm(20)
 #'   out1 <- Calculate_AIC(Y, X)
 #'   out2 <- Calculate_EBIC(Y, X)        # uses P = ncol(X) by default
-#'   val_short <- Calculate_EBIC_Short(Y, X, solve(crossprod(X)))
 #' }
 #' }
 #'
@@ -191,44 +186,55 @@ Calculate_GIC5  <- function(Y, X, P = ncol(X)) .Calculate_Criterion_WITH_P("Calc
 Calculate_GIC6  <- function(Y, X, P = ncol(X)) .Calculate_Criterion_WITH_P("Calculate_GIC6", Y, X, P)
 
 # -------- Short: NO-P criteria --------
-#' @rdname information_criteria
+#' Information criteria with a precomputed inverse
+#'
+#' Variants of the [information_criteria] functions that reuse a precomputed
+#' \eqn{(X^\top X)^{-1}} and return only the criterion value. They are kept for
+#' backward compatibility; the search in [GICSelection()] and
+#' [GICSelectionBoltzmann()] does not call them.
+#'
+#' @inheritParams information_criteria
+#' @param Inverse A numeric matrix, the inverse of \eqn{X^\top X}.
+#' @return A numeric scalar, the criterion value.
+#' @keywords internal
+#' @name information_criteria_short
 #' @export
 Calculate_AIC_Short   <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_AIC",   Y, X, Inverse)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_AICc_Short  <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_AIC_c", Y, X, Inverse)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_AttIC_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_AttIC", Y, X, Inverse)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_SIC_Short   <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_SIC",   Y, X, Inverse)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_BIC_Short   <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_BIC",   Y, X, Inverse)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_CAIC_Short  <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_CAIC",  Y, X, Inverse)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_CAICF_Short <- function(Y, X, Inverse) .Calculate_Criterion_Short_NO_P("Calculate_CAICF", Y, X, Inverse)
 
 # -------- Short: WITH-P criteria --------
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_EBIC_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_EBIC", Y, X, Inverse, P)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_GIC2_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC2", Y, X, Inverse, P)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_GIC3_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC3", Y, X, Inverse, P)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_GIC4_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC4", Y, X, Inverse, P)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_GIC5_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC5", Y, X, Inverse, P)
-#' @rdname information_criteria
+#' @rdname information_criteria_short
 #' @export
 Calculate_GIC6_Short <- function(Y, X, Inverse, P = ncol(X)) .Calculate_Criterion_Short_WITH_P("Calculate_GIC6", Y, X, Inverse, P)

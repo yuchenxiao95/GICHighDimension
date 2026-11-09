@@ -15,19 +15,6 @@
 \alias{Calculate_GIC4}
 \alias{Calculate_GIC5}
 \alias{Calculate_GIC6}
-\alias{Calculate_AIC_Short}
-\alias{Calculate_AICc_Short}
-\alias{Calculate_AttIC_Short}
-\alias{Calculate_SIC_Short}
-\alias{Calculate_BIC_Short}
-\alias{Calculate_CAIC_Short}
-\alias{Calculate_CAICF_Short}
-\alias{Calculate_EBIC_Short}
-\alias{Calculate_GIC2_Short}
-\alias{Calculate_GIC3_Short}
-\alias{Calculate_GIC4_Short}
-\alias{Calculate_GIC5_Short}
-\alias{Calculate_GIC6_Short}
 \title{Information Criterion Calculations via Julia}
 \usage{
 Calculate_AIC(Y, X)
@@ -55,32 +42,6 @@ Calculate_GIC4(Y, X, P = ncol(X))
 Calculate_GIC5(Y, X, P = ncol(X))
 
 Calculate_GIC6(Y, X, P = ncol(X))
-
-Calculate_AIC_Short(Y, X, Inverse)
-
-Calculate_AICc_Short(Y, X, Inverse)
-
-Calculate_AttIC_Short(Y, X, Inverse)
-
-Calculate_SIC_Short(Y, X, Inverse)
-
-Calculate_BIC_Short(Y, X, Inverse)
-
-Calculate_CAIC_Short(Y, X, Inverse)
-
-Calculate_CAICF_Short(Y, X, Inverse)
-
-Calculate_EBIC_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC2_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC3_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC4_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC5_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC6_Short(Y, X, Inverse, P = ncol(X))
 }
 \arguments{
 \item{Y}{A numeric response: a vector of length n, or an n x q matrix for a
@@ -90,16 +51,13 @@ multivariate response (CAICF supports vector responses only).}
 
 \item{P}{(only for EBIC and GIC2–GIC6) integer total number of candidate predictors.
 Defaults to \code{ncol(X)}.}
-
-\item{Inverse}{(for \verb{_Short} variants only) a numeric matrix — the inverse of X'X.}
 }
 \value{
-For full versions: a named list with components:
+A named list with components:
 \describe{
 \item{CriterionValue}{Numeric scalar of the selected information criterion.}
 \item{InverseMatrix}{Matrix inverse used in computation (if applicable).}
 }
-For \verb{_Short} versions: a numeric scalar of the criterion value.
 }
 \description{
 Compute information criteria using efficient 'Julia' backends via the 'JuliaCall' package.
@@ -134,8 +92,6 @@ by default.
 \item AttIC, an attention-weighted criterion specific to this package: the fit
 term is replaced by \eqn{Y^\top \mathrm{softmax}(HY)} and the penalty is that of SIC.
 }
-Short versions (e.g., \code{Calculate_AIC_Short}) allow reusing a precomputed inverse matrix
-to save computational time.
 }
 \examples{
 \dontrun{
@@ -145,7 +101,6 @@ if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
   Y <- rnorm(20)
   out1 <- Calculate_AIC(Y, X)
   out2 <- Calculate_EBIC(Y, X)        # uses P = ncol(X) by default
-  val_short <- Calculate_EBIC_Short(Y, X, solve(crossprod(X)))
 }
 }
 

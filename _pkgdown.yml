@@ -20,10 +20,22 @@ reference:
   - GICSelection
   - GICSelectionBoltzmann
 - title: Information criteria
-  desc: >
-    AIC, BIC, EBIC, GIC2–GIC6 and related criteria. Pass the name of a
-    criterion (and of its `_short` version) to `GICSelection()`, or call these
-    functions directly to score a single model.
+  desc: |
+    Pass the name of a criterion to `GICSelection()`, or call these functions
+    directly to score a single model.
+    The supported criteria are:
+
+    - **AIC**: Akaike information criterion (Akaike, 1974)
+    - **AICc**: AIC corrected for small samples (Hurvich and Tsai, 1989)
+    - **BIC**: Bayesian information criterion (Schwarz, 1978)
+    - **CAIC**: consistent AIC (Bozdogan, 1987)
+    - **CAICF**: consistent AIC with Fisher information (Bozdogan, 1987)
+    - **SIC**: square-root information criterion (Shao, 1997; Xiao and Walker, 2026)
+    - **GIC2–GIC6**: generalized information criteria for high dimensions (Kim, Kwon and Choi, 2012)
+    - **EBIC**: extended BIC (Chen and Chen, 2008)
+    - **AttIC**: attention-weighted criterion, specific to this package
+
+    Full citations are on the `information_criteria` help page.
   contents:
   - information_criteria
 - title: Simulation and link transforms
