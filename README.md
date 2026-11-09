@@ -153,13 +153,13 @@ GIC6 ($\log n \log p$), where $p$ is the number of candidate
 predictors. Each example also runs the Boltzmann search (`GICSelectionBoltzmann()`)
 with GIC6, which accepts a move that lowers the criterion by $\Delta$ with
 probability $1/(1 + e^{\Delta/T})$, so it can leave a local optimum. The
-temperature $T$ is a tuning parameter. The examples use the default $T = 0.1$, and
-$T = 0.05$ for the multivariate normal example and $T = 0.001$ for the Poisson
-and Cox examples.
+temperature $T$ is a tuning parameter. The temperature used in each example is: linear $T = 0.1$, multivariate normal
+$T = 0.05$, Poisson $T = 0.001$, binomial $T = 0.1$, multinomial $T = 0.1$
+and Cox $T = 0.001$.
 
 For reference, the examples also fit the lasso and the adaptive lasso with the
-[glmnet](https://CRAN.R-project.org/package=glmnet) package (Friedman, Hastie
-and Tibshirani, 2010), using `cv.glmnet()` with 10-fold cross-validation and
+[glmnet](https://CRAN.R-project.org/package=glmnet) package
+([Friedman, Hastie and Tibshirani, 2010](https://doi.org/10.18637/jss.v033.i01)), using `cv.glmnet()` with 10-fold cross-validation and
 `lambda.min`, and `family = "gaussian"`, `"mgaussian"`, `"poisson"` or
 `"binomial"` to match the response, as in glmnet's own articles. The
 multinomial and Cox examples leave the lasso out: glmnet's cross-validated
@@ -464,9 +464,9 @@ selection_table(fits, true_cols)
 The survival times follow a Cox model, $h(t \mid x) = h_0(t)\, e^{x^\top\beta}$,
 with the same $\beta$, an exponential baseline hazard $h_0(t) = 1$ and
 independent exponential censoring at rate 0.3, simulated by
-`LP_to_Y(family = "Cox")` (Bender, Augustin and Blettner, 2005). For the
+`LP_to_Y(family = "Cox")` ([Bender, Augustin and Blettner, 2005](https://doi.org/10.1002/sim.2059)). For the
 searches, `Y_to_LP()` maps each (time, status) pair to the deviance residual of
-the null Cox model (Therneau, Grambsch and Fleming, 1990), which increases with
+the null Cox model ([Therneau, Grambsch and Fleming, 1990](https://doi.org/10.1093/biomet/77.1.147)), which increases with
 the linear predictor. The selected model is then fitted with
 `survival::coxph()`.
 
