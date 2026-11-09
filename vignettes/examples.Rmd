@@ -80,13 +80,13 @@ their heights. The script
 `data-raw/readme_figures.R` in the package source runs the code in this
 section and redraws the figures.
 
-## Linear model
-
 All examples use the same setting. The design matrix $X$ has $n = 2000$
 observations of $p = 500$ independent standard normal predictors, so the
 predictor covariance is $\Sigma = I$, and only a few predictors affect the
 response. Every search runs twice, on the first 1000 observations and on all
 2000.
+
+## Linear model
 
 Here the response is $Y = X\beta + \varepsilon$ with
 $\varepsilon \sim N(0, \sigma^2 I)$. Five randomly chosen coefficients equal

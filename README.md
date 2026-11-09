@@ -8,11 +8,27 @@ $\ell_0$-penalized regression has been treated as a combinatorial problem
 that requires discrete optimization and is NP-hard. This package builds on a
 connection with Hopfield networks, which are used for associative memory
 retrieval ([Xiao and Walker, 2026](https://doi.org/10.1007/s11222-026-10853-5)).
-It makes generalized information criteria (GIC) for variable selection,
+It makes generalized information criteria (GIC;
+[Kim, Kwon and Choi, 2012](https://jmlr.org/papers/v13/kim12a.html)) for variable selection,
 which are equivalent to $\ell_0$-penalized regression, computationally
 feasible. The rationale is that there remains strong interest in GIC, whose
 statistical properties are superior to those of $\ell_1$-based
 regularization.
+
+A model with $d$ selected predictors scores
+$\mathrm{GIC}_d = y^\top H_d y / n - p(n, d)$, where $H_d$ is its hat matrix and
+the penalty $p(n, d)$ depends on the criterion. Table 1 of Xiao and Walker
+(2026) lists some criteria in the class of GIC:
+
+| Name | $p(n, d)$ | Reference |
+|:--|:--|:--|
+| GIC2 | $d \, \frac{\sigma^2}{n} \, d^{1/3}$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC3 | $2d \, \frac{\sigma^2}{n} \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC4 | $2d \, \frac{\sigma^2}{n} (\log d + \log\log d)$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC5 | $d \, \frac{\sigma^2}{n} \log\log n \, \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC6 | $d \, \frac{\sigma^2}{n} \log n \, \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| CAIC | $d \, \frac{\sigma^2}{n} (\log n + 1)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
+| SIC | $d \, \frac{\sigma^2}{n} \sqrt{n}$ | Shao (1997) |
 
 The examples below highlight some well-known statistical properties of these
 criteria:
@@ -104,13 +120,13 @@ their heights. The script
 [`data-raw/readme_figures.R`](data-raw/readme_figures.R) runs the code in this
 section and redraws the figures.
 
-### Linear model
-
 All examples use the same setting. The design matrix $X$ has $n = 2000$
 observations of $p = 500$ independent standard normal predictors, so the
 predictor covariance is $\Sigma = I$, and only a few predictors affect the
 response. Every search runs twice, on the first 1000 observations and on all
 2000.
+
+### Linear model
 
 Here the response is $Y = X\beta + \varepsilon$ with
 $\varepsilon \sim N(0, \sigma^2 I)$. Five randomly chosen coefficients equal
