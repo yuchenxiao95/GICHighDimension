@@ -161,12 +161,7 @@ For reference, the examples also fit the lasso and the adaptive lasso with the
 [glmnet](https://CRAN.R-project.org/package=glmnet) package
 ([Friedman, Hastie and Tibshirani, 2010](https://doi.org/10.18637/jss.v033.i01)), using `cv.glmnet()` with 10-fold cross-validation and
 `lambda.min`, and `family = "gaussian"`, `"mgaussian"`, `"poisson"` or
-`"binomial"` to match the response, as in glmnet's own articles. The
-multinomial and Cox examples leave the lasso out: glmnet's cross-validated
-fits for those families (grouped multinomial, and Cox) take several minutes
-each at this size, against well under a second for each search. The adaptive lasso uses penalty factors
-$1/\lVert\hat\beta_j\rVert$ from a ridge (`alpha = 0`) pilot fit. Their run
-times are those of glmnet's own fitting routines.
+`"binomial"` to match the response, as in glmnet's own articles.
 
 Each table reports the size, false positives and false negatives of the
 selected model, and the wall-clock time of each method in seconds (Apple
