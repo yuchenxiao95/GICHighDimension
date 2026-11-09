@@ -123,8 +123,9 @@ where the stable local minima in the energy function of the Hopfield
 network correspond to optimal sparse solutions.
 
 AIC is minimax-rate optimal but inconsistent when a true model exists;
-criteria with stronger penalties achieve consistency. Table 1 lists some
-criteria in the literature with different penalties $`p(n, d)`$:
+criteria with stronger penalties achieve consistency. Table 1 lists
+selected criteria in the literature with different penalties
+$`p(n, d)`$:
 
 | Name | $`p(n, d)`$ | Reference |
 |:---|:---|:---|
