@@ -15,6 +15,10 @@
 
 ### New features
 
+- New article,
+  [`vignette("examples")`](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.md):
+  worked simulations for a linear model with 500 predictors, a
+  multivariate-normal response and every GLM family.
 - [`LP_to_Y()`](https://yuchenxiao95.github.io/GICHighDimension/reference/LP_to_Y.md),
   [`Y_to_LP()`](https://yuchenxiao95.github.io/GICHighDimension/reference/Y_to_LP.md)
   and
