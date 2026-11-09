@@ -17,18 +17,18 @@ regularization.
 
 A model with $d$ selected predictors scores
 $\mathrm{GIC}_d = y^\top H_d y / n - p(n, d)$, where $H_d$ is its hat matrix and
-the penalty $p(n, d)$ depends on the criterion. Table 1 of Xiao and Walker
-(2026) lists some criteria in the class of GIC:
+$p(n, d)$ is a penalty. Table 1 of Xiao and Walker (2026) lists some
+criteria in the literature with different penalties $p(n, d)$:
 
 | Name | $p(n, d)$ | Reference |
 |:--|:--|:--|
-| GIC2 | $d \, \frac{\sigma^2}{n} \, d^{1/3}$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC3 | $2d \, \frac{\sigma^2}{n} \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC4 | $2d \, \frac{\sigma^2}{n} (\log d + \log\log d)$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC5 | $d \, \frac{\sigma^2}{n} \log\log n \, \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC6 | $d \, \frac{\sigma^2}{n} \log n \, \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| CAIC | $d \, \frac{\sigma^2}{n} (\log n + 1)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
-| SIC | $d \, \frac{\sigma^2}{n} \sqrt{n}$ | Shao (1997) |
+| GIC2 | $d \frac{\sigma^2}{n} d^{1/3}$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC3 | $2d \frac{\sigma^2}{n} \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC4 | $2d \frac{\sigma^2}{n} (\log d + \log\log d)$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC5 | $d \frac{\sigma^2}{n} \log\log n \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC6 | $d \frac{\sigma^2}{n} \log n \log d$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| CAIC | $d \frac{\sigma^2}{n} (\log n + 1)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
+| SIC | $d \frac{\sigma^2}{n} \sqrt{n}$ | Shao (1997) |
 
 The examples below highlight some well-known statistical properties of these
 criteria:
@@ -66,7 +66,7 @@ install_julia_packages()   # first time only
 
 The examples below compare three criteria on the same data. In increasing
 order of penalty per variable, they are AIC ($c_n = 1$), BIC ($\log n$) and
-GIC6 ($\log n \, \log P$), where $P$ is the number of candidate
+GIC6 ($\log n \log P$), where $P$ is the number of candidate
 predictors. The
 [Examples article](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.html)
 (`vignette("examples")`) explains each step, and the Get started article
