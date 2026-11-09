@@ -28,6 +28,9 @@
   InverseGaussian, NegativeBinomial, Geometric, MultivariateNormal and
   Multinomial responses.
 - [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md)
+  also returns `elapsed`, the time in seconds since the search started,
+  after each step.
+- [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md)
   and
   [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelectionBoltzmann.md)
   gain a `gamma` argument for EBIC (default 0.6);

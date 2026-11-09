@@ -86,10 +86,13 @@ and GIC6
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \, \log P</annotation></semantics></math>),
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
-is the number of candidate predictors. See
-<code><a href="../articles/get-started.html">vignette("get-started")</a></code> for the setup steps and the other
-criteria. The output shown was produced on an Apple M-series laptop with
-Julia 1.11.</p>
+is the number of candidate predictors. Each table reports the size,
+false positives and false negatives of the selected model, and
+<code>time_s</code>, the time in seconds until the search reaches the
+true model and stays there. If it never does, <code>time_s</code> is the
+time of the whole search. See <code><a href="../articles/get-started.html">vignette("get-started")</a></code> for
+the setup steps and the other criteria. The output shown was produced on
+an Apple M-series laptop with Julia 1.11.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -119,14 +122,29 @@ order shown to reproduce the output.</p>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
+<span><span class="co"># Compile each criterion once, so the timings exclude Julia's compilation</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">crit</span> <span class="kw">in</span> <span class="va">criteria</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">Y0</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span>, <span class="fl">50</span><span class="op">)</span>, <span class="va">Y0</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">crit</span>,</span>
+<span>                         <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">crit</span>, <span class="st">"_short"</span><span class="op">)</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">last_model</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Size, false positives and false negatives of each final model</span></span>
+<span><span class="co"># Seconds until the search reaches the true model and stays there, or the time</span></span>
+<span><span class="co"># of the whole search if it never does</span></span>
+<span><span class="va">time_to_truth</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">truth</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">hit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span>, <span class="va">setequal</span>, <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, <span class="va">truth</span><span class="op">)</span></span>
+<span>  <span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">hit</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">hit</span><span class="op">[</span><span class="va">steps</span><span class="op">]</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">elapsed</span><span class="op">[</span><span class="va">steps</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">fit</span><span class="op">$</span><span class="va">elapsed</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="op">!</span><span class="va">hit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Size, false positives, false negatives and search time of each final model</span></span>
 <span><span class="va">selection_table</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fits</span>, <span class="va">truth</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">by_crit</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">by_crit</span>, <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>, false_pos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">truth</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      false_neg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>      false_neg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      time_s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">time_to_truth</span><span class="op">(</span><span class="va">fit</span>, <span class="va">truth</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">rows</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">criteria</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span></span>
@@ -176,26 +194,17 @@ Every search starts from the full model:</p>
 <span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC   230       225         0</span></span>
-<span><span class="co">#&gt; n1000 BIC     8         3         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC   197       192         0</span></span>
-<span><span class="co">#&gt; n2000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span></code></pre></div>
+<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
+<span><span class="co">#&gt; n1000 AIC   230       225         0  25.84</span></span>
+<span><span class="co">#&gt; n1000 BIC     8         3         0   9.38</span></span>
+<span><span class="co">#&gt; n1000 GIC6    5         0         0   6.40</span></span>
+<span><span class="co">#&gt; n2000 AIC   197       192         0  37.68</span></span>
+<span><span class="co">#&gt; n2000 BIC     9         4         0  12.20</span></span>
+<span><span class="co">#&gt; n2000 GIC6    5         0         0   9.29</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-linear.png" alt="Criteria and model size along the search, linear model with p = 500"><div class="figcaption">Criteria and model size along the search, linear
 model with p = 500</div>
 </div>
-<p>GIC6 selects exactly the 5 true predictors at both sample sizes. BIC
-keeps all 5 but adds 3 noise variables at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>
-and 4 at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>:
-doubling
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
-does not help, because its penalty ignores the 500 candidates. AIC keeps
-about 200 variables at either size.</p>
 </div>
 <div class="section level2">
 <h2 id="multivariate-normal">Multivariate normal<a class="anchor" aria-label="anchor" href="#multivariate-normal"></a>
@@ -218,24 +227,17 @@ response matrix as <code>Y</code>:</p>
 <span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC   268       245         1</span></span>
-<span><span class="co">#&gt; n1000 BIC    20         0         4</span></span>
-<span><span class="co">#&gt; n1000 GIC6   19         0         5</span></span>
-<span><span class="co">#&gt; n2000 AIC   232       208         0</span></span>
-<span><span class="co">#&gt; n2000 BIC    20         0         4</span></span>
-<span><span class="co">#&gt; n2000 GIC6   19         0         5</span></span></code></pre></div>
+<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
+<span><span class="co">#&gt; n1000 AIC   268       245         1  29.18</span></span>
+<span><span class="co">#&gt; n1000 BIC    20         0         4   7.93</span></span>
+<span><span class="co">#&gt; n1000 GIC6   19         0         5   7.22</span></span>
+<span><span class="co">#&gt; n2000 AIC   232       208         0  44.75</span></span>
+<span><span class="co">#&gt; n2000 BIC    20         0         4  12.61</span></span>
+<span><span class="co">#&gt; n2000 GIC6   19         0         5  12.90</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-multivariate.png" alt="Criteria and model size along the search, multivariate normal response"><div class="figcaption">Criteria and model size along the search,
 multivariate normal response</div>
 </div>
-<p>Two responses share a predictor, so 24 predictors are truly active.
-BIC and GIC6 select no noise variables at either sample size. Every
-predictor they miss (4 for BIC, 5 for GIC6) has a coefficient of 0.1,
-which is too small to detect with 1000 or 2000 observations. AIC finds
-all 24 at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>,
-but inside a model of 232 variables.</p>
 </div>
 <div class="section level2">
 <h2 id="generalized-linear-models">Generalized linear models<a class="anchor" aria-label="anchor" href="#generalized-linear-models"></a>
@@ -261,13 +263,13 @@ columns.</p>
 <code class="sourceCode R"><span><span class="va">y_pois</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        45         1</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        45         1</span></span>
-<span><span class="co">#&gt; n2000 BIC    10         5         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span>
+<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
+<span><span class="co">#&gt; n1000 AIC    49        45         1   0.37</span></span>
+<span><span class="co">#&gt; n1000 BIC     9         4         0   0.46</span></span>
+<span><span class="co">#&gt; n1000 GIC6    5         0         0   0.13</span></span>
+<span><span class="co">#&gt; n2000 AIC    49        45         1   0.85</span></span>
+<span><span class="co">#&gt; n2000 BIC    10         5         0   1.05</span></span>
+<span><span class="co">#&gt; n2000 GIC6    5         0         0   0.23</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, intercept first</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -284,13 +286,13 @@ Poisson response</div>
 <code class="sourceCode R"><span><span class="va">y_binom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        47         3</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        46         2</span></span>
-<span><span class="co">#&gt; n2000 BIC     8         3         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span></code></pre></div>
+<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
+<span><span class="co">#&gt; n1000 AIC    49        47         3   0.38</span></span>
+<span><span class="co">#&gt; n1000 BIC     9         4         0   0.44</span></span>
+<span><span class="co">#&gt; n1000 GIC6    5         0         0   0.17</span></span>
+<span><span class="co">#&gt; n2000 AIC    49        46         2   0.53</span></span>
+<span><span class="co">#&gt; n2000 BIC     8         3         0   0.81</span></span>
+<span><span class="co">#&gt; n2000 GIC6    5         0         0   0.24</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-binomial.png" alt="Criteria and model size along the search, binomial response"><div class="figcaption">Criteria and model size along the search,
 binomial response</div>
@@ -309,23 +311,17 @@ matrix, and category 3 is the baseline:</p>
 <span><span class="va">y_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        47         3</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        48         4</span></span>
-<span><span class="co">#&gt; n2000 BIC     8         3         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span></code></pre></div>
+<span><span class="co">#&gt;            size false_pos false_neg time_s</span></span>
+<span><span class="co">#&gt; n1000 AIC    49        47         3   0.36</span></span>
+<span><span class="co">#&gt; n1000 BIC     9         4         0   0.50</span></span>
+<span><span class="co">#&gt; n1000 GIC6    5         0         0   0.11</span></span>
+<span><span class="co">#&gt; n2000 AIC    49        48         4   0.70</span></span>
+<span><span class="co">#&gt; n2000 BIC     8         3         0   0.80</span></span>
+<span><span class="co">#&gt; n2000 GIC6    5         0         0   0.29</span></span></code></pre></div>
 <div class="float">
 <img src="../reference/figures/README-multinomial.png" alt="Criteria and model size along the search, multinomial response"><div class="figcaption">Criteria and model size along the search,
 multinomial response</div>
 </div>
-<p>In all three GLMs, GIC6 selects exactly the 5 true predictors at both
-sample sizes. BIC keeps the true predictors but adds 3 to 5 noise
-variables, with no clear gain from doubling
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
-AIC grows the model until it hits the size cap (<code>k = 50</code>, so
-at most 49 variables) and misses 1 to 4 true predictors.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

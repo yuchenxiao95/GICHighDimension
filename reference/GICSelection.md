@@ -63,6 +63,9 @@ A list containing:
 
 - `selected_coeffs`: Indices of selected variables
 
+- `elapsed`: Elapsed time in seconds since the search started, after
+  each step (the Julia search only, excluding data transfer)
+
 ## Details
 
 This function implements a variable selection algorithm that:

@@ -38,6 +38,91 @@ feasible. The rationale is that there remains strong interest in GIC,
 whose statistical properties are superior to those of $`\ell_1`$-based
 regularization.
 
+### The Hopfield network
+
+A Hopfield network (Hopfield, 1982) is a model of associative memory
+with $`p`$ neurons, each connected to every other neuron by undirected
+edges with no self-connections. The state
+$`z \in \lbrace 1, -1 \rbrace^p`$ evolves through a symmetric weight
+matrix $`W`$, built from a stored pattern $`z_s`$ by Hebb’s law,
+$`W = z_s^\top z_s - I`$, so that $`W_{ij} = W_{ji} = z_i z_j`$ and
+$`W_{ii} = 0`$. The network updates one neuron at a time,
+
+``` math
+z_i(t+1) = \operatorname{sgn}\big(H_i(t)\big), \qquad
+H_i(t) = \sum_{j \ne i} w_{ij} z_j(t),
+```
+
+with $`\operatorname{sgn}(H) = 1`$ if $`H \ge 0`$ and $`-1`$ otherwise,
+cycling through $`i = 1, \dots, p`$ until $`z`$ is stable. Each update
+can only lower the energy
+
+``` math
+E(z) = -z^\top W z ,
+```
+
+and $`E`$ is bounded below, so the network always converges to a locally
+stable state (Bruck, 1990; Rojas, 1996).
+
+### Connection with AIC
+
+Write the linear model with inclusion indicators
+$`z_j \in \lbrace 0, 1 \rbrace`$:
+
+``` math
+y_i = \sum_{j=1}^{p} x_{ij} z_j \beta_j + \sigma \varepsilon_i ,
+\qquad\text{or}\qquad
+y = X D_t^p \beta + \sigma \varepsilon ,
+```
+
+where $`D_t^p = \mathrm{diag}(z_1, \dots, z_p)`$ has $`t`$ nonzero
+entries, so $`X_t = X D_t^p`$ holds the true predictors. For a candidate
+model $`X_d = X D_d^p`$ with hat matrix
+$`H_d = X_d (X_d^\top X_d)^{-1} X_d^\top`$, AIC is an asymptotically
+unbiased estimate of
+
+``` math
+\frac{1}{n} \beta^\top X_t^\top H_d X_t \beta
+= \frac{1}{n} \langle X_t \beta, X_t \beta \rangle_{H_d}
+= \frac{1}{n} \langle X_t \beta, \widehat{X_t \beta} \rangle ,
+```
+
+where $`\widehat{X_t \beta} = H_d X_t \beta`$. Maximizing it minimizes
+the expected out-of-sample error and finds the best orthogonal
+projection onto the span of $`X_t \beta`$, reached when $`X_d = X_t`$.
+This quantity plays the role of a Hopfield energy: updating one
+indicator at a time,
+
+``` math
+z_j(t+1) = \mathbf{1}\left\lbrace
+\frac{1}{n} \beta^\top X_t^\top H_{d+1} X_t \beta
+> \frac{1}{n} \beta^\top X_t^\top H_d X_t \beta \right\rbrace ,
+```
+
+where $`H_{d+1}`$ includes $`x_j`$, it never decreases and is bounded
+above by $`\frac{1}{n} \beta^\top X_t^\top X_t \beta`$. Replacing the
+unknown signal with the data gives the update rule for AIC,
+
+``` math
+z_j(t+1) = \mathbf{1}\left\lbrace
+\frac{1}{n} y^\top H_{d+1} y - 2(d+1) \frac{\sigma^2}{n}
+> \frac{1}{n} y^\top H_d y - 2d \frac{\sigma^2}{n} \right\rbrace ,
+```
+
+and, for any GIC with penalty $`p(n, d)`$,
+
+``` math
+z_j(t+1) = \mathbf{1}\left\lbrace
+\frac{1}{n} y^\top H_{d+1} y - p(n, d+1)
+> \frac{1}{n} y^\top H_d y - p(n, d) \right\rbrace .
+```
+
+Unlike greedy forward selection or orthogonal matching pursuit, this
+search keeps adding and removing variables in pursuit of the criterion’s
+global optimum. AIC is minimax-rate optimal but inconsistent when a true
+model exists; criteria with stronger penalties achieve consistency at
+the expense of underfitting (Shao, 1997; Yang, 2005; Kim et al., 2012).
+
 A model with $`d`$ selected predictors scores
 $`\mathrm{GIC}_d = y^\top H_d y / n - p(n, d)`$, where $`H_d`$ is its
 hat matrix and $`p(n, d)`$ is a penalty. Table 1 of Xiao and Walker
@@ -59,7 +144,10 @@ $`p(n, d)`$:
 The examples below compare three criteria on the same data. In
 increasing order of penalty per variable, they are AIC ($`c_n = 1`$),
 BIC ($`\log n`$) and GIC6 ($`\log n \log P`$), where $`P`$ is the number
-of candidate predictors.
+of candidate predictors. Each table reports the size, false positives
+and false negatives of the selected model, and `time_s`, the time in
+seconds until the search reaches the true model and stays there. If it
+never does, `time_s` is the time of the whole search.
 
 All examples use the same setting. The design matrix $`X`$ has
 $`n = 2000`$ observations of $`p = 500`$ independent standard normal
@@ -99,24 +187,19 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC   230       225         0
-#> n1000 BIC     8         3         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC   197       192         0
-#> n2000 BIC     9         4         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC   230       225         0  24.27
+#> n1000 BIC     8         3         0   8.09
+#> n1000 GIC6    5         0         0   6.35
+#> n2000 AIC   197       192         0  36.08
+#> n2000 BIC     9         4         0  10.60
+#> n2000 GIC6    5         0         0   9.17
 ```
 
 ![Criteria and model size along the search, linear model with p =
 500](reference/figures/README-linear.png)
 
 Criteria and model size along the search, linear model with p = 500
-
-GIC6 selects exactly the 5 true predictors at both sample sizes. BIC
-keeps all 5 but adds 3 noise variables at $`n = 1000`$ and 4 at
-$`n = 2000`$: doubling $`n`$ does not help, because its penalty ignores
-the 500 candidates. AIC keeps about 200 variables at either size.
 
 ### Multivariate normal
 
@@ -138,25 +221,19 @@ true_union <- sort(unique(unlist(true_by_response)))
 
 fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_union)
-#>            size false_pos false_neg
-#> n1000 AIC   268       245         1
-#> n1000 BIC    20         0         4
-#> n1000 GIC6   19         0         5
-#> n2000 AIC   232       208         0
-#> n2000 BIC    20         0         4
-#> n2000 GIC6   19         0         5
+#>            size false_pos false_neg time_s
+#> n1000 AIC   268       245         1  28.63
+#> n1000 BIC    20         0         4   7.41
+#> n1000 GIC6   19         0         5   6.85
+#> n2000 AIC   232       208         0  42.81
+#> n2000 BIC    20         0         4  12.57
+#> n2000 GIC6   19         0         5  12.87
 ```
 
 ![Criteria and model size along the search, multivariate normal
 response](reference/figures/README-multivariate.png)
 
 Criteria and model size along the search, multivariate normal response
-
-Two responses share a predictor, so 24 predictors are truly active. BIC
-and GIC6 select no noise variables at either sample size. Every
-predictor they miss (4 for BIC, 5 for GIC6) has a coefficient of 0.1,
-which is too small to detect with 1000 or 2000 observations. AIC finds
-all 24 at $`n = 2000`$, but inside a model of 232 variables.
 
 ### Generalized linear models
 
@@ -186,13 +263,13 @@ compare_glm <- function(Y, ...) compare_criteria(X, Y_to_LP(Y, ...), 1:10, k = 5
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
 fits <- compare_glm(y_pois, family = "Poisson")
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC    49        45         1
-#> n1000 BIC     9         4         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC    49        45         1
-#> n2000 BIC    10         5         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC    49        45         1   0.37
+#> n1000 BIC     9         4         0   0.47
+#> n1000 GIC6    5         0         0   0.24
+#> n2000 AIC    49        45         1   0.78
+#> n2000 BIC    10         5         0   1.03
+#> n2000 GIC6    5         0         0   0.39
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -211,13 +288,13 @@ Criteria and model size along the search, Poisson response
 y_binom <- LP_to_Y(X, beta, family = "Binomial", n_trials = 10)
 fits <- compare_glm(y_binom, family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC    49        47         3
-#> n1000 BIC     9         4         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC    49        46         2
-#> n2000 BIC     8         3         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC    49        47         3   0.46
+#> n1000 BIC     9         4         0   0.56
+#> n1000 GIC6    5         0         0   0.17
+#> n2000 AIC    49        46         2   0.69
+#> n2000 BIC     8         3         0   0.84
+#> n2000 GIC6    5         0         0   0.24
 ```
 
 ![Criteria and model size along the search, binomial
@@ -238,25 +315,19 @@ B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
 y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
 fits <- compare_glm(y_mn, family = "Multinomial", n_categories = 3)
 selection_table(fits, true_cols)
-#>            size false_pos false_neg
-#> n1000 AIC    49        47         3
-#> n1000 BIC     9         4         0
-#> n1000 GIC6    5         0         0
-#> n2000 AIC    49        48         4
-#> n2000 BIC     8         3         0
-#> n2000 GIC6    5         0         0
+#>            size false_pos false_neg time_s
+#> n1000 AIC    49        47         3   0.34
+#> n1000 BIC     9         4         0   0.49
+#> n1000 GIC6    5         0         0   0.15
+#> n2000 AIC    49        48         4   0.82
+#> n2000 BIC     8         3         0   0.84
+#> n2000 GIC6    5         0         0   0.26
 ```
 
 ![Criteria and model size along the search, multinomial
 response](reference/figures/README-multinomial.png)
 
 Criteria and model size along the search, multinomial response
-
-In all three GLMs, GIC6 selects exactly the 5 true predictors at both
-sample sizes. BIC keeps the true predictors but adds 3 to 5 noise
-variables, with no clear gain from doubling $`n`$. AIC grows the model
-until it hits the size cap (`k = 50`, so at most 49 variables) and
-misses 1 to 4 true predictors.
 
 # Package index
 
