@@ -11,44 +11,55 @@
 devtools::load_all(".", quiet = TRUE)
 setup_julia()
 
-palette  <- c(AIC = "#2a78d6", BIC = "#eb6834", GIC5 = "#1baf7a", GIC6 = "#eda100")
-linetype <- c(AIC = 1, BIC = 2, GIC5 = 4, GIC6 = 5)
+palette <- c(AIC = "#2a78d6", BIC = "#eb6834", GIC6 = "#1baf7a")
+size_lty <- c(n1000 = 1, n2000 = 3)       # solid: n = 1000, dotted: n = 2000
 
 # Two panels: each criterion's value, and its model size, after every search
-# step. Dotted lines mark a new pass over the predictors; the dashed line marks
-# the true model size.
+# step, with one line per criterion and sample size. Light grey vertical lines
+# mark a new pass over the predictors; the dashed line marks the true size.
+# `fits` is fits[[sample size]][[criterion]], as returned by compare_criteria().
 plot_criteria <- function(fits, p, true_size, file) {
-  png(file, width = 8, height = 3.7, units = "in", res = 200)
+  png(file, width = 8, height = 3.9, units = "in", res = 200)
   on.exit(dev.off())
-  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.6, 2.2, 1), oma = c(1.6, 0, 0, 0), las = 1,
-            cex.axis = 0.95, cex.lab = 1.1, cex.main = 1.1)
+  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.6, 2.2, 1), oma = c(2.6, 0, 0, 0),
+            las = 1, cex.axis = 0.95, cex.lab = 1.1, cex.main = 1.1)
   on.exit(par(op), add = TRUE)
 
-  steps  <- seq_along(fits[[1]]$GIC_values)
+  steps  <- seq_along(fits[[1]][[1]]$GIC_values)
   passes <- seq(p, length(steps) - 1, by = p)
-  values <- sapply(fits, `[[`, "GIC_values")
-  sizes  <- sapply(fits, function(f) lengths(f$selected_coeffs))
+  series <- function(f) {                 # one column per (size, criterion)
+    m <- do.call(cbind, lapply(fits, function(by_crit) sapply(by_crit, f)))
+    m
+  }
+  values <- series(function(fit) fit$GIC_values)
+  sizes  <- series(function(fit) lengths(fit$selected_coeffs))
+  cols <- rep(palette[names(fits[[1]])], times = length(fits))
+  ltys <- rep(size_lty[names(fits)], each = length(fits[[1]]))
 
-  matplot(steps, values, type = "s", lwd = 2, col = palette, lty = linetype,
-          xlab = "Search step", ylab = "", main = "Criterion along the search")
+  matplot(steps, values, type = "n", xlab = "Search step", ylab = "",
+          main = "Criterion along the search")
+  abline(v = passes, col = "grey85", lwd = 0.8)
+  matlines(steps, values, type = "s", lwd = 2, col = cols, lty = ltys)
   title(ylab = "Criterion value", line = 3.4)
-  abline(v = passes, lty = 3, col = "grey60")
 
   log_y <- max(sizes) > 50       # keep the end of the path visible
-  matplot(steps, sizes, type = "s", lwd = 2, col = palette, lty = linetype,
-          ylim = range(c(sizes, true_size)), log = if (log_y) "y" else "",
-          xlab = "Search step", ylab = "",
+  matplot(steps, sizes, type = "n", ylim = range(c(sizes, true_size)),
+          log = if (log_y) "y" else "", xlab = "Search step", ylab = "",
           main = sprintf("Model size (true size = %d)", true_size))
+  abline(v = passes, col = "grey85", lwd = 0.8)
+  abline(h = true_size, lty = 2, col = "grey35")
+  matlines(steps, sizes, type = "s", lwd = 2, col = cols, lty = ltys)
   title(ylab = if (log_y) "Variables in model (log scale)" else "Variables in model",
         line = 3.4)
-  abline(v = passes, lty = 3, col = "grey60")
-  abline(h = true_size, lty = 2, col = "grey35")
 
-  # One legend row under both panels, so it never covers a curve
+  # Legend rows under both panels: criterion colours, then sample-size line types
   par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
   plot.new()
-  legend("bottom", legend = names(fits), col = palette, lty = linetype, lwd = 2,
-         horiz = TRUE, bty = "n", cex = 0.95, seg.len = 3, inset = 0.01)
+  legend("bottom", inset = c(0, 0.075), legend = names(palette), col = palette,
+         lty = 1, lwd = 2.5, horiz = TRUE, bty = "n", cex = 0.95, seg.len = 2.5)
+  legend("bottom", inset = c(0, 0.005), legend = c("n = 1000", "n = 2000"),
+         col = "grey25", lty = size_lty, lwd = 2, horiz = TRUE, bty = "n",
+         cex = 0.95, seg.len = 3)
   message("wrote ", file)
 }
 
