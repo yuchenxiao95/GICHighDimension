@@ -1,5 +1,25 @@
 # GICHighDimension <img src="man/figures/logo.png" align="right" height="139" alt="GICHighDimension logo" />
 
+## Installation
+
+Install the development version of `GICHighDimension` from GitHub:
+
+```r
+devtools::install_github("yuchenxiao95/GICHighDimension")
+```
+
+You also need Julia (≥ 1.9), which you can download from
+<https://julialang.org/downloads/>. Then connect R to Julia; the first time,
+also install the Julia packages the package uses:
+
+```r
+library(GICHighDimension)
+setup_julia()
+install_julia_packages()   # first time only
+```
+
+## Overview
+
 GICHighDimension addresses the computational barrier of solving
 $\ell_0$-penalized regression in linear models where the number of
 predictors $p$ is large, in the hundreds or even the thousands, yet smaller
@@ -30,36 +50,6 @@ criteria in the literature with different penalties $p(n, d)$:
 | CAIC | $d \frac{\sigma^2}{n} (\log n + 1)$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
 | SIC | $d \frac{\sigma^2}{n} \sqrt{n}$ | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
 
-The examples below highlight some well-known statistical properties of these
-criteria:
-
-1. In linear regression, AIC is minimax-rate optimal and BIC is consistent.
-   In the linear model figure, AIC (blue line) attains the minimax optimality
-   at the expense of many false positives.
-2. Criteria in the GIC family achieve consistency at different rates. GIC6
-   (green line) reaches the true model within two passes of the search, and
-   achieves consistency at a faster rate than BIC (orange line).
-3. Consistency is an asymptotic result. Doubling the sample size (dotted
-   lines) improves the rate of consistency.
-
-## Installation
-
-Install the development version of `GICHighDimension` from GitHub:
-
-```r
-devtools::install_github("yuchenxiao95/GICHighDimension")
-```
-
-You also need Julia (≥ 1.9), which you can download from
-<https://julialang.org/downloads/>. Then connect R to Julia; the first time,
-also install the Julia packages the package uses:
-
-```r
-library(GICHighDimension)
-setup_julia()
-install_julia_packages()   # first time only
-```
-
 ## Examples
 
 The examples below compare three criteria on the same data. In increasing
@@ -70,8 +60,7 @@ predictors. The
 (`vignette("examples")`) explains each step, and the Get started article
 (`vignette("get-started")`) lists all criteria and response families.
 
-<details>
-<summary>Helper functions used in the examples</summary>
+<!-- Helper functions used in the examples (hidden; run by data-raw/readme_figures.R)
 
 ```r
 set_seeds <- function(seed) {
@@ -107,8 +96,6 @@ selection_table <- function(fits, truth) {
 }
 ```
 
-</details>
-
 Each figure shows, for every criterion, its value and the number of selected
 variables after each search step: solid lines for $n = 1000$ and dotted lines
 for $n = 2000$. Light grey vertical lines mark a new pass over the
@@ -117,12 +104,26 @@ larger penalties take lower values, so compare the shapes of the curves, not
 their heights. The script
 [`data-raw/readme_figures.R`](data-raw/readme_figures.R) runs the code in this
 section and redraws the figures.
+-->
 
 All examples use the same setting. The design matrix $X$ has $n = 2000$
 observations of $p = 500$ independent standard normal predictors, so the
 predictor covariance is $\Sigma = I$, and only a few predictors affect the
 response. Every search runs twice, on the first 1000 observations and on all
 2000.
+
+The examples below highlight some well-known statistical properties of these
+criteria:
+
+1. In linear regression, AIC is minimax-rate optimal and BIC is consistent.
+   In the linear model figure, AIC (blue line) attains the minimax optimality
+   at the expense of many false positives.
+2. Criteria in the GIC family achieve consistency at different rates. In the
+   linear model figure, GIC6 (green line) reaches the true model within two
+   passes of the search, and achieves consistency at a faster rate than BIC
+   (orange line).
+3. Consistency is an asymptotic result. Doubling the sample size (dotted
+   lines) improves the rate of consistency.
 
 ### Linear model
 
