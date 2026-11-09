@@ -51,6 +51,13 @@ stands; later entries will list changes relative to this version.
   connects R to Julia and
   [`install_julia_packages()`](https://yuchenxiao95.github.io/IChop/reference/install_julia_packages.md)
   installs the Julia packages the package needs.
+- [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
+  and
+  [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md)
+  pass the criterion to Julia by name. Passing the function itself
+  turned it into an R wrapper that the search did not recognise, so
+  calls from R fell back to refitting every candidate model; they are
+  now 17–25 times faster ($`n = 1000`$, $`p = 500`$).
 
 ### Generalized linear models
 
@@ -62,6 +69,11 @@ stands; later entries will list changes relative to this version.
   fits the selected model. They support Normal, Bernoulli, Binomial,
   Poisson, Gamma, Exponential, InverseGaussian, NegativeBinomial,
   Geometric, MultivariateNormal and Multinomial responses.
+- Cox proportional hazards models: `LP_to_Y(family = "Cox")` simulates
+  right-censored survival times (Weibull baseline hazard, exponential
+  censoring), and `Y_to_LP(family = "Cox")` maps (time, status), or a
+  [`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html)
+  object, to the deviance residuals of the null Cox model for selection.
 - [`Generate_Beta()`](https://yuchenxiao95.github.io/IChop/reference/Generate_Beta.md)
   generates sparse coefficient vectors.
 

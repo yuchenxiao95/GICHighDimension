@@ -97,12 +97,27 @@ using canonical link functions from generalized linear models (GLMs).</p>
 adjustment so the link is finite at the boundary: logit with 0 and 1 replaced
 by 0.01 and 0.99 (Bernoulli, Binomial), and \(\log(Y + 0.1)\) for the
 log-link families. The families match <code><a href="LP_to_Y.html">LP_to_Y()</a></code>:</p>
-<table class="table table"><tr><td><strong>Family</strong></td><td><strong>Link</strong></td><td><strong>Extra arguments</strong></td></tr><tr><td>"Normal"</td><td>identity</td><td><code>std</code> (default 1)</td></tr><tr><td>"Bernoulli"</td><td>logit</td><td></td></tr><tr><td>"Binomial"</td><td>logit</td><td><code>n_trials</code> (required)</td></tr><tr><td>"Poisson"</td><td>log</td><td></td></tr><tr><td>"Gamma"</td><td>log (mean \(e^\eta\))</td><td><code>shape</code> (default 1)</td></tr><tr><td>"Exponential"</td><td>log</td><td></td></tr><tr><td>"InverseGaussian"</td><td>log</td><td><code>shape</code> (\(\lambda\), default 1)</td></tr><tr><td>"NegativeBinomial"</td><td>log</td><td><code>theta</code> (size, default 1)</td></tr><tr><td>"Geometric"</td><td>log</td><td></td></tr><tr><td>"MultivariateNormal"</td><td>identity</td><td><code>cov_matrix</code> (required)</td></tr><tr><td>"Multinomial"</td><td>baseline-category logit</td><td><code>n_categories</code> (required)</td></tr></table><p>For "Multinomial", <code>Y</code> holds categories \(1, \dots, K\) and the result is an
+<table class="table table"><tr><td><strong>Family</strong></td><td><strong>Link</strong></td><td><strong>Extra arguments</strong></td></tr><tr><td>"Normal"</td><td>identity</td><td><code>std</code> (default 1)</td></tr><tr><td>"Bernoulli"</td><td>logit</td><td></td></tr><tr><td>"Binomial"</td><td>logit</td><td><code>n_trials</code> (required)</td></tr><tr><td>"Poisson"</td><td>log</td><td></td></tr><tr><td>"Gamma"</td><td>log (mean \(e^\eta\))</td><td><code>shape</code> (default 1)</td></tr><tr><td>"Exponential"</td><td>log</td><td></td></tr><tr><td>"InverseGaussian"</td><td>log</td><td><code>shape</code> (\(\lambda\), default 1)</td></tr><tr><td>"NegativeBinomial"</td><td>log</td><td><code>theta</code> (size, default 1)</td></tr><tr><td>"Geometric"</td><td>log</td><td></td></tr><tr><td>"MultivariateNormal"</td><td>identity</td><td><code>cov_matrix</code> (required)</td></tr><tr><td>"Multinomial"</td><td>baseline-category logit</td><td><code>n_categories</code> (required)</td></tr><tr><td>"Cox"</td><td>null-model deviance residuals</td><td></td></tr></table><p>For "Cox", <code>Y</code> is an \(n \times 2\) matrix with columns time and status
+(1 = event, 0 = censored), as returned by <code>LP_to_Y(family = "Cox")</code>, or a
+<code><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">survival::Surv()</a></code> object. The result is the deviance residual of the null
+Cox model (Therneau, Grambsch and Fleming, 1990): with the Nelson-Aalen cumulative
+hazard \(\hat\Lambda_0\), the martingale residual
+\(M_i = \delta_i - \hat\Lambda_0(t_i)\) is made more symmetric as
+\(D_i = \mathrm{sign}(M_i)\sqrt{-2[M_i + \delta_i \log(\delta_i - M_i)]}\).
+It increases with the linear predictor and is meant for variable selection;
+fit the selected model with <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code>.</p>
+<p>For "Multinomial", <code>Y</code> holds categories \(1, \dots, K\) and the result is an
 \(n \times (K-1)\) matrix of baseline-category logits of the smoothed one-hot vector
 \((\mathrm{onehot}(Y_i) + 0.01)/(1 + 0.01K)\). For "Binomial", the logit is multiplied
 by <code>n_trials</code>.
 GLM stands for <em>generalized linear model</em>, a common framework for regression models.</p>
 <p>The underlying Julia logic is sourced from <code>'Y_to_LP.jl'</code>, and relies on the 'JuliaCall' interface.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990). Martingale-based
+residuals for survival models. <em>Biometrika</em>, 77(1), 147–160.
+<a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link">doi:10.1093/biomet/77.1.147</a></p>
     </div>
 
     <div class="section level2">

@@ -75,6 +75,19 @@ for the log-link families. The families match
 | "Geometric" | log |  |
 | "MultivariateNormal" | identity | `cov_matrix` (required) |
 | "Multinomial" | baseline-category logit | `n_categories` (required) |
+| "Cox" | null-model deviance residuals |  |
+
+For "Cox", `Y` is an \\n \times 2\\ matrix with columns time and status
+(1 = event, 0 = censored), as returned by `LP_to_Y(family = "Cox")`, or
+a [`survival::Surv()`](https://rdrr.io/pkg/survival/man/Surv.html)
+object. The result is the deviance residual of the null Cox model
+(Therneau, Grambsch and Fleming, 1990): with the Nelson-Aalen cumulative
+hazard \\\hat\Lambda_0\\, the martingale residual \\M_i = \delta_i -
+\hat\Lambda_0(t_i)\\ is made more symmetric as \\D_i =
+\mathrm{sign}(M_i)\sqrt{-2\[M_i + \delta_i \log(\delta_i - M_i)\]}\\. It
+increases with the linear predictor and is meant for variable selection;
+fit the selected model with
+[`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html).
 
 For "Multinomial", `Y` holds categories \\1, \dots, K\\ and the result
 is an \\n \times (K-1)\\ matrix of baseline-category logits of the
@@ -84,6 +97,13 @@ For "Binomial", the logit is multiplied by `n_trials`. GLM stands for
 
 The underlying Julia logic is sourced from `'Y_to_LP.jl'`, and relies on
 the 'JuliaCall' interface.
+
+## References
+
+Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
+Martingale-based residuals for survival models. *Biometrika*, 77(1),
+147–160.
+[doi:10.1093/biomet/77.1.147](https://doi.org/10.1093/biomet/77.1.147)
 
 ## Examples
 

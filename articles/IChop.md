@@ -496,24 +496,27 @@ system.time(
 
 This appendix compares the search with the lasso and the adaptive lasso
 on larger simulations: a high-dimensional linear model, a multivariate
-normal model, and Poisson, binomial and multinomial GLMs. Each example
-simulates $`n = 2000`$ observations on $`p = 500`$ candidate predictors
-and compares three criteria, on the first 1000 observations and on all
-2000. In increasing order of penalty per variable, the criteria are AIC
-($`c_n = 2`$), BIC ($`\log n`$) and GIC6 ($`\log n \, \log P`$). Each
-example also runs the [Boltzmann search](#boltzmann-search) with GIC6.
-The examples use the default $`T = 0.1`$, and $`T = 0.05`$ for the
-multivariate normal example and $`T = 0.005`$ for the Poisson example.
+normal model, Poisson, binomial and multinomial GLMs, and a Cox model.
+Each example simulates $`n = 2000`$ observations on $`p = 500`$
+candidate predictors and compares three criteria, on the first 1000
+observations and on all 2000. In increasing order of penalty per
+variable, the criteria are AIC ($`c_n = 2`$), BIC ($`\log n`$) and GIC6
+($`\log n \, \log P`$). Each example also runs the [Boltzmann
+search](#boltzmann-search) with GIC6. The examples use the default
+$`T = 0.1`$, and $`T = 0.05`$ for the multivariate normal example and
+$`T = 0.001`$ for the Poisson and Cox examples.
 
 The lasso and the adaptive lasso are fitted with the
 [glmnet](https://CRAN.R-project.org/package=glmnet) package (Friedman,
 Hastie and Tibshirani, 2010), using `cv.glmnet()` with 10-fold
 cross-validation and `lambda.min`, and `family = "gaussian"`,
-`"mgaussian"`, `"poisson"`, `"binomial"` or `"multinomial"` (with
-`type.multinomial = "grouped"`) to match the response. The adaptive
-lasso uses penalty factors $`1/\lVert\hat\beta_j\rVert`$ from a ridge
-(`alpha = 0`) pilot fit. Their run times are those of glmnet’s own
-fitting routines.
+`"mgaussian"`, `"poisson"` or `"binomial"` to match the response, as in
+glmnet’s own articles. The multinomial and Cox examples leave the lasso
+out: glmnet’s cross-validated fits for those families (grouped
+multinomial, and Cox) take several minutes each at this size, against
+well under a second for each search. The adaptive lasso uses penalty
+factors $`1/\lVert\hat\beta_j\rVert`$ from a ridge (`alpha = 0`) pilot
+fit. Their run times are those of glmnet’s own fitting routines.
 
 Each table reports the size, false positives and false negatives of the
 selected model, and the wall-clock time of each method in seconds (Apple
@@ -556,14 +559,14 @@ fit_boltzmann <- function(X, Y, init, k, Nsim, T) {
 lasso_coef <- function(cvfit) {
   b <- coef(cvfit, s = "lambda.min")
   b <- if (is.list(b)) do.call(cbind, lapply(b, as.matrix)) else as.matrix(b)
-  b[-1, , drop = FALSE]
+  if (rownames(b)[1] == "(Intercept)") b <- b[-1, , drop = FALSE]   # none for Cox
+  b
 }
 
-# Lasso, or adaptive lasso with ridge pilot weights, tuned by 10-fold
-# cross-validation (lambda.min)
+# Lasso, or adaptive lasso with ridge pilot weights, tuned by cv.glmnet()'s
+# default 10-fold cross-validation (lambda.min), as in glmnet's articles
 fit_lasso <- function(X, y, family, adaptive = FALSE) {
-  args <- list(X, y, family = family, foldid = rep_len(1:10, nrow(X)))
-  if (family == "multinomial") args$type.multinomial <- "grouped"
+  args <- list(X, y, family = family)
   if (adaptive) {
     ridge <- do.call(glmnet::cv.glmnet, c(args, alpha = 0))
     args$penalty.factor <- 1 / sqrt(rowSums(lasso_coef(ridge)^2))
@@ -575,18 +578,20 @@ fit_lasso <- function(X, y, family, adaptive = FALSE) {
 
 # For each n, run the search once per criterion on the first n observations,
 # then the Boltzmann search with GIC6, and the lasso and adaptive lasso on the
-# original response `lasso_y`. `T` is the Boltzmann temperature.
+# original response `lasso_y` (skipped when `lasso_family` is NULL). `T` is
+# the Boltzmann temperature.
 compare_criteria <- function(X, Y, init, k, Nsim,
                              lasso_y = Y, lasso_family = "gaussian", T = 0.1) {
   lapply(sample_sizes, function(n) {
     Xn <- X[1:n, ]
-    yn <- first_rows(lasso_y, n)
-    c(lapply(criteria, function(crit)
+    fits <- c(lapply(criteria, function(crit)
         timed(GICSelection(Xn, first_rows(Y, n), init, crit, paste0(crit, "_short"),
                            k = k, Nsim = Nsim))),
-      list(Boltzmann = timed(fit_boltzmann(Xn, first_rows(Y, n), init, k, Nsim, T)),
-           Lasso    = timed(fit_lasso(Xn, yn, lasso_family)),
-           AdaLasso = timed(fit_lasso(Xn, yn, lasso_family, adaptive = TRUE))))
+      list(Boltzmann = timed(fit_boltzmann(Xn, first_rows(Y, n), init, k, Nsim, T))))
+    if (is.null(lasso_family)) return(fits)
+    yn <- first_rows(lasso_y, n)
+    c(fits, list(Lasso    = timed(fit_lasso(Xn, yn, lasso_family)),
+                 AdaLasso = timed(fit_lasso(Xn, yn, lasso_family, adaptive = TRUE))))
   })
 }
 
@@ -640,18 +645,18 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        152       147         0    0.67
-#> n1000 BIC          8         3         0    0.59
-#> n1000 GIC6         5         0         0    0.34
-#> n1000 Boltzmann    5         0         0    0.40
-#> n1000 Lasso       47        42         0    0.80
-#> n1000 AdaLasso    84        79         0    1.64
-#> n2000 AIC        116       111         0    0.89
-#> n2000 BIC          9         4         0    0.61
-#> n2000 GIC6         5         0         0    0.61
-#> n2000 Boltzmann    5         0         0    0.77
-#> n2000 Lasso       27        22         0    0.98
-#> n2000 AdaLasso    24        19         0    2.64
+#> n1000 AIC        152       147         0    0.54
+#> n1000 BIC          8         3         0    0.54
+#> n1000 GIC6         5         0         0    0.35
+#> n1000 Boltzmann    5         0         0    0.39
+#> n1000 Lasso       22        17         0    0.82
+#> n1000 AdaLasso    25        20         0    1.63
+#> n2000 AIC        116       111         0    0.68
+#> n2000 BIC          9         4         0    0.66
+#> n2000 GIC6         5         0         0    0.63
+#> n2000 Boltzmann    5         0         0    0.62
+#> n2000 Lasso       18        13         0    0.93
+#> n2000 AdaLasso    24        19         0    2.55
 ```
 
 ![Criteria, model size and run time, linear model with p =
@@ -681,18 +686,18 @@ fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5,
                          lasso_family = "mgaussian", T = 0.05)
 selection_table(fits, true_union)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         95        72         1    0.65
-#> n1000 BIC         19         0         5    0.45
+#> n1000 AIC        102        80         2    0.52
+#> n1000 BIC         20         0         4    0.49
 #> n1000 GIC6        19         0         5    0.49
-#> n1000 Boltzmann   78        58         4    0.62
-#> n1000 Lasso      125       101         0    2.26
-#> n1000 AdaLasso    36        16         4    5.48
-#> n2000 AIC         68        44         0    0.70
-#> n2000 BIC         19         0         5    0.86
-#> n2000 GIC6        19         0         5    0.72
-#> n2000 Boltzmann  135       114         3    0.97
-#> n2000 Lasso      137       113         0    3.56
-#> n2000 AdaLasso    35        14         3    8.43
+#> n1000 Boltzmann   26         7         5    0.46
+#> n1000 Lasso      129       106         1    2.25
+#> n1000 AdaLasso    21         2         5    5.16
+#> n2000 AIC         69        45         0    0.71
+#> n2000 BIC         20         0         4    0.67
+#> n2000 GIC6        19         0         5    0.70
+#> n2000 Boltzmann   68        47         3    0.67
+#> n2000 Lasso      131       107         0    3.71
+#> n2000 AdaLasso    41        17         0    8.62
 ```
 
 ![Criteria, model size and run time, multivariate normal
@@ -712,8 +717,9 @@ set_seeds(2)
 true_cols <- c(3, 17, 42, 88, 150)
 beta <- numeric(p); beta[true_cols] <- c(1, -1, 0.8, -0.8, 0.6)
 
-# `y` is the response, `lasso_y` and `lasso_family` its form for glmnet, and
-# `...` the family arguments for Y_to_LP(); `T` is the Boltzmann temperature
+# `y` is the response, `lasso_y` and `lasso_family` its form for glmnet (NULL
+# to skip the lasso), and `...` the family arguments for Y_to_LP(); `T` is the
+# Boltzmann temperature
 compare_glm <- function(y, lasso_y, lasso_family, ..., T = 0.1)
   compare_criteria(X, Y_to_LP(y, ...), 1:10, k = 50, Nsim = 3,
                    lasso_y = lasso_y, lasso_family = lasso_family, T = T)
@@ -724,21 +730,21 @@ compare_glm <- function(y, lasso_y, lasso_family, ..., T = 0.1)
 ``` r
 
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
-fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson", T = 0.005)
+fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson", T = 0.001)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         48        43         0    0.36
-#> n1000 BIC          9         4         0    0.03
+#> n1000 AIC         48        43         0    0.40
+#> n1000 BIC          9         4         0    0.06
 #> n1000 GIC6         5         0         0    0.02
-#> n1000 Boltzmann   49        46         2    0.10
-#> n1000 Lasso       28        23         0    1.94
-#> n1000 AdaLasso     5         0         0    2.11
-#> n2000 AIC         49        45         1    0.13
-#> n2000 BIC         10         5         0    0.05
-#> n2000 GIC6         5         0         0    0.05
-#> n2000 Boltzmann   49        47         3    0.16
-#> n2000 Lasso       40        35         0    1.45
-#> n2000 AdaLasso     5         0         0    4.17
+#> n1000 Boltzmann    5         0         0    0.09
+#> n1000 Lasso       29        24         0    1.93
+#> n1000 AdaLasso     5         0         0    2.14
+#> n2000 AIC         49        44         0    0.08
+#> n2000 BIC         10         5         0    0.06
+#> n2000 GIC6         5         0         0    0.11
+#> n2000 Boltzmann    5         0         0    0.04
+#> n2000 Lasso       51        46         0    1.52
+#> n2000 AdaLasso     5         0         0    4.19
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -759,18 +765,18 @@ fits <- compare_glm(y_binom, cbind(10 - y_binom, y_binom), "binomial",
                     family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        44         0    0.15
-#> n1000 BIC         15        10         0    0.04
-#> n1000 GIC6         5         0         0    0.03
-#> n1000 Boltzmann    5         0         0    0.02
-#> n1000 Lasso       64        59         0    1.37
-#> n1000 AdaLasso    45        40         0    2.94
-#> n2000 AIC         49        46         2    0.13
-#> n2000 BIC          8         3         0    0.05
-#> n2000 GIC6         5         0         0    0.05
-#> n2000 Boltzmann    5         0         0    0.06
-#> n2000 Lasso       34        29         0    1.73
-#> n2000 AdaLasso    33        28         0    5.42
+#> n1000 AIC         49        46         2    0.21
+#> n1000 BIC          7         2         0    0.02
+#> n1000 GIC6         5         0         0    0.11
+#> n1000 Boltzmann    5         0         0    0.03
+#> n1000 Lasso       29        24         0    1.38
+#> n1000 AdaLasso    35        30         0    2.89
+#> n2000 AIC         48        46         3    0.06
+#> n2000 BIC          7         2         0    0.05
+#> n2000 GIC6         5         0         0    0.10
+#> n2000 Boltzmann    5         0         0    0.04
+#> n2000 Lasso       39        34         0    1.72
+#> n2000 AdaLasso     5         0         0    4.83
 ```
 
 ![Criteria, model size and run time, binomial
@@ -787,22 +793,17 @@ B_mn <- matrix(0, p, 2)
 B_mn[true_cols, 1] <- 1.5
 B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
 y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
-fits <- compare_glm(y_mn, y_mn, "multinomial", family = "Multinomial",
-                    n_categories = 3)
+fits <- compare_glm(y_mn, NULL, NULL, family = "Multinomial", n_categories = 3)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        45         1    0.13
-#> n1000 BIC          6         1         0    0.03
+#> n1000 AIC         49        47         3    0.13
+#> n1000 BIC          7         2         0    0.03
 #> n1000 GIC6         5         0         0    0.03
-#> n1000 Boltzmann    5         0         0    0.02
-#> n1000 Lasso      102        97         0  206.13
-#> n1000 AdaLasso   103        98         0  146.38
-#> n2000 AIC         49        46         2    0.23
-#> n2000 BIC          7         2         0    0.06
+#> n1000 Boltzmann    5         0         0    0.03
+#> n2000 AIC         49        45         1    0.15
+#> n2000 BIC          6         1         0    0.05
 #> n2000 GIC6         5         0         0    0.05
-#> n2000 Boltzmann   14         9         0    0.05
-#> n2000 Lasso       56        51         0  643.56
-#> n2000 AdaLasso    64        59         0  759.42
+#> n2000 Boltzmann   13         8         0    0.05
 ```
 
 ![Criteria, model size and run time, multinomial
@@ -810,18 +811,62 @@ response](../reference/figures/README-multinomial-runtime.png)
 
 Criteria, model size and run time, multinomial response
 
+#### Cox proportional hazards
+
+The survival times follow a Cox model,
+$`h(t \mid x) = h_0(t)\, e^{x^\top\beta}`$, with the same $`\beta`$, an
+exponential baseline hazard $`h_0(t) = 1`$ and independent exponential
+censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` (Bender,
+Augustin and Blettner, 2005). For the searches,
+[`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
+maps each (time, status) pair to the deviance residual of the null Cox
+model (Therneau, Grambsch and Fleming, 1990), which increases with the
+linear predictor. The selected model is then fitted with
+[`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html).
+
+``` r
+
+y_cox <- LP_to_Y(X, beta, family = "Cox", censor_rate = 0.3)
+mean(y_cox[, "status"] == 0)       # share of censored observations
+#> [1] 0.31
+y_surv <- survival::Surv(y_cox[, "time"], y_cox[, "status"])
+fits <- compare_glm(y_cox, NULL, NULL, family = "Cox", T = 0.001)
+selection_table(fits, true_cols)
+#>                 size false_pos false_neg seconds
+#> n1000 AIC         49        47         3    0.66
+#> n1000 BIC          9         4         0    0.03
+#> n1000 GIC6         5         0         0    0.02
+#> n1000 Boltzmann    5         0         0    0.02
+#> n2000 AIC         49        46         2    0.12
+#> n2000 BIC         11         6         0    0.04
+#> n2000 GIC6         5         0         0    0.04
+#> n2000 Boltzmann    5         0         0    0.05
+
+# Coefficients of the GIC6 model for n = 2000, from survival::coxph()
+round(unname(coef(survival::coxph(y_surv ~ X[, last_model(fits$n2000$GIC6)]))), 2)
+#> [1]  0.97 -0.99  0.80 -0.84  0.59
+```
+
+![Criteria, model size and run time, Cox
+model](../reference/figures/README-cox-runtime.png)
+
+Criteria, model size and run time, Cox model
+
 GIC6 has no false positives in any example. It recovers the true model
 exactly in every example except the multivariate normal one, where it
 misses 5 of the 24 true variables. AIC and the lasso keep many noise
 variables in most examples. GIC6 is also faster than the lasso in every
-example, and for the multinomial response by more than three orders of
-magnitude.
+example that fits both, by a factor of about 1.5 to 100.
 
 ## References
 
 Akaike, H. (1974). A new look at the statistical model identification.
 *IEEE Transactions on Automatic Control*, 19(6), 716–723.
 <https://doi.org/10.1109/TAC.1974.1100705>
+
+Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival
+times to simulate Cox proportional hazards models. *Statistics in
+Medicine*, 24(11), 1713–1723. <https://doi.org/10.1002/sim.2059>
 
 Bozdogan, H. (1987). Model selection and Akaike’s information criterion
 (AIC): The general theory and its analytical extensions.
@@ -850,6 +895,10 @@ Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
 Shao, J. (1997). An asymptotic theory for linear model selection.
 *Statistica Sinica*, 7(2), 221–264.
 <https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm>
+
+Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
+Martingale-based residuals for survival models. *Biometrika*, 77(1),
+147–160. <https://doi.org/10.1093/biomet/77.1.147>
 
 Xiao, Y. and Walker, S. (2026). Fast variable selection under $`\ell_0`$
 regularization in high-dimensions. *Statistics and Computing*, 36(3),

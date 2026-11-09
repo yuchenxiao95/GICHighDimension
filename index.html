@@ -205,8 +205,9 @@ z_j(t+1) = \mathbf{1}\left\lbrace
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>The examples below compare three criteria on the same data. In increasing order of penalty per variable, they are AIC (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_n = 2</annotation></semantics></math>), BIC (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>) and GIC6 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \log P</annotation></semantics></math>), where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math> is the number of candidate predictors.</p>
-<p>Each table reports the size, false positives and false negatives of the selected model.</p>
+<p>The examples below compare three criteria on the same data. In increasing order of penalty per variable, they are AIC (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_n = 2</annotation></semantics></math>), BIC (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>) and GIC6 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">\log n \log P</annotation></semantics></math>), where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math> is the number of candidate predictors. Each example also runs the Boltzmann search (<code><a href="reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code>) with GIC6, which accepts a move that lowers the criterion by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math> with probability <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mi mathvariant="normal">Δ</mi><mi>/</mi><mi>T</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1/(1 + e^{\Delta/T})</annotation></semantics></math>, so it can leave a local optimum. The temperature <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math> is a tuning parameter: the size of a criterion change differs between models, so the same <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math> can be almost greedy in one example and too permissive in another. The examples use the default <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">T = 0.05</annotation></semantics></math> for the multivariate normal example and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math> for the Poisson and Cox examples.</p>
+<p>For reference, the examples also fit the lasso and the adaptive lasso with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package (Friedman, Hastie and Tibshirani, 2010), using <code>cv.glmnet()</code> with 10-fold cross-validation and <code>lambda.min</code>, and <code>family = "gaussian"</code>, <code>"mgaussian"</code>, <code>"poisson"</code> or <code>"binomial"</code> to match the response, as in glmnet’s own articles. The multinomial and Cox examples leave the lasso out: glmnet’s cross-validated fits for those families (grouped multinomial, and Cox) take several minutes each at this size, against well under a second for each search. The adaptive lasso uses penalty factors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">‖</mo><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">‖</mo></mrow></mrow><annotation encoding="application/x-tex">1/\lVert\hat\beta_j\rVert</annotation></semantics></math> from a ridge (<code>alpha = 0</code>) pilot fit. Their run times are those of glmnet’s own fitting routines.</p>
+<p>Each table reports the size, false positives and false negatives of the selected model, and the wall-clock time of each method in seconds (Apple M-series laptop, Julia 1.11, after Julia has compiled; the search times include copying the data from R to Julia). The right-hand panel of each figure shows the same times, and the middle panel also shows the lasso paths: the number of nonzero coefficients along the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> grid, from the smallest <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> on the left to the largest on the right.</p>
 <!-- Helper functions used in the examples (hidden; run by data-raw/readme_figures.R)
 
 ```r
@@ -218,28 +219,76 @@ set_seeds <- function(seed) {
 criteria <- c(AIC = "Calculate_AIC", BIC = "Calculate_BIC", GIC6 = "Calculate_GIC6")
 sample_sizes <- c(n1000 = 1000, n2000 = 2000)
 
-# Run the search once per criterion, on the first n observations for each n
-compare_criteria <- function(X, Y, init, k, Nsim) {
+first_rows <- function(Y, n) if (is.matrix(Y)) Y[1:n, , drop = FALSE] else Y[1:n]
+
+# Evaluate `expr` and attach its wall-clock time in seconds
+timed <- function(expr) {
+  t0 <- proc.time()[["elapsed"]]
+  fit <- expr
+  fit$seconds <- proc.time()[["elapsed"]] - t0
+  fit
+}
+
+# Boltzmann search with GIC6: like GICSelection(), but a move that lowers the
+# criterion is still accepted with a small probability; same output shape
+fit_boltzmann <- function(X, Y, init, k, Nsim, T) {
+  fit <- GICSelectionBoltzmann(X, Y, init, "Calculate_GIC6", "Calculate_GIC6_short",
+                               T = T, k = k, Nsim = Nsim)
+  list(GIC_values = fit$GIC_list, selected_coeffs = fit$GIC_coeff)
+}
+
+# Coefficients at lambda.min without the intercept, one column per response
+lasso_coef <- function(cvfit) {
+  b <- coef(cvfit, s = "lambda.min")
+  b <- if (is.list(b)) do.call(cbind, lapply(b, as.matrix)) else as.matrix(b)
+  if (rownames(b)[1] == "(Intercept)") b <- b[-1, , drop = FALSE]   # none for Cox
+  b
+}
+
+# Lasso, or adaptive lasso with ridge pilot weights, tuned by cv.glmnet()'s
+# default 10-fold cross-validation (lambda.min), as in glmnet's articles
+fit_lasso <- function(X, y, family, adaptive = FALSE) {
+  args <- list(X, y, family = family)
+  if (adaptive) {
+    ridge <- do.call(glmnet::cv.glmnet, c(args, alpha = 0))
+    args$penalty.factor <- 1 / sqrt(rowSums(lasso_coef(ridge)^2))
+  }
+  cvfit <- do.call(glmnet::cv.glmnet, args)
+  list(selected = which(rowSums(lasso_coef(cvfit) != 0) > 0),
+       path = cvfit$nzero)        # number of predictors at each lambda
+}
+
+# For each n, run the search once per criterion on the first n observations,
+# then the Boltzmann search with GIC6, and the lasso and adaptive lasso on the
+# original response `lasso_y` (skipped when `lasso_family` is NULL). `T` is
+# the Boltzmann temperature.
+compare_criteria <- function(X, Y, init, k, Nsim,
+                             lasso_y = Y, lasso_family = "gaussian", T = 0.1) {
   lapply(sample_sizes, function(n) {
     Xn <- X[1:n, ]
-    Yn <- if (is.matrix(Y)) Y[1:n, , drop = FALSE] else Y[1:n]
-    lapply(criteria, function(crit)
-      GICSelection(Xn, Yn, init, crit, paste0(crit, "_short"), k = k, Nsim = Nsim))
+    fits <- c(lapply(criteria, function(crit)
+        timed(GICSelection(Xn, first_rows(Y, n), init, crit, paste0(crit, "_short"),
+                           k = k, Nsim = Nsim))),
+      list(Boltzmann = timed(fit_boltzmann(Xn, first_rows(Y, n), init, k, Nsim, T))))
+    if (is.null(lasso_family)) return(fits)
+    yn <- first_rows(lasso_y, n)
+    c(fits, list(Lasso    = timed(fit_lasso(Xn, yn, lasso_family)),
+                 AdaLasso = timed(fit_lasso(Xn, yn, lasso_family, adaptive = TRUE))))
   })
 }
 
 last_model <- function(fit) sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
 
-# Size, false positives and false negatives of each final model
+# Size, false positives, false negatives and run time of each final model
 selection_table <- function(fits, truth) {
-  rows <- lapply(fits, function(by_crit) t(sapply(by_crit, function(fit) {
-    s <- last_model(fit)
-    c(size = length(s), false_pos = length(setdiff(s, truth)),
-      false_neg = length(setdiff(truth, s)))
+  rows <- lapply(names(fits), function(n) do.call(rbind, lapply(names(fits[[n]]), function(m) {
+    fit <- fits[[n]][[m]]
+    s <- if (is.null(fit[["selected"]])) last_model(fit) else fit[["selected"]]
+    data.frame(size = length(s), false_pos = length(setdiff(s, truth)),
+               false_neg = length(setdiff(truth, s)), seconds = round(fit$seconds, 2),
+               row.names = paste(n, m))
   })))
-  out <- do.call(rbind, rows)
-  rownames(out) <- paste(rep(names(fits), each = length(fits[[1]])), rownames(out))
-  out
+  do.call(rbind, rows)
 }
 ```
 
@@ -273,15 +322,21 @@ section and redraws the figures.
 <span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC   152       147         0</span></span>
-<span><span class="co">#&gt; n1000 BIC     8         3         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC   107       102         0</span></span>
-<span><span class="co">#&gt; n2000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span></code></pre></div>
+<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
+<span><span class="co">#&gt; n1000 AIC        152       147         0    0.54</span></span>
+<span><span class="co">#&gt; n1000 BIC          8         3         0    0.54</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.35</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.39</span></span>
+<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.82</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.63</span></span>
+<span><span class="co">#&gt; n2000 AIC        116       111         0    0.68</span></span>
+<span><span class="co">#&gt; n2000 BIC          9         4         0    0.66</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.63</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.62</span></span>
+<span><span class="co">#&gt; n2000 Lasso       18        13         0    0.93</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    24        19         0    2.55</span></span></code></pre></div>
 <div class="float">
-<img src="reference/figures/README-linear-log.png" alt="Criteria and model size along the search, linear model with p = 500"><div class="figcaption">Criteria and model size along the search, linear model with p = 500</div>
+<img src="reference/figures/README-linear-runtime.png" alt="Criteria, model size and run time, linear model with p = 500"><div class="figcaption">Criteria, model size and run time, linear model with p = 500</div>
 </div>
 </div>
 <div class="section level3">
@@ -300,17 +355,24 @@ section and redraws the figures.
 <span><span class="va">Y_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B</span>, family <span class="op">=</span> <span class="st">"MultivariateNormal"</span>, cov_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">true_union</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">true_by_response</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y_multi</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                         lasso_family <span class="op">=</span> <span class="st">"mgaussian"</span>, T <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    90        67         1</span></span>
-<span><span class="co">#&gt; n1000 BIC    20         0         4</span></span>
-<span><span class="co">#&gt; n1000 GIC6   19         0         5</span></span>
-<span><span class="co">#&gt; n2000 AIC    76        53         1</span></span>
-<span><span class="co">#&gt; n2000 BIC    20         0         4</span></span>
-<span><span class="co">#&gt; n2000 GIC6   19         0         5</span></span></code></pre></div>
+<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
+<span><span class="co">#&gt; n1000 AIC        102        80         2    0.52</span></span>
+<span><span class="co">#&gt; n1000 BIC         20         0         4    0.49</span></span>
+<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.49</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.46</span></span>
+<span><span class="co">#&gt; n1000 Lasso      129       106         1    2.25</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    21         2         5    5.16</span></span>
+<span><span class="co">#&gt; n2000 AIC         69        45         0    0.71</span></span>
+<span><span class="co">#&gt; n2000 BIC         20         0         4    0.67</span></span>
+<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.70</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.67</span></span>
+<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.71</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.62</span></span></code></pre></div>
 <div class="float">
-<img src="reference/figures/README-multivariate-log.png" alt="Criteria and model size along the search, multivariate normal response"><div class="figcaption">Criteria and model size along the search, multivariate normal response</div>
+<img src="reference/figures/README-multivariate-runtime.png" alt="Criteria, model size and run time, multivariate normal response"><div class="figcaption">Criteria, model size and run time, multivariate normal response</div>
 </div>
 </div>
 <div class="section level3">
@@ -322,27 +384,38 @@ section and redraws the figures.
 <span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">17</span>, <span class="fl">42</span>, <span class="fl">88</span>, <span class="fl">150</span><span class="op">)</span></span>
 <span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>; <span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="fl">0.6</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">compare_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># `y` is the response, `lasso_y` and `lasso_family` its form for glmnet (NULL</span></span>
+<span><span class="co"># to skip the lasso), and `...` the family arguments for Y_to_LP(); `T` is the</span></span>
+<span><span class="co"># Boltzmann temperature</span></span>
+<span><span class="va">compare_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">lasso_y</span>, <span class="va">lasso_family</span>, <span class="va">...</span>, <span class="va">T</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span>  <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                   lasso_y <span class="op">=</span> <span class="va">lasso_y</span>, lasso_family <span class="op">=</span> <span class="va">lasso_family</span>, T <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="poisson-regression">Poisson regression<a class="anchor" aria-label="anchor" href="#poisson-regression"></a>
 </h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_pois</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, <span class="va">y_pois</span>, <span class="st">"poisson"</span>, family <span class="op">=</span> <span class="st">"Poisson"</span>, T <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    48        43         0</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        44         0</span></span>
-<span><span class="co">#&gt; n2000 BIC    10         5         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span>
+<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
+<span><span class="co">#&gt; n1000 AIC         48        43         0    0.40</span></span>
+<span><span class="co">#&gt; n1000 BIC          9         4         0    0.06</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.09</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.93</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.14</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        44         0    0.08</span></span>
+<span><span class="co">#&gt; n2000 BIC         10         5         0    0.06</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.11</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 Lasso       51        46         0    1.52</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.19</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, intercept first</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] -0.03  1.00 -1.01  0.79 -0.80  0.62</span></span></code></pre></div>
 <div class="float">
-<img src="reference/figures/README-poisson.png" alt="Criteria and model size along the search, Poisson response"><div class="figcaption">Criteria and model size along the search, Poisson response</div>
+<img src="reference/figures/README-poisson-runtime.png" alt="Criteria, model size and run time, Poisson response"><div class="figcaption">Criteria, model size and run time, Poisson response</div>
 </div>
 </div>
 <div class="section level4">
@@ -350,17 +423,24 @@ section and redraws the figures.
 </h4>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_binom</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_binom</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">-</span> <span class="va">y_binom</span>, <span class="va">y_binom</span><span class="op">)</span>, <span class="st">"binomial"</span>,</span>
+<span>                    family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        44         0</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        45         1</span></span>
-<span><span class="co">#&gt; n2000 BIC     8         3         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span></code></pre></div>
+<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        46         2    0.21</span></span>
+<span><span class="co">#&gt; n1000 BIC          7         2         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.11</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.03</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.38</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.89</span></span>
+<span><span class="co">#&gt; n2000 AIC         48        46         3    0.06</span></span>
+<span><span class="co">#&gt; n2000 BIC          7         2         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.10</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 Lasso       39        34         0    1.72</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.83</span></span></code></pre></div>
 <div class="float">
-<img src="reference/figures/README-binomial.png" alt="Criteria and model size along the search, binomial response"><div class="figcaption">Criteria and model size along the search, binomial response</div>
+<img src="reference/figures/README-binomial-runtime.png" alt="Criteria, model size and run time, binomial response"><div class="figcaption">Criteria, model size and run time, binomial response</div>
 </div>
 </div>
 <div class="section level4">
@@ -372,20 +452,68 @@ section and redraws the figures.
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="va">y_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            size false_pos false_neg</span></span>
-<span><span class="co">#&gt; n1000 AIC    49        47         3</span></span>
-<span><span class="co">#&gt; n1000 BIC     9         4         0</span></span>
-<span><span class="co">#&gt; n1000 GIC6    5         0         0</span></span>
-<span><span class="co">#&gt; n2000 AIC    49        44         0</span></span>
-<span><span class="co">#&gt; n2000 BIC     8         3         0</span></span>
-<span><span class="co">#&gt; n2000 GIC6    5         0         0</span></span></code></pre></div>
+<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        47         3    0.13</span></span>
+<span><span class="co">#&gt; n1000 BIC          7         2         0    0.03</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.03</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.03</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        45         1    0.15</span></span>
+<span><span class="co">#&gt; n2000 BIC          6         1         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann   13         8         0    0.05</span></span></code></pre></div>
 <div class="float">
-<img src="reference/figures/README-multinomial.png" alt="Criteria and model size along the search, multinomial response"><div class="figcaption">Criteria and model size along the search, multinomial response</div>
+<img src="reference/figures/README-multinomial-runtime.png" alt="Criteria, model size and run time, multinomial response"><div class="figcaption">Criteria, model size and run time, multinomial response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="cox-proportional-hazards">Cox proportional hazards<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards"></a>
+</h4>
+<p>The survival times follow a Cox model, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>∣</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>h</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><msup><mi>x</mi><mi>⊤</mi></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">h(t \mid x) = h_0(t)\, e^{x^\top\beta}</annotation></semantics></math>, with the same <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>, an exponential baseline hazard <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">h_0(t) = 1</annotation></semantics></math> and independent exponential censoring at rate 0.3, simulated by <code>LP_to_Y(family = "Cox")</code> (Bender, Augustin and Blettner, 2005). For the searches, <code><a href="reference/Y_to_LP.html">Y_to_LP()</a></code> maps each (time, status) pair to the deviance residual of the null Cox model (Therneau, Grambsch and Fleming, 1990), which increases with the linear predictor. The selected model is then fitted with <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Cox"</span>, censor_rate <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y_cox</span><span class="op">[</span>, <span class="st">"status"</span><span class="op">]</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>       <span class="co"># share of censored observations</span></span>
+<span><span class="co">#&gt; [1] 0.31</span></span>
+<span><span class="va">y_surv</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">y_cox</span><span class="op">[</span>, <span class="st">"time"</span><span class="op">]</span>, <span class="va">y_cox</span><span class="op">[</span>, <span class="st">"status"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_cox</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>, family <span class="op">=</span> <span class="st">"Cox"</span>, T <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        47         3    0.66</span></span>
+<span><span class="co">#&gt; n1000 BIC          9         4         0    0.03</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        46         2    0.12</span></span>
+<span><span class="co">#&gt; n2000 BIC         11         6         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.05</span></span>
+<span></span>
+<span><span class="co"># Coefficients of the GIC6 model for n = 2000, from survival::coxph()</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="va">y_surv</span> <span class="op">~</span> <span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]  0.97 -0.99  0.80 -0.84  0.59</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-cox-runtime.png" alt="Criteria, model size and run time, Cox model"><div class="figcaption">Criteria, model size and run time, Cox model</div>
 </div>
 </div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
+</h2>
+<p>Claude Code identified two slowdowns in the variable-selection search and fixed both, with the same variables selected at every step:</p>
+<ul>
+<li>
+<strong>The search rebuilt the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math> hat matrix for every proposed move.</strong> Version 0.1.2 formed <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><msub><mi>X</mi><mi>S</mi></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup></mrow><annotation encoding="application/x-tex">H = X_S (X_S^\top X_S)^{-1} X_S^\top</annotation></semantics></math> to score each add or remove, at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2 K)</annotation></semantics></math> cost per move. Claude Code updated the search to compute every criterion from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>⊤</mi></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">X^\top Y</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">(X_S^\top X_S)^{-1}</annotation></semantics></math> and to score each move with a rank-one update, at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>K</mi><mo>+</mo><msup><mi>K</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(nK + K^2)</annotation></semantics></math> cost, which results in a 38–371× speedup of the Julia search on simulated data. See the <a href="vignettes/performance.Rmd">Performance article</a> for the details.</li>
+<li>
+<strong>Calls from R did not use the fast search.</strong> <code><a href="reference/GICSelection.html">GICSelection()</a></code> and <code><a href="reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code> passed the criterion to Julia as a function, which arrived as an R-wrapped object that the search did not recognise, so it fell back to refitting every candidate model and calling back into R. Claude Code updated the R functions to pass the criterion by name, which results in a 17–25× speedup of <code><a href="reference/GICSelection.html">GICSelection()</a></code> from R (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>, starting from all 500 predictors).</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival times to simulate Cox proportional hazards models. <em>Statistics in Medicine</em>, 24(11), 1713–1723. <a href="https://doi.org/10.1002/sim.2059" class="external-link uri">https://doi.org/10.1002/sim.2059</a></p>
+<p>Friedman, J., Hastie, T. and Tibshirani, R. (2010). Regularization paths for generalized linear models via coordinate descent. <em>Journal of Statistical Software</em>, 33(1), 1–22. <a href="https://doi.org/10.18637/jss.v033.i01" class="external-link uri">https://doi.org/10.18637/jss.v033.i01</a></p>
+<p>Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990). Martingale-based residuals for survival models. <em>Biometrika</em>, 77(1), 147–160. <a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link uri">https://doi.org/10.1093/biomet/77.1.147</a></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

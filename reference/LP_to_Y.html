@@ -52,7 +52,9 @@ generalized linear models (GLMs). Supports univariate and multivariate distribut
 <span>  shape <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  theta <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cov_matrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n_categories <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  n_categories <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  baseline_rate <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  censor_rate <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,20 +97,43 @@ generalized linear models (GLMs). Supports univariate and multivariate distribut
 <dt id="arg-n-categories">n_categories<a class="anchor" aria-label="anchor" href="#arg-n-categories"></a></dt>
 <dd><p>Optional integer, number of categories for Multinomial family.</p></dd>
 
+
+<dt id="arg-baseline-rate">baseline_rate<a class="anchor" aria-label="anchor" href="#arg-baseline-rate"></a></dt>
+<dd><p>Optional baseline hazard rate \(\lambda\) for "Cox" (default 1);
+<code>shape</code> is its Weibull shape \(\nu\) (default 1).</p></dd>
+
+
+<dt id="arg-censor-rate">censor_rate<a class="anchor" aria-label="anchor" href="#arg-censor-rate"></a></dt>
+<dd><p>Optional rate of the exponential censoring times for "Cox"
+(default 0.3; 0 means no censoring).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A numeric vector of responses (integer categories for "Multinomial"), or an
-\(n \times q\) matrix for "MultivariateNormal".</p>
+    <p>A numeric vector of responses (integer categories for "Multinomial"), an
+\(n \times q\) matrix for "MultivariateNormal", or an \(n \times 2\)
+matrix with columns <code>time</code> and <code>status</code> (1 = event) for "Cox".</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Simulates responses from the linear predictor \(\eta = X\beta\) using the
 'Julia' backend. The supported families and links (the same as in
 <code><a href="Y_to_LP.html">Y_to_LP()</a></code> and <code><a href="Beta_estimate.html">Beta_estimate()</a></code>) are:</p>
-<table class="table table"><tr><td><strong>Family</strong></td><td><strong>Link</strong></td><td><strong>Extra arguments</strong></td></tr><tr><td>"Normal"</td><td>identity</td><td><code>std</code> (default 1)</td></tr><tr><td>"Bernoulli"</td><td>logit</td><td></td></tr><tr><td>"Binomial"</td><td>logit</td><td><code>n_trials</code> (required)</td></tr><tr><td>"Poisson"</td><td>log</td><td></td></tr><tr><td>"Gamma"</td><td>log (mean \(e^\eta\))</td><td><code>shape</code> (default 1)</td></tr><tr><td>"Exponential"</td><td>log</td><td></td></tr><tr><td>"InverseGaussian"</td><td>log</td><td><code>shape</code> (\(\lambda\), default 1)</td></tr><tr><td>"NegativeBinomial"</td><td>log</td><td><code>theta</code> (size, default 1)</td></tr><tr><td>"Geometric"</td><td>log</td><td></td></tr><tr><td>"MultivariateNormal"</td><td>identity</td><td><code>cov_matrix</code> (required)</td></tr><tr><td>"Multinomial"</td><td>baseline-category logit</td><td><code>n_categories</code> (required)</td></tr></table><p>For "MultivariateNormal", <code>true_beta</code> is a \(p \times q\) matrix; for
+<table class="table table"><tr><td><strong>Family</strong></td><td><strong>Link</strong></td><td><strong>Extra arguments</strong></td></tr><tr><td>"Normal"</td><td>identity</td><td><code>std</code> (default 1)</td></tr><tr><td>"Bernoulli"</td><td>logit</td><td></td></tr><tr><td>"Binomial"</td><td>logit</td><td><code>n_trials</code> (required)</td></tr><tr><td>"Poisson"</td><td>log</td><td></td></tr><tr><td>"Gamma"</td><td>log (mean \(e^\eta\))</td><td><code>shape</code> (default 1)</td></tr><tr><td>"Exponential"</td><td>log</td><td></td></tr><tr><td>"InverseGaussian"</td><td>log</td><td><code>shape</code> (\(\lambda\), default 1)</td></tr><tr><td>"NegativeBinomial"</td><td>log</td><td><code>theta</code> (size, default 1)</td></tr><tr><td>"Geometric"</td><td>log</td><td></td></tr><tr><td>"MultivariateNormal"</td><td>identity</td><td><code>cov_matrix</code> (required)</td></tr><tr><td>"Multinomial"</td><td>baseline-category logit</td><td><code>n_categories</code> (required)</td></tr><tr><td>"Cox"</td><td>log hazard</td><td><code>baseline_rate</code>, <code>shape</code>, <code>censor_rate</code></td></tr></table><p>For "MultivariateNormal", <code>true_beta</code> is a \(p \times q\) matrix; for
 "Multinomial" it is \(p \times (K-1)\) and the last category is the baseline.
 GLM stands for <em>generalized linear model</em>.</p>
+<p>For "Cox", survival times follow a Cox proportional hazards model with
+Weibull baseline hazard \(h_0(t) = \lambda \nu t^{\nu - 1}\), simulated by
+inverting the survival function (Bender, Augustin and Blettner, 2005):
+\(T = (-\log U / (\lambda e^{\eta}))^{1/\nu}\) with \(U \sim U(0, 1)\).
+Times are censored by independent exponential times with rate
+<code>censor_rate</code>. <code>shape</code> = 1 gives an exponential baseline.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival times to
+simulate Cox proportional hazards models. <em>Statistics in Medicine</em>,
+24(11), 1713–1723. <a href="https://doi.org/10.1002/sim.2059" class="external-link">doi:10.1002/sim.2059</a></p>
     </div>
 
     <div class="section level2">
