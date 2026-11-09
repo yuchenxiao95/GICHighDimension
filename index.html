@@ -50,6 +50,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICVariableSelection" aria-label="GICVariableSelection, the Julia version of this package">Julia package</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICHighDimension/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
@@ -74,6 +75,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yuchenxiao95/GICHighDimension" class="external-link">GICHighDimension</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/setup_julia.html">setup_julia</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/install_julia_packages.html">install_julia_packages</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># first time only</span></span></code></pre></div>
+<p>The same methods are available as a Julia package, <a href="https://github.com/yuchenxiao95/GICVariableSelection" class="external-link">GICVariableSelection</a>, if you would rather work in Julia directly.</p>
 </div>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
@@ -127,7 +129,7 @@ z_j(t+1) = \mathbf{1}\left\lbrace
   \frac{1}{n} y^\top H_d y - p(n, d) \right\rbrace .
 </annotation></semantics></math></p>
 <p>This establishes a connection between the expected out-of-sample MSE and the energy function of the Hopfield network for associative memory, where the stable local minima in the energy function of the Hopfield network correspond to optimal sparse solutions.</p>
-<p>AIC is minimax-rate optimal but inconsistent when a true model exists; criteria with stronger penalties achieve consistency. Table 1 lists selected criteria in the literature with different penalties <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>,</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(n, d)</annotation></semantics></math>:</p>
+<p>AIC is minimax-rate optimal but inconsistent when a true model exists; criteria with stronger penalties achieve consistency. Table 1 lists the criteria in the package and their penalties <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>,</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(n, d)</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math> is the number of selected variables and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math> the number of candidate predictors:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -152,27 +154,27 @@ z_j(t+1) = \mathbf{1}\left\lbrace
 </tr>
 <tr>
 <td align="left">GIC2</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><msup><mi>d</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} d^{1/3}</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><msup><mi>P</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} P^{1/3}</annotation></semantics></math></td>
 <td align="left"><a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim et al. (2012)</a></td>
 </tr>
 <tr>
 <td align="left">GIC3</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">2d \frac{\sigma^2}{n} \log d</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">2d \frac{\sigma^2}{n} \log P</annotation></semantics></math></td>
 <td align="left"><a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim et al. (2012)</a></td>
 </tr>
 <tr>
 <td align="left">GIC4</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>d</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>d</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2d \frac{\sigma^2}{n} (\log d + \log\log d)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2d \frac{\sigma^2}{n} (\log P + \log\log P)</annotation></semantics></math></td>
 <td align="left"><a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim et al. (2012)</a></td>
 </tr>
 <tr>
 <td align="left">GIC5</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} \log\log n \log d</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} \log\log n \log P</annotation></semantics></math></td>
 <td align="left"><a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim et al. (2012)</a></td>
 </tr>
 <tr>
 <td align="left">GIC6</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} \log n \log d</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} \log n \log P</annotation></semantics></math></td>
 <td align="left"><a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link">Kim et al. (2012)</a></td>
 </tr>
 <tr>
@@ -185,8 +187,25 @@ z_j(t+1) = \mathbf{1}\left\lbrace
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><msqrt><mi>n</mi></msqrt></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} \sqrt{n}</annotation></semantics></math></td>
 <td align="left"><a href="https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm" class="external-link">Shao (1997)</a></td>
 </tr>
+<tr>
+<td align="left">AICc</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mrow><mi>n</mi><mo>−</mo><mi>d</mi><mo>−</mo><mn>2</mn></mrow></mfrac></mrow><annotation encoding="application/x-tex">(d + 1) \frac{\sigma^2}{n - d - 2}</annotation></semantics></math></td>
+<td align="left"><a href="https://doi.org/10.1093/biomet/76.2.297" class="external-link">Hurvich and Tsai (1989)</a></td>
+</tr>
+<tr>
+<td align="left">CAICF</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">det</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>d</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>d</mi></msub><mi>/</mi><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} (\log n + 1) + \frac{\sigma^2}{n} \log\det(X_d^\top X_d / \sigma^2)</annotation></semantics></math></td>
+<td align="left"><a href="https://doi.org/10.1007/BF02294361" class="external-link">Bozdogan (1987)</a></td>
+</tr>
+<tr>
+<td align="left">EBIC</td>
+<td align="left">
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>n</mi></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="normal">log</mi><mi>n</mi><mo>+</mo><mi>γ</mi><mi mathvariant="normal">log</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>P</mi><mi>d</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{P}{d}\right)</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>0.6</mn></mrow><annotation encoding="application/x-tex">\gamma = 0.6</annotation></semantics></math> by default</td>
+<td align="left"><a href="https://doi.org/10.1093/biomet/asn034" class="external-link">Chen and Chen (2008)</a></td>
+</tr>
 </tbody>
 </table>
+<p>The package also provides AttIC, an attention-weighted criterion specific to this package: it replaces the fit term <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mi>n</mi></mfrac><msup><mi>y</mi><mi>⊤</mi></msup><msub><mi>H</mi><mi>d</mi></msub><mi>y</mi></mrow><annotation encoding="application/x-tex">\frac{1}{n} y^\top H_d y</annotation></semantics></math> with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>y</mi><mi>⊤</mi></msup><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">x</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>H</mi><mi>d</mi></msub><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y^\top \mathrm{softmax}(H_d y)</annotation></semantics></math> and uses the SIC penalty. Each criterion is available as <code>Calculate_&lt;name&gt;</code> (for example <code>Calculate_GIC6</code> or <code>Calculate_AICc</code>); see <code><a href="reference/information_criteria.html">?information_criteria</a></code> for full citations.</p>
 </div>
 </div>
 <div class="section level2">

@@ -24,6 +24,7 @@
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICVariableSelection" aria-label="GICVariableSelection, the Julia version of this package">Julia package</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICHighDimension/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
@@ -61,7 +62,25 @@
       </dl></div><div class="section level2">
       <h2 id="information-criteria">Information criteria<a class="anchor" aria-label="anchor" href="#information-criteria"></a></h2>
 
-      <div class="section-desc"><p>AIC, BIC, EBIC, GIC2–GIC6 and related criteria. Pass the name of a criterion (and of its <code>_short</code> version) to <code><a href="../reference/GICSelection.html">GICSelection()</a></code>, or call these functions directly to score a single model.</p></div>
+      <div class="section-desc"><p>Pass the name of a criterion to <code><a href="../reference/GICSelection.html">GICSelection()</a></code>, or call these functions directly to score a single model. The supported criteria are:</p><ul><li>
+<strong>AIC</strong>: Akaike information criterion (Akaike, 1974)</li>
+<li>
+<strong>AICc</strong>: AIC corrected for small samples (Hurvich and Tsai, 1989)</li>
+<li>
+<strong>BIC</strong>: Bayesian information criterion (Schwarz, 1978)</li>
+<li>
+<strong>CAIC</strong>: consistent AIC (Bozdogan, 1987)</li>
+<li>
+<strong>CAICF</strong>: consistent AIC with Fisher information (Bozdogan, 1987)</li>
+<li>
+<strong>SIC</strong>: square-root information criterion (Shao, 1997; Xiao and Walker, 2026)</li>
+<li>
+<strong>GIC2–GIC6</strong>: generalized information criteria for high dimensions (Kim, Kwon and Choi, 2012)</li>
+<li>
+<strong>EBIC</strong>: extended BIC (Chen and Chen, 2008)</li>
+<li>
+<strong>AttIC</strong>: attention-weighted criterion, specific to this package</li>
+</ul><p>Full citations are on the <code>information_criteria</code> help page.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -70,7 +89,7 @@
 
       <dl><dt>
 
-          <code><a href="information_criteria.html">Calculate_AIC()</a></code> <code><a href="information_criteria.html">Calculate_AICc()</a></code> <code><a href="information_criteria.html">Calculate_AttIC()</a></code> <code><a href="information_criteria.html">Calculate_SIC()</a></code> <code><a href="information_criteria.html">Calculate_BIC()</a></code> <code><a href="information_criteria.html">Calculate_CAIC()</a></code> <code><a href="information_criteria.html">Calculate_CAICF()</a></code> <code><a href="information_criteria.html">Calculate_EBIC()</a></code> <code><a href="information_criteria.html">Calculate_GIC2()</a></code> <code><a href="information_criteria.html">Calculate_GIC3()</a></code> <code><a href="information_criteria.html">Calculate_GIC4()</a></code> <code><a href="information_criteria.html">Calculate_GIC5()</a></code> <code><a href="information_criteria.html">Calculate_GIC6()</a></code> <code><a href="information_criteria.html">Calculate_AIC_Short()</a></code> <code><a href="information_criteria.html">Calculate_AICc_Short()</a></code> <code><a href="information_criteria.html">Calculate_AttIC_Short()</a></code> <code><a href="information_criteria.html">Calculate_SIC_Short()</a></code> <code><a href="information_criteria.html">Calculate_BIC_Short()</a></code> <code><a href="information_criteria.html">Calculate_CAIC_Short()</a></code> <code><a href="information_criteria.html">Calculate_CAICF_Short()</a></code> <code><a href="information_criteria.html">Calculate_EBIC_Short()</a></code> <code><a href="information_criteria.html">Calculate_GIC2_Short()</a></code> <code><a href="information_criteria.html">Calculate_GIC3_Short()</a></code> <code><a href="information_criteria.html">Calculate_GIC4_Short()</a></code> <code><a href="information_criteria.html">Calculate_GIC5_Short()</a></code> <code><a href="information_criteria.html">Calculate_GIC6_Short()</a></code>
+          <code><a href="information_criteria.html">Calculate_AIC()</a></code> <code><a href="information_criteria.html">Calculate_AICc()</a></code> <code><a href="information_criteria.html">Calculate_AttIC()</a></code> <code><a href="information_criteria.html">Calculate_SIC()</a></code> <code><a href="information_criteria.html">Calculate_BIC()</a></code> <code><a href="information_criteria.html">Calculate_CAIC()</a></code> <code><a href="information_criteria.html">Calculate_CAICF()</a></code> <code><a href="information_criteria.html">Calculate_EBIC()</a></code> <code><a href="information_criteria.html">Calculate_GIC2()</a></code> <code><a href="information_criteria.html">Calculate_GIC3()</a></code> <code><a href="information_criteria.html">Calculate_GIC4()</a></code> <code><a href="information_criteria.html">Calculate_GIC5()</a></code> <code><a href="information_criteria.html">Calculate_GIC6()</a></code>
 
         </dt>
         <dd>Information Criterion Calculations via Julia</dd>

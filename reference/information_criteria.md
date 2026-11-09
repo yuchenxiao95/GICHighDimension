@@ -33,32 +33,6 @@ Calculate_GIC4(Y, X, P = ncol(X))
 Calculate_GIC5(Y, X, P = ncol(X))
 
 Calculate_GIC6(Y, X, P = ncol(X))
-
-Calculate_AIC_Short(Y, X, Inverse)
-
-Calculate_AICc_Short(Y, X, Inverse)
-
-Calculate_AttIC_Short(Y, X, Inverse)
-
-Calculate_SIC_Short(Y, X, Inverse)
-
-Calculate_BIC_Short(Y, X, Inverse)
-
-Calculate_CAIC_Short(Y, X, Inverse)
-
-Calculate_CAICF_Short(Y, X, Inverse)
-
-Calculate_EBIC_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC2_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC3_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC4_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC5_Short(Y, X, Inverse, P = ncol(X))
-
-Calculate_GIC6_Short(Y, X, Inverse, P = ncol(X))
 ```
 
 ## Arguments
@@ -77,13 +51,9 @@ Calculate_GIC6_Short(Y, X, Inverse, P = ncol(X))
   (only for EBIC and GIC2–GIC6) integer total number of candidate
   predictors. Defaults to `ncol(X)`.
 
-- Inverse:
-
-  (for `_Short` variants only) a numeric matrix — the inverse of X'X.
-
 ## Value
 
-For full versions: a named list with components:
+A named list with components:
 
 - CriterionValue:
 
@@ -92,8 +62,6 @@ For full versions: a named list with components:
 - InverseMatrix:
 
   Matrix inverse used in computation (if applicable).
-
-For `_Short` versions: a numeric scalar of the criterion value.
 
 ## Details
 
@@ -133,9 +101,6 @@ criteria are:
 - AttIC, an attention-weighted criterion specific to this package: the
   fit term is replaced by \\Y^\top \mathrm{softmax}(HY)\\ and the
   penalty is that of SIC.
-
-Short versions (e.g., `Calculate_AIC_Short`) allow reusing a precomputed
-inverse matrix to save computational time.
 
 ## References
 
@@ -183,7 +148,6 @@ if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
   Y <- rnorm(20)
   out1 <- Calculate_AIC(Y, X)
   out2 <- Calculate_EBIC(Y, X)        # uses P = ncol(X) by default
-  val_short <- Calculate_EBIC_Short(Y, X, solve(crossprod(X)))
 }
 } # }
 ```

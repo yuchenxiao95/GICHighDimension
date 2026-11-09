@@ -28,6 +28,7 @@ settings. Each function returns either the computed criterion value, or a list w
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICVariableSelection" aria-label="GICVariableSelection, the Julia version of this package">Julia package</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/yuchenxiao95/GICHighDimension/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
@@ -73,33 +74,7 @@ settings. Each function returns either the computed criterion value, or a list w
 <span></span>
 <span><span class="fu">Calculate_GIC5</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">Calculate_GIC6</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_AIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_AICc_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_AttIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_SIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_BIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_CAIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_CAICF_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_EBIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_GIC2_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_GIC3_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_GIC4_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_GIC5_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">Calculate_GIC6_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="va">Inverse</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">Calculate_GIC6</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, P <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -119,22 +94,17 @@ multivariate response (CAICF supports vector responses only).</p></dd>
 <dd><p>(only for EBIC and GIC2–GIC6) integer total number of candidate predictors.
 Defaults to <code>ncol(X)</code>.</p></dd>
 
-
-<dt id="arg-inverse">Inverse<a class="anchor" aria-label="anchor" href="#arg-inverse"></a></dt>
-<dd><p>(for <code>_Short</code> variants only) a numeric matrix — the inverse of X'X.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>For full versions: a named list with components:</p><dl><dt>CriterionValue</dt>
+    <p>A named list with components:</p><dl><dt>CriterionValue</dt>
 <dd><p>Numeric scalar of the selected information criterion.</p></dd>
 
 <dt>InverseMatrix</dt>
 <dd><p>Matrix inverse used in computation (if applicable).</p></dd>
 
 
-</dl><p>For <code>_Short</code> versions: a numeric scalar of the criterion value.</p>
-    </div>
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Every criterion has the form \(Y^\top H Y / n - p(n, K)\), where \(H\) is the hat
@@ -161,9 +131,7 @@ penalty plus \(\hat\sigma^2 \log\det(X^\top X/\hat\sigma^2)/n\).</p></li>
 by default.</p></li>
 <li><p>AttIC, an attention-weighted criterion specific to this package: the fit
 term is replaced by \(Y^\top \mathrm{softmax}(HY)\) and the penalty is that of SIC.</p></li>
-</ul><p>Short versions (e.g., <code>Calculate_AIC_Short</code>) allow reusing a precomputed inverse matrix
-to save computational time.</p>
-    </div>
+</ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Akaike, H. (1974). A new look at the statistical model identification.
@@ -198,7 +166,6 @@ regularization in high-dimensions. <em>Statistics and Computing</em>, 36(3), 100
 <span class="r-in"><span>  <span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">out1</span> <span class="op">&lt;-</span> <span class="fu">Calculate_AIC</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">out2</span> <span class="op">&lt;-</span> <span class="fu">Calculate_EBIC</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span><span class="op">)</span>        <span class="co"># uses P = ncol(X) by default</span></span></span>
-<span class="r-in"><span>  <span class="va">val_short</span> <span class="op">&lt;-</span> <span class="fu">Calculate_EBIC_Short</span><span class="op">(</span><span class="va">Y</span>, <span class="va">X</span>, <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

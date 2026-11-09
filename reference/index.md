@@ -12,10 +12,24 @@ is how you will usually use the package.
 
 ## Information criteria
 
-AIC, BIC, EBIC, GIC2–GIC6 and related criteria. Pass the name of a
-criterion (and of its `_short` version) to
+Pass the name of a criterion to
 [`GICSelection()`](https://yuchenxiao95.github.io/GICHighDimension/reference/GICSelection.md),
-or call these functions directly to score a single model.
+or call these functions directly to score a single model. The supported
+criteria are:
+
+- **AIC**: Akaike information criterion (Akaike, 1974)
+- **AICc**: AIC corrected for small samples (Hurvich and Tsai, 1989)
+- **BIC**: Bayesian information criterion (Schwarz, 1978)
+- **CAIC**: consistent AIC (Bozdogan, 1987)
+- **CAICF**: consistent AIC with Fisher information (Bozdogan, 1987)
+- **SIC**: square-root information criterion (Shao, 1997; Xiao and
+  Walker, 2026)
+- **GIC2–GIC6**: generalized information criteria for high dimensions
+  (Kim, Kwon and Choi, 2012)
+- **EBIC**: extended BIC (Chen and Chen, 2008)
+- **AttIC**: attention-weighted criterion, specific to this package
+
+Full citations are on the `information_criteria` help page.
 
 - [`Calculate_AIC()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
   [`Calculate_AICc()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
@@ -30,19 +44,6 @@ or call these functions directly to score a single model.
   [`Calculate_GIC4()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
   [`Calculate_GIC5()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
   [`Calculate_GIC6()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_AIC_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_AICc_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_AttIC_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_SIC_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_BIC_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_CAIC_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_CAICF_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_EBIC_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC2_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC3_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC4_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC5_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
-  [`Calculate_GIC6_Short()`](https://yuchenxiao95.github.io/GICHighDimension/reference/information_criteria.md)
   : Information Criterion Calculations via Julia
 
 ## Simulation and link transforms
