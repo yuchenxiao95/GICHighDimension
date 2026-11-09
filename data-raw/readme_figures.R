@@ -43,11 +43,16 @@ plot_criteria <- function(fits, p, true_size, file) {
   title(ylab = "Criterion value", line = 3.4)
 
   # Log scale when the search starts from all predictors (linear and
-  # multivariate examples), so the end of the path stays visible
+  # multivariate examples), so the end of the path stays visible; both use the
+  # same range and ticks
   log_y <- max(sizes) > 100
-  matplot(steps, sizes, type = "n", ylim = range(c(sizes, true_size)),
-          log = if (log_y) "y" else "", xlab = "Search step", ylab = "",
+  log_ticks <- c(5, 10, 100, 500)
+  ylim <- range(c(sizes, true_size, if (log_y) range(log_ticks)))
+  matplot(steps, sizes, type = "n", ylim = ylim,
+          log = if (log_y) "y" else "", yaxt = if (log_y) "n" else "s",
+          xlab = "Search step", ylab = "",
           main = sprintf("Model size (true size = %d)", true_size))
+  if (log_y) axis(2, at = log_ticks)
   abline(v = passes, col = "grey85", lwd = 0.8)
   abline(h = true_size, lty = 2, col = "grey35")
   matlines(steps, sizes, type = "s", lwd = 2, col = cols, lty = ltys)
