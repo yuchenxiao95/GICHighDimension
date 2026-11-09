@@ -59,12 +59,7 @@ $`p(n, d)`$:
 The examples below compare three criteria on the same data. In
 increasing order of penalty per variable, they are AIC ($`c_n = 1`$),
 BIC ($`\log n`$) and GIC6 ($`\log n \log P`$), where $`P`$ is the number
-of candidate predictors. The [Examples
-article](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.html)
-([`vignette("examples")`](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.md))
-explains each step, and the Get started article
-([`vignette("get-started")`](https://yuchenxiao95.github.io/GICHighDimension/articles/get-started.md))
-lists all criteria and response families.
+of candidate predictors.
 
 All examples use the same setting. The design matrix $`X`$ has
 $`n = 2000`$ observations of $`p = 500`$ independent standard normal
