@@ -73,9 +73,9 @@ GICSelectionBoltzmann <- function(X, Y, Init_Columns,
 
   .source_julia_backend_once()
 
-  args <- list("GIC_Variable_Selection_Boltzmann",
+  args <- list("_GIC_Variable_Selection_Boltzmann_byname",
                X, Y, as.integer(Init_Columns),
-               JuliaCall::julia_eval(Calculate_GIC), JuliaCall::julia_eval(Calculate_GIC_short),
+               Calculate_GIC, Calculate_GIC_short,   # by name, so the fast path is used
                T = as.numeric(T), Nsim = as.integer(Nsim), gamma = as.numeric(gamma))
   if (!is.null(k)) args$k <- as.integer(k)
 

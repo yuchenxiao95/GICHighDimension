@@ -15,6 +15,10 @@
 #  MultivariateNormal  identity (n x q eta)        cov_matrix (q x q, required)
 #  Multinomial         baseline-category logit     n_categories (required);
 #                      (last category = baseline)  beta is p x (n_categories-1)
+#  Cox                 log hazard: Weibull         baseline_rate (lambda, default 1),
+#                      baseline hazard             shape (nu, default 1),
+#                      lambda nu t^(nu-1) e^eta    censor_rate (default 0.3);
+#                                                  returns n x 2 [time status]
 #
 #  Log-link linear predictors are clamped to [-30, 30] to avoid overflow.
 ##############################################################################
@@ -34,7 +38,9 @@ function LP_to_Y(X::AbstractMatrix, true_beta::Union{AbstractVector, AbstractMat
                  shape::Union{Nothing, Real} = nothing,
                  theta::Union{Nothing, Real} = nothing,
                  cov_matrix::Union{Nothing, AbstractMatrix} = nothing,
-                 n_categories::Union{Nothing, Integer} = nothing)
+                 n_categories::Union{Nothing, Integer} = nothing,
+                 baseline_rate::Union{Nothing, Real} = nothing,
+                 censor_rate::Union{Nothing, Real} = nothing)
 
     eta = X * true_beta
 
@@ -83,6 +89,22 @@ function LP_to_Y(X::AbstractMatrix, true_beta::Union{AbstractVector, AbstractMat
         size(true_beta, 2) == n_categories - 1 ||
             error("true_beta must have size (n_features × (n_categories-1))")
         return [rand(Categorical(_lp_softmax([row; 0.0]))) for row in eachrow(eta)]
+
+    elseif family == "Cox"
+        # Inverse-transform sampling from a Cox model with Weibull baseline
+        # hazard (Bender, Augustin and Blettner, 2005):
+        #   T = (-log U / (lambda exp(eta)))^(1/nu),  U ~ Uniform(0, 1),
+        # with independent exponential censoring C ~ Exponential(rate c).
+        size(eta, 2) == 1 || error("Family Cox expects a vector beta.")
+        lambda = isnothing(baseline_rate) ? 1.0 : Float64(baseline_rate)
+        nu = isnothing(shape) ? 1.0 : Float64(shape)
+        c = isnothing(censor_rate) ? 0.3 : Float64(censor_rate)
+        (lambda > 0 && nu > 0 && c >= 0) ||
+            error("baseline_rate and shape must be positive, censor_rate non-negative")
+        e = clamp.(vec(eta), -30.0, 30.0)
+        T = (-log.(rand(length(e))) ./ (lambda .* exp.(e))) .^ (1 / nu)
+        C = c == 0 ? fill(Inf, length(e)) : rand(Exponential(1 / c), length(e))
+        return hcat(min.(T, C), Float64.(T .<= C))     # columns: time, status
 
     else
         error("Unsupported family: $family")

@@ -28,7 +28,9 @@ Imports:
     JuliaCall (>= 0.17.0),
     utils
 Suggests:
+    glmnet,
     MASS,
+    survival,
     testthat (>= 3.0.0),
     roxygen2,
     knitr,

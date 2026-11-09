@@ -123,9 +123,9 @@ GICSelection <- function(X, Y, Initial_Column,
 
   julia_result <- tryCatch(
     JuliaCall::julia_call(
-      "GIC_Variable_Selection",
+      "_GIC_Variable_Selection_flat",
       X, Y, as.integer(Initial_Column),
-      JuliaCall::julia_eval(Calculate_GIC), JuliaCall::julia_eval(Calculate_GIC_short),
+      Calculate_GIC, Calculate_GIC_short,   # by name: see _GIC_Variable_Selection_flat
       as.integer(k),
       Nsim = as.integer(Nsim), gamma = as.numeric(gamma)
     ),
@@ -133,9 +133,12 @@ GICSelection <- function(X, Y, Initial_Column,
                              call. = FALSE)
   )
 
+  # The selected sets come back packed into one vector plus their lengths
+  lens <- as.integer(julia_result[[3]])
+  steps <- factor(rep.int(seq_along(lens), lens), levels = seq_along(lens))
   list(
     GIC_values = as.numeric(unlist(julia_result[[1]])),
-    selected_coeffs = lapply(julia_result[[2]], as.integer),
-    elapsed = as.numeric(unlist(julia_result[[3]]))
+    selected_coeffs = unname(split(as.integer(julia_result[[2]]), steps)),
+    elapsed = as.numeric(unlist(julia_result[[4]]))
   )
 }

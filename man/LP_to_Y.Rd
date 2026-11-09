@@ -13,7 +13,9 @@ LP_to_Y(
   shape = NULL,
   theta = NULL,
   cov_matrix = NULL,
-  n_categories = NULL
+  n_categories = NULL,
+  baseline_rate = NULL,
+  censor_rate = NULL
 )
 }
 \arguments{
@@ -34,10 +36,17 @@ LP_to_Y(
 \item{cov_matrix}{Optional covariance matrix for multivariate families.}
 
 \item{n_categories}{Optional integer, number of categories for Multinomial family.}
+
+\item{baseline_rate}{Optional baseline hazard rate \eqn{\lambda} for "Cox" (default 1);
+\code{shape} is its Weibull shape \eqn{\nu} (default 1).}
+
+\item{censor_rate}{Optional rate of the exponential censoring times for "Cox"
+(default 0.3; 0 means no censoring).}
 }
 \value{
-A numeric vector of responses (integer categories for "Multinomial"), or an
-\eqn{n \times q} matrix for "MultivariateNormal".
+A numeric vector of responses (integer categories for "Multinomial"), an
+\eqn{n \times q} matrix for "MultivariateNormal", or an \eqn{n \times 2}
+matrix with columns \code{time} and \code{status} (1 = event) for "Cox".
 }
 \description{
 Converts a linear predictor to observed responses using canonical link functions from
@@ -60,12 +69,20 @@ Simulates responses from the linear predictor \eqn{\eta = X\beta} using the
 "NegativeBinomial" \tab log \tab \code{theta} (size, default 1) \cr
 "Geometric" \tab log \tab \cr
 "MultivariateNormal" \tab identity \tab \code{cov_matrix} (required) \cr
-"Multinomial" \tab baseline-category logit \tab \code{n_categories} (required)
+"Multinomial" \tab baseline-category logit \tab \code{n_categories} (required) \cr
+"Cox" \tab log hazard \tab \code{baseline_rate}, \code{shape}, \code{censor_rate}
 }
 
 For "MultivariateNormal", \code{true_beta} is a \eqn{p \times q} matrix; for
 "Multinomial" it is \eqn{p \times (K-1)} and the last category is the baseline.
 GLM stands for \emph{generalized linear model}.
+
+For "Cox", survival times follow a Cox proportional hazards model with
+Weibull baseline hazard \eqn{h_0(t) = \lambda \nu t^{\nu - 1}}, simulated by
+inverting the survival function (Bender, Augustin and Blettner, 2005):
+\eqn{T = (-\log U / (\lambda e^{\eta}))^{1/\nu}} with \eqn{U \sim U(0, 1)}.
+Times are censored by independent exponential times with rate
+\code{censor_rate}. \code{shape} = 1 gives an exponential baseline.
 }
 \examples{
 \dontrun{
@@ -88,4 +105,9 @@ if (interactive() && requireNamespace("JuliaCall", quietly = TRUE)) {
 }
 }
 
+}
+\references{
+Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival times to
+simulate Cox proportional hazards models. \emph{Statistics in Medicine},
+24(11), 1713--1723. \doi{10.1002/sim.2059}
 }

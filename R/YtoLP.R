@@ -22,8 +22,19 @@
 #'   "NegativeBinomial" \tab log \tab \code{theta} (size, default 1) \cr
 #'   "Geometric" \tab log \tab \cr
 #'   "MultivariateNormal" \tab identity \tab \code{cov_matrix} (required) \cr
-#'   "Multinomial" \tab baseline-category logit \tab \code{n_categories} (required)
+#'   "Multinomial" \tab baseline-category logit \tab \code{n_categories} (required) \cr
+#'   "Cox" \tab null-model deviance residuals \tab
 #' }
+#'
+#' For "Cox", \code{Y} is an \eqn{n \times 2} matrix with columns time and status
+#' (1 = event, 0 = censored), as returned by \code{LP_to_Y(family = "Cox")}, or a
+#' \code{survival::Surv()} object. The result is the deviance residual of the null
+#' Cox model (Therneau, Grambsch and Fleming, 1990): with the Nelson-Aalen cumulative
+#' hazard \eqn{\hat\Lambda_0}, the martingale residual
+#' \eqn{M_i = \delta_i - \hat\Lambda_0(t_i)} is made more symmetric as
+#' \eqn{D_i = \mathrm{sign}(M_i)\sqrt{-2[M_i + \delta_i \log(\delta_i - M_i)]}}.
+#' It increases with the linear predictor and is meant for variable selection;
+#' fit the selected model with \code{survival::coxph()}.
 #'
 #' For "Multinomial", \code{Y} holds categories \eqn{1, \dots, K} and the result is an
 #' \eqn{n \times (K-1)} matrix of baseline-category logits of the smoothed one-hot vector
@@ -43,6 +54,11 @@
 #'   (default: the largest observed category).
 #'
 #' @return A numeric vector or matrix representing the linear predictor.
+#'
+#' @references
+#' Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990). Martingale-based
+#' residuals for survival models. \emph{Biometrika}, 77(1), 147--160.
+#' \doi{10.1093/biomet/77.1.147}
 #'
 #' @examples
 #' \dontrun{
@@ -71,6 +87,11 @@ Y_to_LP <- function(Y, family, shape = NULL, n_trials = NULL, std = NULL,
                     theta = NULL, n_categories = NULL) {
   .source_julia_backend_once()
 
+  if (inherits(Y, "Surv")) {
+    if (ncol(Y) != 2) stop("Only right-censored Surv(time, status) responses are supported",
+                           call. = FALSE)
+    Y <- cbind(time = Y[, 1], status = Y[, 2])
+  }
   if (is.matrix(Y)) storage.mode(Y) <- "double" else Y <- as.numeric(Y)
 
   args <- list("Y_to_LP", Y, family)

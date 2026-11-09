@@ -1,7 +1,8 @@
 # Runs the "Examples" code in README.md, writes the printed output back into
 # each code block (as "#>" lines), redraws the figure that follows each block
 # in man/figures/, and copies the code blocks with their output into
-# vignettes/examples.Rmd, whose code is the same.
+# Appendix 2 of vignettes/IChop.Rmd, which runs the same code (it
+# defines set_seeds() earlier, in its Quick Start).
 #
 # Run from the package root:
 #   Rscript data-raw/readme_figures.R
@@ -12,17 +13,39 @@
 devtools::load_all(".", quiet = TRUE)
 setup_julia()
 
-palette <- c(AIC = "#2a78d6", BIC = "#eb6834", GIC6 = "#1baf7a")
+# Compile the Julia search (vector and matrix response) and load glmnet before
+# anything is timed, so the run times in the tables exclude one-off compilation.
+local({
+  set.seed(1)
+  Xw <- matrix(rnorm(200 * 20), 200)
+  yw <- Xw[, 1] + rnorm(200)
+  for (Yw in list(yw, cbind(yw, yw + rnorm(200))))
+    for (crit in c("Calculate_AIC", "Calculate_BIC", "Calculate_GIC6"))
+      GICSelection(Xw, Yw, 1:5, crit, paste0(crit, "_short"), k = 20, Nsim = 1)
+  for (Yw in list(yw, cbind(yw, yw + rnorm(200))))
+    GICSelectionBoltzmann(Xw, Yw, 1:5, "Calculate_GIC6", "Calculate_GIC6_short", k = 20, Nsim = 1)
+  invisible(glmnet::cv.glmnet(Xw, yw))
+})
+
+palette <- c(AIC = "#2a78d6", BIC = "#eb6834", GIC6 = "#1baf7a", Boltzmann = "#d0459b")
+methods <- c(palette, Lasso = "#8a5cc2", AdaLasso = "#b8860b")
+
+# Lighter shade of a colour (used for n = 1000)
+tint <- function(col) {
+  rgb <- grDevices::col2rgb(col)
+  grDevices::rgb(t(rgb + (255 - rgb) * 0.55), maxColorValue = 255)
+}
 size_lty <- c(n1000 = 1, n2000 = 3)       # solid: n = 1000, dotted: n = 2000
 
-# Two panels: each criterion's value, and its model size, after every search
-# step, with one line per criterion and sample size. Light grey vertical lines
+# Three panels: each criterion's value, and its model size, after every search
+# step, with one line per criterion and sample size; then the run time of every
+# method, including the lasso and adaptive lasso. Light grey vertical lines
 # mark a new pass over the predictors; the dashed line marks the true size.
-# `fits` is fits[[sample size]][[criterion]], as returned by compare_criteria().
+# `fits` is fits[[sample size]][[method]], as returned by compare_criteria().
 plot_criteria <- function(fits, p, true_size, file) {
-  png(file, width = 8, height = 3.9, units = "in", res = 200)
+  png(file, width = 11.5, height = 4.2, units = "in", res = 200)
   on.exit(dev.off())
-  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.6, 2.2, 1), oma = c(2.6, 0, 0, 0),
+  op <- par(mfrow = c(1, 3), mar = c(4.2, 4.6, 2.2, 1), oma = c(3.8, 0, 0, 0),
             las = 1, cex.axis = 0.95, cex.lab = 1.1, cex.main = 1.1)
   on.exit(par(op), add = TRUE)
 
@@ -45,9 +68,19 @@ plot_criteria <- function(fits, p, true_size, file) {
   # Log scale when the search starts from all predictors (linear and
   # multivariate examples), so the end of the path stays visible; both use the
   # same range and ticks, plus a tick at the true size
-  log_y <- max(sizes) > 100
   log_ticks <- sort(unique(c(5, 10, 100, 500, true_size)))
-  ylim <- range(c(sizes, true_size, if (log_y) range(log_ticks)))
+  # Lasso paths: nonzero predictors along the lambda grid, smallest lambda on
+  # the left, spread over the same width as the search (zero-size models are
+  # dropped so the log axis works)
+  shown <- methods[names(methods) %in% names(fits[[1]])]   # methods run in this example
+  lasso <- setdiff(names(shown), names(palette))
+  lasso_paths <- unlist(lapply(fits, function(by_method) by_method[lasso]), recursive = FALSE)
+  lasso_y <- lapply(lasso_paths, function(fit) {
+    y <- rev(fit$path)
+    replace(y, y == 0, NA)
+  })
+  log_y <- max(c(sizes, unlist(lasso_y)), na.rm = TRUE) > 100
+  ylim <- range(c(sizes, unlist(lasso_y), true_size, if (log_y) range(log_ticks)), na.rm = TRUE)
   matplot(steps, sizes, type = "n", ylim = ylim,
           log = if (log_y) "y" else "", yaxt = if (log_y) "n" else "s",
           xlab = "Search step", ylab = "",
@@ -56,13 +89,30 @@ plot_criteria <- function(fits, p, true_size, file) {
   abline(v = passes, col = "grey85", lwd = 0.8)
   abline(h = true_size, lty = 2, col = "grey35")
   matlines(steps, sizes, type = "s", lwd = 2, col = cols, lty = ltys)
+  lasso_col <- rep(methods[lasso], times = length(fits))
+  lasso_lty <- rep(size_lty[names(fits)], each = length(lasso))
+  for (i in seq_along(lasso_y))
+    lines(seq(min(steps), max(steps), length.out = length(lasso_y[[i]])), lasso_y[[i]],
+          type = "s", lwd = 2, col = lasso_col[i], lty = lasso_lty[i])
   title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
         line = 3.4)
 
-  # Legend rows under both panels: criterion colours, then sample-size line types
+  # Run time of every method: light bars n = 1000, dark bars n = 2000
+  secs <- sapply(fits, function(by_method)
+    sapply(by_method[names(shown)], function(fit) fit$seconds))
+  secs <- pmax(secs, 0.005)                 # keep sub-millisecond times on the log axis
+  ylim_t <- 10^c(floor(log10(min(secs))), ceiling(log10(max(secs))))
+  barplot(t(secs), beside = TRUE, log = "y", ylim = ylim_t, border = NA,
+          col = rbind(tint(shown), shown), names.arg = names(shown),
+          cex.names = 0.85, main = "Run time", ylab = "",
+          xlab = "light: n = 1000, dark: n = 2000")
+  title(ylab = "Seconds (log scale)", line = 3.4)
+  box()
+
+  # Legend rows under the panels: method colours, then sample-size line types
   par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
   plot.new()
-  legend("bottom", inset = c(0, 0.075), legend = names(palette), col = palette,
+  legend("bottom", inset = c(0, 0.075), legend = names(shown), col = shown,
          lty = 1, lwd = 2.5, horiz = TRUE, bty = "n", cex = 0.95, seg.len = 2.5)
   legend("bottom", inset = c(0, 0.005), legend = c("n = 1000", "n = 2000"),
          col = "grey25", lty = size_lty, lwd = 2, horiz = TRUE, bty = "n",
@@ -108,7 +158,7 @@ process <- function(path, start_heading, figure_dir, draw) {
         m <- regmatches(doc[nxt], regexpr("README-[a-z-]+\\.png", doc[nxt]))
         if (length(m)) {
           if (draw) {
-            truth <- if (!is.null(env$true_union) && identical(m, "README-multivariate-log.png"))
+            truth <- if (!is.null(env$true_union) && grepl("multivariate", m))
               env$true_union else env$true_cols
             plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, m))
           }
@@ -123,15 +173,16 @@ process <- function(path, start_heading, figure_dir, draw) {
   message("updated ", path)
 }
 
-# Copy the code blocks (with output) of the README examples into the article,
-# after checking that the code itself is the same.
+# Copy the code blocks (with output) of the README examples into Appendix 2 of
+# the article. The README is the source; the article's first block leaves out
+# set_seeds(), which the article defines in its Quick Start.
 sync_article <- function(readme, article) {
   closing <- function(doc, o) o + which(grepl("^```\\s*$", doc[(o + 1):length(doc)]))[1]
   rd <- readLines(readme)
   rs <- grep("^## Examples", rd)[1]
   r_open <- rs - 1 + which(grepl("^```r\\s*$", rd[rs:length(rd)]))
   art <- readLines(article)
-  as <- grep("^## Helpers", art)[1]
+  as <- grep("^### Helpers", art)[1]
   a_open <- as - 1 + which(grepl("^```\\{r\\}\\s*$", art[as:length(art)]))
   stopifnot(length(r_open) == length(a_open))
   out <- character(0)
@@ -140,7 +191,11 @@ sync_article <- function(readme, article) {
     new <- rd[(r_open[b] + 1):(closing(rd, r_open[b]) - 1)]
     a_close <- closing(art, a_open[b])
     old <- art[(a_open[b] + 1):(a_close - 1)]
-    stopifnot(identical(old[!grepl("^#>", old)], new[!grepl("^#>", new)]))
+    if (b == 1) {                      # drop the set_seeds() definition
+      s0 <- grep("^set_seeds <- function", new)
+      s1 <- s0 - 1 + which(new[s0:length(new)] == "}")[1]
+      new <- new[-(s0:(s1 + (s1 < length(new) && new[s1 + 1] == "")))]
+    }
     out <- c(out, art[pos:a_open[b]], new)
     pos <- a_close
   }
@@ -149,4 +204,4 @@ sync_article <- function(readme, article) {
 }
 
 process("README.md", "^## Examples", "man/figures", draw = TRUE)
-sync_article("README.md", "vignettes/examples.Rmd")
+sync_article("README.md", "vignettes/IChop.Rmd")

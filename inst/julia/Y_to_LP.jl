@@ -20,6 +20,11 @@
 #  Multinomial         n x (K-1) matrix of baseline-category logits
 #                      log(p_ic / p_iK) of the smoothed one-hot vector
 #                      p_i = (onehot(Y_i) + 0.01) / (1 + 0.01 K)
+#  Cox                 deviance residuals of the null Cox model, from an
+#                      n x 2 matrix [time status] (status 1 = event):
+#                      M_i = status_i - Lambda0(time_i)   (Nelson-Aalen),
+#                      D_i = sign(M_i) sqrt(-2 [M_i + status_i log(status_i - M_i)])
+#                      (Therneau, Grambsch and Fleming, 1990)
 ##############################################################################
 
 const _Y2LP_LOG_FAMILIES = ("Poisson", "Gamma", "Exponential", "InverseGaussian",
@@ -80,7 +85,42 @@ function Y_to_LP(Y, family::String;
         end
         return eta
 
+    elseif family == "Cox"
+        return _cox_deviance_residuals(Y)
+
     else
         error("Unsupported family: $family")
     end
+end
+
+# Deviance residuals of the null Cox model. Lambda0 is the Nelson-Aalen
+# cumulative hazard: sum over event times t_j <= t of d_j / r_j (d_j events,
+# r_j at risk at t_j), with ties handled as in the Nelson-Aalen estimator.
+function _cox_deviance_residuals(Y)
+    (Y isa AbstractMatrix && size(Y, 2) == 2) ||
+        error("Family Cox expects an n x 2 matrix [time status].")
+    time = Float64.(Y[:, 1])
+    status = Float64.(Y[:, 2])
+    all(s -> s == 0 || s == 1, status) || error("status must be 0 (censored) or 1 (event).")
+    n = length(time)
+    ord = sortperm(time)
+    Lambda = zeros(n)
+    cum = 0.0
+    i = 1
+    while i <= n                              # walk through distinct times
+        t = time[ord[i]]
+        j = i
+        d = 0.0
+        while j <= n && time[ord[j]] == t
+            d += status[ord[j]]
+            j += 1
+        end
+        cum += d / (n - i + 1)                # at risk: everyone with time >= t
+        for k in i:(j - 1)
+            Lambda[ord[k]] = cum
+        end
+        i = j
+    end
+    M = status .- Lambda
+    return sign.(M) .* sqrt.(-2 .* (M .+ [s == 1 ? log(1 - m) : 0.0 for (s, m) in zip(status, M)]))
 end
