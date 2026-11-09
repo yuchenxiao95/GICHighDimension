@@ -1,13 +1,12 @@
-# Runs the "More examples" code in README.md and in vignettes/examples.Rmd,
+# Runs the "Examples" code in README.md and in vignettes/examples.Rmd,
 # writes the printed output back into each code block (as "#>" lines), and
 # redraws the figure that follows each block in man/figures/.
 #
 # Run from the package root:
 #   Rscript data-raw/readme_figures.R
 #
-# Only the code from the first heading that contains "More examples" (README)
-# or "Helpers" (article) onward is run, so the quick-start example and its
-# figure, README-search.png, are left as they are.
+# Only the code from the "Examples" heading (README) or the "Helpers" heading
+# (article) onward is run, so the installation code is skipped.
 
 devtools::load_all(".", quiet = TRUE)
 setup_julia()
@@ -106,5 +105,5 @@ process <- function(path, start_heading, figure_dir, draw) {
   message("updated ", path)
 }
 
-process("README.md", "^## More examples", "man/figures", draw = TRUE)
+process("README.md", "^## Examples", "man/figures", draw = TRUE)
 process("vignettes/examples.Rmd", "^## Helpers", "man/figures", draw = FALSE)
