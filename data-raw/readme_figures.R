@@ -44,9 +44,9 @@ plot_criteria <- function(fits, p, true_size, file) {
 
   # Log scale when the search starts from all predictors (linear and
   # multivariate examples), so the end of the path stays visible; both use the
-  # same range and ticks
+  # same range and ticks, plus a tick at the true size
   log_y <- max(sizes) > 100
-  log_ticks <- c(5, 10, 100, 500)
+  log_ticks <- sort(unique(c(5, 10, 100, 500, true_size)))
   ylim <- range(c(sizes, true_size, if (log_y) range(log_ticks)))
   matplot(steps, sizes, type = "n", ylim = ylim,
           log = if (log_y) "y" else "", yaxt = if (log_y) "n" else "s",
