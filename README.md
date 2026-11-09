@@ -101,6 +101,8 @@ setdiff(true_cols, selected)   # false negatives
 #> integer(0)
 ```
 
+![BIC and model size along the search, linear model with p = 500](man/figures/README-linear-bic.png)
+
 BIC finds all 5 true predictors and one noise variable. EBIC penalizes the
 number of candidate models and selects exactly the true 5. Start EBIC from a
 small model: its penalty is 0 for the full model, so a search started there
@@ -112,6 +114,8 @@ fit_ebic <- GICSelection(X, Y, 1:10, "Calculate_EBIC", "Calculate_EBIC_short",
 sort(fit_ebic$selected_coeffs[[length(fit_ebic$selected_coeffs)]])
 #> [1]  21 153 270 375 479
 ```
+
+![EBIC and model size along the search, linear model with p = 500](man/figures/README-linear-ebic.png)
 
 ### Several responses (multivariate normal)
 
@@ -139,6 +143,8 @@ setdiff(true_union, selected_multi)   # false negatives
 #> [1] 313 365 415 463 476
 ```
 
+![SIC and model size along the search, multivariate normal response](man/figures/README-multivariate.png)
+
 The 5 predictors that are missed are those with coefficient 0.1, one per
 response. Every predictor with a coefficient of 2.575 or more is found.
 
@@ -146,7 +152,8 @@ response. Every predictor with a coefficient of 2.575 or more is found.
 
 For a non-Gaussian response, map it to the linear-predictor scale with
 `Y_to_LP()`, select with `GICSelection()`, and then fit the selected model
-with `Beta_estimate()`:
+with `Beta_estimate()`. All GLM examples share this setup: $n = 1000$,
+$p = 200$, 5 true predictors, and EBIC starting from the first 10 columns.
 
 ```r
 set_seeds(2)
@@ -155,51 +162,105 @@ X <- matrix(rnorm(n * p), n, p)
 true_cols <- c(3, 17, 42, 88, 150)
 beta <- numeric(p); beta[true_cols] <- c(1, -1, 0.8, -0.8, 0.6)
 
-select_glm <- function(Y, ...) {
-  fit <- GICSelection(X, Y_to_LP(Y, ...), 1:10,
-                      "Calculate_EBIC", "Calculate_EBIC_short", k = 50, Nsim = 3)
-  sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
+glm_fit <- function(Y, ...) {
+  GICSelection(X, Y_to_LP(Y, ...), 1:10,
+               "Calculate_EBIC", "Calculate_EBIC_short", k = 50, Nsim = 3)
 }
+last_model <- function(fit) sort(fit$selected_coeffs[[length(fit$selected_coeffs)]])
+```
 
-# Logistic regression
+Run the families in the order shown to reproduce the output.
+
+#### Logistic regression (Bernoulli)
+
+```r
 y_bern <- LP_to_Y(X, beta, family = "Bernoulli")
-sel <- select_glm(y_bern, family = "Bernoulli")
+fit <- glm_fit(y_bern, family = "Bernoulli")
+sel <- last_model(fit)
 sel
 #> [1]   3  17  42  88 150
 round(Beta_estimate(X[, sel], y_bern, family = "Bernoulli"), 2)   # intercept first
 #> [1] -0.07  0.81 -1.05  0.78 -0.85  0.59
+```
 
-# Binomial counts out of 10 trials
+![EBIC and model size along the search, Bernoulli response](man/figures/README-bernoulli.png)
+
+#### Binomial counts (10 trials)
+
+```r
 y_binom <- LP_to_Y(X, beta, family = "Binomial", n_trials = 10)
-select_glm(y_binom, family = "Binomial", n_trials = 10)
+fit <- glm_fit(y_binom, family = "Binomial", n_trials = 10)
+last_model(fit)
 #> [1]   3  17  42  88 150
+```
 
-# Poisson regression
+![EBIC and model size along the search, binomial response](man/figures/README-binomial.png)
+
+#### Poisson regression
+
+```r
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
-sel <- select_glm(y_pois, family = "Poisson")
+fit <- glm_fit(y_pois, family = "Poisson")
+sel <- last_model(fit)
 round(Beta_estimate(X[, sel], y_pois, family = "Poisson"), 2)
 #> [1] -0.05  1.03 -1.00  0.82 -0.81  0.60
+```
 
-# Overdispersed counts (negative binomial, size 2)
+![EBIC and model size along the search, Poisson response](man/figures/README-poisson.png)
+
+#### Overdispersed counts (negative binomial, size 2)
+
+```r
 y_nb <- LP_to_Y(X, beta, family = "NegativeBinomial", theta = 2)
-select_glm(y_nb, family = "NegativeBinomial")
+fit <- glm_fit(y_nb, family = "NegativeBinomial")
+last_model(fit)
 #> [1]   3  17  42  88 150
+```
 
-# Positive continuous responses (gamma and inverse Gaussian, log link)
+![EBIC and model size along the search, negative binomial response](man/figures/README-negbin.png)
+
+#### Gamma (log link)
+
+```r
 y_gamma <- LP_to_Y(X, beta, family = "Gamma", shape = 2)
-select_glm(y_gamma, family = "Gamma")
+fit <- glm_fit(y_gamma, family = "Gamma")
+last_model(fit)
 #> [1]   3  17  42  88 150
-y_ig <- LP_to_Y(X, beta, family = "InverseGaussian", shape = 2)
-select_glm(y_ig, family = "InverseGaussian")
-#> [1]   3  17  42  88 150
+```
 
-# Three-category multinomial (p x 2 coefficient matrix; category 3 is the baseline)
+![EBIC and model size along the search, gamma response](man/figures/README-gamma.png)
+
+#### Inverse Gaussian (log link)
+
+```r
+y_ig <- LP_to_Y(X, beta, family = "InverseGaussian", shape = 2)
+fit <- glm_fit(y_ig, family = "InverseGaussian")
+last_model(fit)
+#> [1]   3  17  42  88 150
+```
+
+![EBIC and model size along the search, inverse Gaussian response](man/figures/README-invgauss.png)
+
+#### Multinomial (three categories)
+
+The coefficients form a $p \times 2$ matrix, and category 3 is the baseline:
+
+```r
 B_mn <- matrix(0, p, 2)
 B_mn[true_cols, 1] <- 1.5
 B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
 y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
-select_glm(y_mn, family = "Multinomial", n_categories = 3)
+fit <- glm_fit(y_mn, family = "Multinomial", n_categories = 3)
+last_model(fit)
 #> [1]   3  17  42  88 150
 ```
 
-Each GLM search finds exactly the 5 true predictors in under a second.
+![EBIC and model size along the search, multinomial response](man/figures/README-multinomial.png)
+
+Each GLM search finds exactly the 5 true predictors within its first pass and
+takes under a second.
+
+Each figure shows the criterion and the number of selected variables after
+every search step. Dotted lines mark a new pass over the predictors, and the
+dashed line marks the true model size. The script
+[`data-raw/readme_figures.R`](data-raw/readme_figures.R) regenerates them.
