@@ -153,9 +153,7 @@ GIC6 ($\log n \log p$), where $p$ is the number of candidate
 predictors. Each example also runs the Boltzmann search (`GICSelectionBoltzmann()`)
 with GIC6, which accepts a move that lowers the criterion by $\Delta$ with
 probability $1/(1 + e^{\Delta/T})$, so it can leave a local optimum. The
-temperature $T$ is a tuning parameter: the size of a criterion change differs
-between models, so the same $T$ can be almost greedy in one example and too
-permissive in another. The examples use the default $T = 0.1$, and
+temperature $T$ is a tuning parameter. The examples use the default $T = 0.1$, and
 $T = 0.05$ for the multivariate normal example and $T = 0.001$ for the Poisson
 and Cox examples.
 
