@@ -1,115 +1,110 @@
-# Regenerates the search-path figures in man/figures/ used by the
-# "More examples" section of README.md and by vignettes/examples.Rmd
-# (README-search.png, for the quick-start example, is not made here). Run from the package root:
+# Runs the "More examples" code in README.md and in vignettes/examples.Rmd,
+# writes the printed output back into each code block (as "#>" lines), and
+# redraws the figure that follows each block in man/figures/.
+#
+# Run from the package root:
 #   Rscript data-raw/readme_figures.R
-# The code repeats the README examples in the same order with the same seeds,
-# so the figures match the printed output.
+#
+# Only the code from the first heading that contains "More examples" (README)
+# or "Helpers" (article) onward is run, so the quick-start example and its
+# figure, README-search.png, are left as they are.
 
 devtools::load_all(".", quiet = TRUE)
 setup_julia()
 
-set_seeds <- function(seed) {
-  set.seed(seed)
-  JuliaCall::julia_command(sprintf("import Random; Random.seed!(%d);", seed))
-}
+palette  <- c(AIC = "#2a78d6", BIC = "#eb6834", GIC5 = "#1baf7a", GIC6 = "#eda100")
+linetype <- c(AIC = 1, BIC = 2, GIC5 = 4, GIC6 = 5)
 
-# Two panels: criterion and model size after each search step. Dotted lines
-# mark the start of each new pass over the predictors.
-plot_search <- function(fit, p, true_size, criterion, name) {
-  file <- file.path("man", "figures", paste0("README-", name, ".png"))
-  png(file, width = 8, height = 3.1, units = "in", res = 200)
+# Two panels: each criterion's value, and its model size, after every search
+# step. Dotted lines mark a new pass over the predictors; the dashed line marks
+# the true model size.
+plot_criteria <- function(fits, p, true_size, file) {
+  png(file, width = 8, height = 3.7, units = "in", res = 200)
   on.exit(dev.off())
-  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.4, 2.2, 1), las = 1,
+  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.6, 2.2, 1), oma = c(1.6, 0, 0, 0), las = 1,
             cex.axis = 0.95, cex.lab = 1.1, cex.main = 1.1)
   on.exit(par(op), add = TRUE)
 
-  steps  <- seq_along(fit$GIC_values)
-  size   <- lengths(fit$selected_coeffs)
+  steps  <- seq_along(fits[[1]]$GIC_values)
   passes <- seq(p, length(steps) - 1, by = p)
+  values <- sapply(fits, `[[`, "GIC_values")
+  sizes  <- sapply(fits, function(f) lengths(f$selected_coeffs))
 
-  plot(steps, fit$GIC_values, type = "s", lwd = 2.2, col = "#3B6FB6",
-       xlab = "Search step", ylab = "", main = "Criterion along the search")
-  title(ylab = criterion, line = 3.3)
-  abline(v = passes, lty = 3, col = "grey55")
+  matplot(steps, values, type = "s", lwd = 2, col = palette, lty = linetype,
+          xlab = "Search step", ylab = "", main = "Criterion along the search")
+  title(ylab = "Criterion value", line = 3.4)
+  abline(v = passes, lty = 3, col = "grey60")
 
-  # Log scale when the search starts from a large model, so the end of the
-  # path near the true size stays visible.
-  log_y <- max(size) > 50
-  plot(steps, size, type = "s", lwd = 2.2, col = "#B5443A",
-       ylim = range(c(size, true_size)), log = if (log_y) "y" else "",
-       xlab = "Search step", ylab = "",
-       main = sprintf("Model size (true size = %d)", true_size))
+  log_y <- max(sizes) > 50       # keep the end of the path visible
+  matplot(steps, sizes, type = "s", lwd = 2, col = palette, lty = linetype,
+          ylim = range(c(sizes, true_size)), log = if (log_y) "y" else "",
+          xlab = "Search step", ylab = "",
+          main = sprintf("Model size (true size = %d)", true_size))
   title(ylab = if (log_y) "Variables in model (log scale)" else "Variables in model",
-        line = 3.3)
-  abline(v = passes, lty = 3, col = "grey55")
-  abline(h = true_size, lty = 2, col = "grey40")
+        line = 3.4)
+  abline(v = passes, lty = 3, col = "grey60")
+  abline(h = true_size, lty = 2, col = "grey35")
+
+  # One legend row under both panels, so it never covers a curve
+  par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+  plot.new()
+  legend("bottom", legend = names(fits), col = palette, lty = linetype, lwd = 2,
+         horiz = TRUE, bty = "n", cex = 0.95, seg.len = 3, inset = 0.01)
   message("wrote ", file)
 }
 
-## ---- Linear model, p = 500 ------------------------------------------------
-set_seeds(1)
-n <- 1000; p <- 500
-X <- matrix(rnorm(n * p), n, p)
-true_cols <- sort(sample(p, 5))
-beta <- numeric(p); beta[true_cols] <- 2
-Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
-
-fit <- GICSelection(X, Y, 1:p, "Calculate_BIC", "Calculate_BIC_short",
-                    k = p, Nsim = 5)
-plot_search(fit, p, 5, "BIC", "linear-bic")
-
-fit_ebic <- GICSelection(X, Y, 1:10, "Calculate_EBIC", "Calculate_EBIC_short",
-                         k = 50, Nsim = 5)
-plot_search(fit_ebic, p, 5, "EBIC", "linear-ebic")
-
-## ---- Multivariate normal ---------------------------------------------------
-m <- 5
-B <- matrix(0, p, m)
-true_by_response <- vector("list", m)
-for (i in 1:m) {
-  cols <- sort(sample(p, 5))
-  true_by_response[[i]] <- cols
-  B[cols, i] <- seq(10, 0.1, length.out = 5)
-}
-Y_multi <- LP_to_Y(X, B, family = "MultivariateNormal", cov_matrix = diag(m))
-fit_multi <- GICSelection(X, Y_multi, 1:p, "Calculate_SIC", "Calculate_SIC_short",
-                          k = p, Nsim = 5)
-plot_search(fit_multi, p, length(unique(unlist(true_by_response))), "SIC",
-            "multivariate")
-
-## ---- GLM families -----------------------------------------------------------
-set_seeds(2)
-n <- 1000; p <- 200
-X <- matrix(rnorm(n * p), n, p)
-true_cols <- c(3, 17, 42, 88, 150)
-beta <- numeric(p); beta[true_cols] <- c(1, -1, 0.8, -0.8, 0.6)
-
-glm_fit <- function(Y, ...) {
-  GICSelection(X, Y_to_LP(Y, ...), 1:10,
-               "Calculate_EBIC", "Calculate_EBIC_short", k = 50, Nsim = 3)
+# Evaluate one code block in `env` and return its lines with fresh output.
+run_block <- function(lines, env) {
+  lines <- lines[!grepl("^#>", lines)]
+  exprs <- parse(text = lines, keep.source = TRUE)
+  refs  <- attr(exprs, "srcref")
+  out   <- vector("list", length(lines))
+  for (i in seq_along(exprs)) {
+    printed <- utils::capture.output({
+      res <- withVisible(eval(exprs[[i]], env))
+      if (res$visible) print(res$value)
+    })
+    if (length(printed)) {
+      last <- refs[[i]][3]
+      out[[last]] <- c(out[[last]], paste("#>", printed))
+    }
+  }
+  unlist(Map(c, lines, out), use.names = FALSE)
 }
 
-y <- LP_to_Y(X, beta, family = "Bernoulli")
-plot_search(glm_fit(y, family = "Bernoulli"), p, 5, "EBIC", "bernoulli")
+# Process one document: run its code blocks in order, refresh the output, and
+# draw the figure named in the first image link after each block.
+process <- function(path, start_heading, figure_dir, draw) {
+  doc   <- readLines(path)
+  start <- grep(start_heading, doc)[1]
+  env   <- new.env(parent = globalenv())
+  i <- start
+  while (i <= length(doc)) {
+    if (grepl("^```(r|\\{r\\})\\s*$", doc[i])) {
+      end   <- i + which(grepl("^```\\s*$", doc[(i + 1):length(doc)]))[1]
+      block <- run_block(doc[(i + 1):(end - 1)], env)
+      doc   <- c(doc[seq_len(i)], block, doc[end:length(doc)])
+      i     <- i + length(block) + 1
 
-y <- LP_to_Y(X, beta, family = "Binomial", n_trials = 10)
-plot_search(glm_fit(y, family = "Binomial", n_trials = 10), p, 5, "EBIC", "binomial")
+      nxt   <- i + 1
+      while (nxt <= length(doc) && !grepl("^```", doc[nxt])) {
+        m <- regmatches(doc[nxt], regexpr("README-[a-z-]+\\.png", doc[nxt]))
+        if (length(m)) {
+          if (draw) {
+            truth <- if (!is.null(env$true_union) && identical(m, "README-multivariate.png"))
+              env$true_union else env$true_cols
+            plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, m))
+          }
+          break
+        }
+        nxt <- nxt + 1
+      }
+    }
+    i <- i + 1
+  }
+  writeLines(doc, path)
+  message("updated ", path)
+}
 
-y <- LP_to_Y(X, beta, family = "Poisson")
-plot_search(glm_fit(y, family = "Poisson"), p, 5, "EBIC", "poisson")
-
-y <- LP_to_Y(X, beta, family = "NegativeBinomial", theta = 2)
-plot_search(glm_fit(y, family = "NegativeBinomial"), p, 5, "EBIC", "negbin")
-
-y <- LP_to_Y(X, beta, family = "Gamma", shape = 2)
-plot_search(glm_fit(y, family = "Gamma"), p, 5, "EBIC", "gamma")
-
-y <- LP_to_Y(X, beta, family = "InverseGaussian", shape = 2)
-plot_search(glm_fit(y, family = "InverseGaussian"), p, 5, "EBIC", "invgauss")
-
-B_mn <- matrix(0, p, 2)
-B_mn[true_cols, 1] <- 1.5
-B_mn[true_cols, 2] <- c(-1.5, 1.5, -1.5, 1.5, -1.5)
-y <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
-plot_search(glm_fit(y, family = "Multinomial", n_categories = 3), p, 5, "EBIC",
-            "multinomial")
+process("README.md", "^## More examples", "man/figures", draw = TRUE)
+process("vignettes/examples.Rmd", "^## Helpers", "man/figures", draw = FALSE)
