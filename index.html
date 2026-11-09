@@ -132,12 +132,18 @@
 <span><span class="co">#&gt; [1] 266</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">true_cols</span>, <span class="va">selected</span><span class="op">)</span>   <span class="co"># false negatives</span></span>
 <span><span class="co">#&gt; integer(0)</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-linear-bic.png" alt="BIC and model size along the search, linear model with p = 500"><div class="figcaption">BIC and model size along the search, linear model with p = 500</div>
+</div>
 <p>BIC finds all 5 true predictors and one noise variable. EBIC penalizes the number of candidate models and selects exactly the true 5. Start EBIC from a small model: its penalty is 0 for the full model, so a search started there does not move.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_ebic</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="st">"Calculate_EBIC"</span>, <span class="st">"Calculate_EBIC_short"</span>,</span>
 <span>                         k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit_ebic</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit_ebic</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]  21 153 270 375 479</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-linear-ebic.png" alt="EBIC and model size along the search, linear model with p = 500"><div class="figcaption">EBIC and model size along the search, linear model with p = 500</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="several-responses-multivariate-normal">Several responses (multivariate normal)<a class="anchor" aria-label="anchor" href="#several-responses-multivariate-normal"></a>
@@ -162,12 +168,15 @@
 <span><span class="co">#&gt; integer(0)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">true_union</span>, <span class="va">selected_multi</span><span class="op">)</span>   <span class="co"># false negatives</span></span>
 <span><span class="co">#&gt; [1] 313 365 415 463 476</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-multivariate.png" alt="SIC and model size along the search, multivariate normal response"><div class="figcaption">SIC and model size along the search, multivariate normal response</div>
+</div>
 <p>The 5 predictors that are missed are those with coefficient 0.1, one per response. Every predictor with a coefficient of 2.575 or more is found.</p>
 </div>
 <div class="section level3">
 <h3 id="generalized-linear-models">Generalized linear models<a class="anchor" aria-label="anchor" href="#generalized-linear-models"></a>
 </h3>
-<p>For a non-Gaussian response, map it to the linear-predictor scale with <code><a href="reference/Y_to_LP.html">Y_to_LP()</a></code>, select with <code><a href="reference/GICSelection.html">GICSelection()</a></code>, and then fit the selected model with <code><a href="reference/Beta_estimate.html">Beta_estimate()</a></code>:</p>
+<p>For a non-Gaussian response, map it to the linear-predictor scale with <code><a href="reference/Y_to_LP.html">Y_to_LP()</a></code>, select with <code><a href="reference/GICSelection.html">GICSelection()</a></code>, and then fit the selected model with <code><a href="reference/Beta_estimate.html">Beta_estimate()</a></code>. All GLM examples share this setup: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>200</mn></mrow><annotation encoding="application/x-tex">p = 200</annotation></semantics></math>, 5 true predictors, and EBIC starting from the first 10 columns.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
@@ -175,52 +184,106 @@
 <span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">17</span>, <span class="fl">42</span>, <span class="fl">88</span>, <span class="fl">150</span><span class="op">)</span></span>
 <span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>; <span class="va">beta</span><span class="op">[</span><span class="va">true_cols</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.8</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="fl">0.6</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">select_glm</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
-<span>                      <span class="st">"Calculate_EBIC"</span>, <span class="st">"Calculate_EBIC_short"</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">glm_fit</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="reference/GICSelection.html">GICSelection</a></span><span class="op">(</span><span class="va">X</span>, <span class="fu"><a href="reference/Y_to_LP.html">Y_to_LP</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">...</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
+<span>               <span class="st">"Calculate_EBIC"</span>, <span class="st">"Calculate_EBIC_short"</span>, k <span class="op">=</span> <span class="fl">50</span>, Nsim <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Logistic regression</span></span>
-<span><span class="va">y_bern</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
-<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu">select_glm</span><span class="op">(</span><span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
+<span><span class="va">last_model</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">selected_coeffs</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p>Run the families in the order shown to reproduce the output.</p>
+<div class="section level4">
+<h4 id="logistic-regression-bernoulli">Logistic regression (Bernoulli)<a class="anchor" aria-label="anchor" href="#logistic-regression-bernoulli"></a>
+</h4>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_bern</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span></span>
+<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="va">sel</span></span>
 <span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="va">sel</span><span class="op">]</span>, <span class="va">y_bern</span>, family <span class="op">=</span> <span class="st">"Bernoulli"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>   <span class="co"># intercept first</span></span>
-<span><span class="co">#&gt; [1] -0.07  0.81 -1.05  0.78 -0.85  0.59</span></span>
-<span></span>
-<span><span class="co"># Binomial counts out of 10 trials</span></span>
-<span><span class="va">y_binom</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
-<span></span>
-<span><span class="co"># Poisson regression</span></span>
-<span><span class="va">y_pois</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
-<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu">select_glm</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.07  0.81 -1.05  0.78 -0.85  0.59</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-bernoulli.png" alt="EBIC and model size along the search, Bernoulli response"><div class="figcaption">EBIC and model size along the search, Bernoulli response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="binomial-counts-10-trials">Binomial counts (10 trials)<a class="anchor" aria-label="anchor" href="#binomial-counts-10-trials"></a>
+</h4>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_binom</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_binom</span>, family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-binomial.png" alt="EBIC and model size along the search, binomial response"><div class="figcaption">EBIC and model size along the search, binomial response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="poisson-regression">Poisson regression<a class="anchor" aria-label="anchor" href="#poisson-regression"></a>
+</h4>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_pois</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span></span>
+<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="va">sel</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] -0.05  1.03 -1.00  0.82 -0.81  0.60</span></span>
-<span></span>
-<span><span class="co"># Overdispersed counts (negative binomial, size 2)</span></span>
-<span><span class="va">y_nb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span>, theta <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_nb</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
-<span></span>
-<span><span class="co"># Positive continuous responses (gamma and inverse Gaussian, log link)</span></span>
-<span><span class="va">y_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Gamma"</span>, shape <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_gamma</span>, family <span class="op">=</span> <span class="st">"Gamma"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
-<span><span class="va">y_ig</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span>, shape <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_ig</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span>
-<span></span>
-<span><span class="co"># Three-category multinomial (p x 2 coefficient matrix; category 3 is the baseline)</span></span>
-<span><span class="va">B_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.05  1.03 -1.00  0.82 -0.81  0.60</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-poisson.png" alt="EBIC and model size along the search, Poisson response"><div class="figcaption">EBIC and model size along the search, Poisson response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="overdispersed-counts-negative-binomial-size-2">Overdispersed counts (negative binomial, size 2)<a class="anchor" aria-label="anchor" href="#overdispersed-counts-negative-binomial-size-2"></a>
+</h4>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_nb</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span>, theta <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_nb</span>, family <span class="op">=</span> <span class="st">"NegativeBinomial"</span><span class="op">)</span></span>
+<span><span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-negbin.png" alt="EBIC and model size along the search, negative binomial response"><div class="figcaption">EBIC and model size along the search, negative binomial response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="gamma-log-link">Gamma (log link)<a class="anchor" aria-label="anchor" href="#gamma-log-link"></a>
+</h4>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Gamma"</span>, shape <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_gamma</span>, family <span class="op">=</span> <span class="st">"Gamma"</span><span class="op">)</span></span>
+<span><span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-gamma.png" alt="EBIC and model size along the search, gamma response"><div class="figcaption">EBIC and model size along the search, gamma response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="inverse-gaussian-log-link">Inverse Gaussian (log link)<a class="anchor" aria-label="anchor" href="#inverse-gaussian-log-link"></a>
+</h4>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y_ig</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span>, shape <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_ig</span>, family <span class="op">=</span> <span class="st">"InverseGaussian"</span><span class="op">)</span></span>
+<span><span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
+<div class="float">
+<img src="reference/figures/README-invgauss.png" alt="EBIC and model size along the search, inverse Gaussian response"><div class="figcaption">EBIC and model size along the search, inverse Gaussian response</div>
+</div>
+</div>
+<div class="section level4">
+<h4 id="multinomial-three-categories">Multinomial (three categories)<a class="anchor" aria-label="anchor" href="#multinomial-three-categories"></a>
+</h4>
+<p>The coefficients form a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>×</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">p \times 2</annotation></semantics></math> matrix, and category 3 is the baseline:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">B_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="va">y_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">B_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu">select_glm</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">glm_fit</span><span class="op">(</span><span class="va">y_mn</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu">last_model</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]   3  17  42  88 150</span></span></code></pre></div>
-<p>Each GLM search finds exactly the 5 true predictors in under a second.</p>
+<div class="float">
+<img src="reference/figures/README-multinomial.png" alt="EBIC and model size along the search, multinomial response"><div class="figcaption">EBIC and model size along the search, multinomial response</div>
+</div>
+<p>Each GLM search finds exactly the 5 true predictors within its first pass and takes under a second.</p>
+<p>Each figure shows the criterion and the number of selected variables after every search step. Dotted lines mark a new pass over the predictors, and the dashed line marks the true model size. The script <a href="data-raw/readme_figures.R"><code>data-raw/readme_figures.R</code></a> regenerates them.</p>
+</div>
 </div>
 </div>
 </div>

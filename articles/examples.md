@@ -80,6 +80,11 @@ setdiff(true_cols, selected)   # false negatives
 #> integer(0)
 ```
 
+![BIC and model size along the
+search](../reference/figures/README-linear-bic.png)
+
+BIC and model size along the search
+
 BIC finds all 5 true predictors but adds one noise variable. Its
 penalty, $`\log n`$, does not grow with $`p`$. With 500 candidates, some
 noise variables look useful by chance. EBIC adds a penalty for the
@@ -93,17 +98,28 @@ sort(fit_ebic$selected_coeffs[[length(fit_ebic$selected_coeffs)]])
 #> [1]  21 153 270 375 479
 ```
 
+![EBIC and model size along the
+search](../reference/figures/README-linear-ebic.png)
+
+EBIC and model size along the search
+
 Start EBIC from a small model, as here. Its extra penalty,
 $`\gamma \log\binom{P}{K}`$, is 0 for the full model ($`K = P`$) and
 grows when a variable is removed, so a search started from all 500
 columns does not move.
 
-`fit$GIC_values` holds the criterion after each of the `Nsim * p` =
-2,500 steps, and `fit$selected_coeffs` the model after each step:
+Each figure in this article shows the criterion and the number of
+selected variables after every search step. Dotted lines mark a new pass
+over the predictors, and the dashed line marks the true model size. The
+figures are drawn from `fit$GIC_values`, the criterion after each of the
+`Nsim * p` = 2,500 steps, and `fit$selected_coeffs`, the model after
+each step:
 
 ``` r
 
-plot(fit$GIC_values, type = "l", xlab = "Step", ylab = "BIC")
+plot(fit$GIC_values, type = "s", xlab = "Search step", ylab = "BIC")
+plot(lengths(fit$selected_coeffs), type = "s", log = "y",
+     xlab = "Search step", ylab = "Variables in model")
 ```
 
 ## Several responses (multivariate normal)
@@ -166,6 +182,11 @@ B[setdiff(true_union, selected_multi), ]
 #> [5,]  0.1  0.0  0.0  0.0  0.0
 ```
 
+![SIC and model size along the
+search](../reference/figures/README-multivariate.png)
+
+SIC and model size along the search
+
 A coefficient of 0.1 with unit noise is below what $`n = 1000`$
 observations can detect against 500 candidates.
 
@@ -225,6 +246,11 @@ round(Beta_estimate(X[, sel], y_bern, family = "Bernoulli"), 2)
 #> [1] -0.07  0.81 -1.05  0.78 -0.85  0.59
 ```
 
+![EBIC and model size,
+Bernoulli](../reference/figures/README-bernoulli.png)
+
+EBIC and model size, Bernoulli
+
 The first coefficient is the intercept. The others are close to the true
 values $`(1, -1, 0.8, -0.8, 0.6)`$.
 
@@ -241,6 +267,11 @@ select_glm(y_binom, family = "Binomial", n_trials = 10)
 #> [1]   3  17  42  88 150
 ```
 
+![EBIC and model size,
+binomial](../reference/figures/README-binomial.png)
+
+EBIC and model size, binomial
+
 ### Poisson regression
 
 ``` r
@@ -254,6 +285,10 @@ round(Beta_estimate(X[, sel], y_pois, family = "Poisson"), 2)
 #> [1] -0.05  1.03 -1.00  0.82 -0.81  0.60
 ```
 
+![EBIC and model size, Poisson](../reference/figures/README-poisson.png)
+
+EBIC and model size, Poisson
+
 ### Overdispersed counts (negative binomial)
 
 `theta` is the size parameter: the variance is $`\mu + \mu^2/\theta`$.
@@ -265,6 +300,11 @@ select_glm(y_nb, family = "NegativeBinomial")
 #> [1]   3  17  42  88 150
 ```
 
+![EBIC and model size, negative
+binomial](../reference/figures/README-negbin.png)
+
+EBIC and model size, negative binomial
+
 ### Positive continuous responses (gamma and inverse Gaussian)
 
 Both use a log link, so the mean is $`e^{\eta}`$:
@@ -274,11 +314,23 @@ Both use a log link, so the mean is $`e^{\eta}`$:
 y_gamma <- LP_to_Y(X, beta, family = "Gamma", shape = 2)
 select_glm(y_gamma, family = "Gamma")
 #> [1]   3  17  42  88 150
+```
+
+![EBIC and model size, gamma](../reference/figures/README-gamma.png)
+
+EBIC and model size, gamma
+
+``` r
 
 y_ig <- LP_to_Y(X, beta, family = "InverseGaussian", shape = 2)
 select_glm(y_ig, family = "InverseGaussian")
 #> [1]   3  17  42  88 150
 ```
+
+![EBIC and model size, inverse
+Gaussian](../reference/figures/README-invgauss.png)
+
+EBIC and model size, inverse Gaussian
 
 The Exponential and Geometric families work the same way.
 
@@ -306,6 +358,11 @@ table(y_mn)
 select_glm(y_mn, family = "Multinomial", n_categories = 3)
 #> [1]   3  17  42  88 150
 ```
+
+![EBIC and model size,
+multinomial](../reference/figures/README-multinomial.png)
+
+EBIC and model size, multinomial
 
 ### Summary
 
