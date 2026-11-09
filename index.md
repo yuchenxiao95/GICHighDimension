@@ -36,16 +36,14 @@ The examples below highlight some well-known statistical properties of
 these criteria:
 
 1.  In linear regression, AIC is minimax-rate optimal and BIC is
-    consistent. In the linear-model figure, AIC (blue line) attains the
+    consistent. In the linear model figure, AIC (blue line) attains the
     largest criterion value at the expense of many false positives.
 2.  Criteria in the GIC family achieve consistency at different rates.
     GIC6 (green line) reaches the true model within two passes of the
-    search, while BIC (orange line) still includes noise variables at
-    the end.
+    search, and achieves consistency at a faster rate than BIC (orange
+    line).
 3.  Consistency is an asymptotic result. Doubling the sample size
-    (dotted lines) is not yet enough for BIC: with 500 candidate
-    predictors, it still adds a few noise variables at $`n = 2000`$ and
-    needs a much larger sample to select the true model.
+    (dotted lines) improves the rate of consistency.
 
 ## Installation
 

@@ -117,9 +117,9 @@
 </table>
 <p>The examples below highlight some well-known statistical properties of these criteria:</p>
 <ol style="list-style-type: decimal">
-<li>In linear regression, AIC is minimax-rate optimal and BIC is consistent. In the linear-model figure, AIC (blue line) attains the largest criterion value at the expense of many false positives.</li>
-<li>Criteria in the GIC family achieve consistency at different rates. GIC6 (green line) reaches the true model within two passes of the search, while BIC (orange line) still includes noise variables at the end.</li>
-<li>Consistency is an asymptotic result. Doubling the sample size (dotted lines) is not yet enough for BIC: with 500 candidate predictors, it still adds a few noise variables at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math> and needs a much larger sample to select the true model.</li>
+<li>In linear regression, AIC is minimax-rate optimal and BIC is consistent. In the linear model figure, AIC (blue line) attains the largest criterion value at the expense of many false positives.</li>
+<li>Criteria in the GIC family achieve consistency at different rates. GIC6 (green line) reaches the true model within two passes of the search, and achieves consistency at a faster rate than BIC (orange line).</li>
+<li>Consistency is an asymptotic result. Doubling the sample size (dotted lines) improves the rate of consistency.</li>
 </ol>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
