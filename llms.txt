@@ -117,11 +117,13 @@ z_j(t+1) = \mathbf{1}\left\lbrace
   \frac{1}{n} y^\top H_d y - p(n, d) \right\rbrace .
 ```
 
-Unlike greedy forward selection or orthogonal matching pursuit, this
-search keeps adding and removing variables in pursuit of the criterion’s
-global optimum. AIC is minimax-rate optimal but inconsistent when a true
-model exists; criteria with stronger penalties achieve consistency at
-the expense of underfitting (Shao, 1997; Yang, 2005; Kim et al., 2012).
+This establishes a connection between the expected out-of-sample MSE and
+the energy function of the Hopfield network for associative memory,
+where the stable local minima in the energy function of the Hopfield
+network correspond to optimal sparse solutions. AIC is minimax-rate
+optimal but inconsistent when a true model exists; criteria with
+stronger penalties achieve consistency at the expense of underfitting
+(Shao, 1997; Yang, 2005; Kim et al., 2012).
 
 A model with $`d`$ selected predictors scores
 $`\mathrm{GIC}_d = y^\top H_d y / n - p(n, d)`$, where $`H_d`$ is its
