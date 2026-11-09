@@ -55,10 +55,7 @@ criteria in the literature with different penalties $p(n, d)$:
 The examples below compare three criteria on the same data. In increasing
 order of penalty per variable, they are AIC ($c_n = 1$), BIC ($\log n$) and
 GIC6 ($\log n \log P$), where $P$ is the number of candidate
-predictors. The
-[Examples article](https://yuchenxiao95.github.io/GICHighDimension/articles/examples.html)
-(`vignette("examples")`) explains each step, and the Get started article
-(`vignette("get-started")`) lists all criteria and response families.
+predictors.
 
 <!-- Helper functions used in the examples (hidden; run by data-raw/readme_figures.R)
 
