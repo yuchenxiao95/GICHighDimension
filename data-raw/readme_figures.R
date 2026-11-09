@@ -42,13 +42,17 @@ plot_criteria <- function(fits, p, true_size, file) {
   matlines(steps, values, type = "s", lwd = 2, col = cols, lty = ltys)
   title(ylab = "Criterion value", line = 3.4)
 
+  # Log scale when the search starts from all predictors (linear and
+  # multivariate examples), so the end of the path stays visible
+  log_y <- max(sizes) > 100
   matplot(steps, sizes, type = "n", ylim = range(c(sizes, true_size)),
-          xlab = "Search step", ylab = "",
+          log = if (log_y) "y" else "", xlab = "Search step", ylab = "",
           main = sprintf("Model size (true size = %d)", true_size))
   abline(v = passes, col = "grey85", lwd = 0.8)
   abline(h = true_size, lty = 2, col = "grey35")
   matlines(steps, sizes, type = "s", lwd = 2, col = cols, lty = ltys)
-  title(ylab = "Number of predictors", line = 3.4)
+  title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
+        line = 3.4)
 
   # Legend rows under both panels: criterion colours, then sample-size line types
   par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
