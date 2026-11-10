@@ -12,7 +12,7 @@ library(grid)
 
 navy   <- "#182b4c"
 orange <- "#ed9433"
-faint  <- "#5a6b8c"
+faint  <- "#8d9fc2"
 
 W <- 518; H <- 600
 
@@ -37,18 +37,18 @@ draw_logo <- function() {
   for (k in seq_len(ncol(pairs))) {
     i <- pairs[1, k]; j <- pairs[2, k]
     grid.lines(nx[c(i, j)], ny[c(i, j)], default.units = "native",
-               gp = gpar(col = faint, lwd = 1.1, alpha = 0.8))
+               gp = gpar(col = faint, lwd = 2.2))
   }
   sel <- utils::combn(on, 2)
   for (k in seq_len(ncol(sel))) {
     i <- sel[1, k]; j <- sel[2, k]
     grid.lines(nx[c(i, j)], ny[c(i, j)], default.units = "native",
-               gp = gpar(col = orange, lwd = 3.2))
+               gp = gpar(col = orange, lwd = 6))
   }
   grid.circle(nx, ny, r = unit(17, "native"), default.units = "native",
               gp = gpar(fill = ifelse(seq_len(8) %in% on, orange, navy),
                         col = ifelse(seq_len(8) %in% on, orange, "white"),
-                        lwd = 2.2))
+                        lwd = 3.5))
 
   # "IC" in orange, "hop" in white, centred as one word.
   fs  <- gpar(fontsize = 68, fontface = "bold", fontfamily = "Helvetica")
