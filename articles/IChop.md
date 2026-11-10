@@ -4,7 +4,7 @@
 
 `IChop` is a package that selects variables in high-dimensional
 regression by maximizing a generalized information criterion (GIC).
-Finding the best subset of variables under an $`\ell_0`$ penalty is a
+Finding the best subset of variables under an \ell_0 penalty is a
 combinatorial problem, and an exhaustive search is out of reach once
 there are more than a few dozen candidate predictors. The package
 instead runs a Hopfield-network style coordinate search (Xiao and
@@ -14,21 +14,18 @@ is in it, and keeps the move when the criterion improves. The stable
 states of this search are local optima of the criterion, and in practice
 it finds the true model quickly when one exists.
 
-Every criterion in the package has the form
-``` math
-\mathrm{GIC} = \frac{Y^\top H Y}{n} - \frac{K\,\hat\sigma^2}{n}\,c_n ,
-```
-where $`H`$ is the hat matrix of the selected columns, $`K`$ the number
-of selected variables, $`\hat\sigma^2`$ the residual variance, and
-$`c_n`$ the penalty per variable. AIC ($`c_n = 2`$) and BIC
-($`c_n = \log n`$) are special cases; the GIC family of Kim, Kwon and
-Choi (2012) uses penalties that grow with the number of candidate
-predictors $`p`$, which is what makes selection consistent in high
+Every criterion in the package has the form \mathrm{GIC} = \frac{Y^\top
+H Y}{n} - \frac{K\\\hat\sigma^2}{n}\\c_n , where H is the hat matrix of
+the selected columns, K the number of selected variables, \hat\sigma^2
+the residual variance, and c_n the penalty per variable. AIC (c_n = 2)
+and BIC (c_n = \log n) are special cases; the GIC family of Kim, Kwon
+and Choi (2012) uses penalties that grow with the number of candidate
+predictors p, which is what makes selection consistent in high
 dimensions. The package implements thirteen criteria, listed in
 [Choosing a criterion](#choosing-a-criterion).
 
 The search itself runs in Julia, which R calls through the `JuliaCall`
-package. It never forms the $`n \times n`$ hat matrix and scores each
+package. It never forms the n \times n hat matrix and scores each
 proposed move with a rank-one update, so a pass over thousands of
 predictors takes seconds ([Appendix
 1](#appendix-1-how-the-search-stays-fast)).
@@ -69,11 +66,11 @@ few seconds once.
 ## Quick Start
 
 This section gives a quick overview of the package. We simulate a sparse
-linear model with $`n = 300`$ observations and $`p = 30`$ candidate
-predictors, of which the first three are active. The simulation and the
-random visiting order of the search both use Julia’s random number
-generator, which [`set.seed()`](https://rdrr.io/r/base/Random.html) does
-not control, so we seed both:
+linear model with n = 300 observations and p = 30 candidate predictors,
+of which the first three are active. The simulation and the random
+visiting order of the search both use Julia’s random number generator,
+which [`set.seed()`](https://rdrr.io/r/base/Random.html) does not
+control, so we seed both:
 
 ``` r
 
@@ -152,23 +149,23 @@ keep using `X` and `Y` from the [Quick Start](#quick-start).
 
 ### Choosing a criterion
 
-The criteria differ only in the penalty $`c_n`$:
+The criteria differ only in the penalty c_n:
 
-| Function | Criterion | Penalty $`c_n`$ | Reference |
+| Function | Criterion | Penalty c_n | Reference |
 |:---|:---|:---|:---|
-| `Calculate_AIC` | AIC | $`2`$ | Akaike (1974) |
-| `Calculate_BIC` | BIC | $`\log n`$ | Schwarz (1978) |
-| `Calculate_CAIC` | Consistent AIC | $`1 + \log n`$ | Bozdogan (1987) |
-| `Calculate_CAICF` | Consistent AIC with Fisher information | $`1 + \log n + \log\det(X_S^\top X_S / \hat\sigma^2) / K`$ | Bozdogan (1987) |
-| `Calculate_SIC` | Square-root IC | $`\sqrt n`$ | Shao (1997) |
-| `Calculate_GIC2` | GIC$`_2`$ | $`p^{1/3}`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC3` | GIC$`_3`$ | $`2 \log p`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC4` | GIC$`_4`$ | $`2(\log p + \log\log p)`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC5` | GIC$`_5`$ | $`\log\log n \, \log p`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_GIC6` | GIC$`_6`$ | $`\log n \, \log p`$ | Kim, Kwon and Choi (2012) |
-| `Calculate_EBIC` | Extended BIC | $`\log n + \gamma \log \binom{p}{K}`$, $`\gamma = 0.6`$ by default | Chen and Chen (2008) |
+| `Calculate_AIC` | AIC | 2 | Akaike (1974) |
+| `Calculate_BIC` | BIC | \log n | Schwarz (1978) |
+| `Calculate_CAIC` | Consistent AIC | 1 + \log n | Bozdogan (1987) |
+| `Calculate_CAICF` | Consistent AIC with Fisher information | 1 + \log n + \log\det(X_S^\top X_S / \hat\sigma^2) / K | Bozdogan (1987) |
+| `Calculate_SIC` | Square-root IC | \sqrt n | Shao (1997) |
+| `Calculate_GIC2` | GIC\_2 | p^{1/3} | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC3` | GIC\_3 | 2 \log p | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC4` | GIC\_4 | 2(\log p + \log\log p) | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC5` | GIC\_5 | \log\log n \\ \log p | Kim, Kwon and Choi (2012) |
+| `Calculate_GIC6` | GIC\_6 | \log n \\ \log p | Kim, Kwon and Choi (2012) |
+| `Calculate_EBIC` | Extended BIC | \log n + \gamma \log \binom{p}{K}, \gamma = 0.6 by default | Chen and Chen (2008) |
 
-Here $`p`$ is the number of candidate variables and $`X_S`$ the selected
+Here p is the number of candidate variables and X_S the selected
 columns; CAICF supports vector responses only. Two criteria use slightly
 different forms (see
 [`?information_criteria`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)):
@@ -200,7 +197,7 @@ sapply(criteria, function(crit) {
 Each criterion can also score a single model directly. For example,
 `Calculate_EBIC(Y, X[, 1:3])` returns a list with `CriterionValue`, the
 value of EBIC for the model with the first three variables, and
-`InverseMatrix`, $`(X_S^\top X_S)^{-1}`$.
+`InverseMatrix`, (X_S^\top X_S)^{-1}.
 
 ### Commonly used function arguments
 
@@ -209,20 +206,20 @@ has a small number of arguments, and most problems need only the
 following:
 
 - `Initial_Column`: the variables in the starting model. Starting from
-  all variables (`1:p`) works well when $`p`$ is small relative to
-  $`n`$; for larger $`p`$, start from a handful of variables.
+  all variables (`1:p`) works well when p is small relative to n; for
+  larger p, start from a handful of variables.
 
 - `k`: the model-size cap. A move that would give a model with `k` or
-  more variables is skipped, and models never exceed $`n - 1`$
-  variables, so the selected model has at most `min(k, n) - 1`
-  variables. Set `k` well above the model size you expect.
+  more variables is skipped, and models never exceed n - 1 variables, so
+  the selected model has at most `min(k, n) - 1` variables. Set `k` well
+  above the model size you expect.
 
 - `Nsim`: the number of passes over the variables, each in a new random
   order. The search usually settles within two or three passes; more
   passes cost little because a pass that changes nothing is cheap.
 
-- `gamma`: the EBIC tuning constant $`\gamma`$ (default 0.6). Larger
-  values penalize large models more. Other criteria ignore it.
+- `gamma`: the EBIC tuning constant \gamma (default 0.6). Larger values
+  penalize large models more. Other criteria ignore it.
 
 ### Boltzmann search
 
@@ -230,15 +227,13 @@ The coordinate search is greedy: it only accepts moves that increase the
 criterion, so it stops at the first local optimum it reaches.
 [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md)
 runs the same search but also accepts a move that lowers the criterion
-by $`\Delta`$, with probability $`1/(1 + e^{\Delta/T})`$, so it can
-leave a local optimum. The temperature $`T`$ controls how often this
-happens.
+by \Delta, with probability 1/(1 + e^{\Delta/T}), so it can leave a
+local optimum. The temperature T controls how often this happens.
 
 The size of a typical change in the criterion depends on the data and
-the criterion, so the right $`T`$ differs between problems. On the Quick
-Start data, the default $`T = 0.1`$ is far too permissive, and the
-search ends with eleven variables; $`T = 0.001`$ recovers the true
-model:
+the criterion, so the right T differs between problems. On the Quick
+Start data, the default T = 0.1 is far too permissive, and the search
+ends with eleven variables; T = 0.001 recovers the true model:
 
 ``` r
 
@@ -261,11 +256,11 @@ after each step in `GIC_coeff`.
 
 ## Multivariate Regression: `family = "MultivariateNormal"`
 
-When several responses share the same predictors, pass them as an
-$`n \times q`$ matrix. The criterion is then the trace of a
-$`q \times q`$ matrix, and a variable is selected if it improves the fit
-for the responses jointly. Here three responses depend on five of the
-predictors, with each response using a different subset:
+When several responses share the same predictors, pass them as an n
+\times q matrix. The criterion is then the trace of a q \times q matrix,
+and a variable is selected if it improves the fit for the responses
+jointly. Here three responses depend on five of the predictors, with
+each response using a different subset:
 
 ``` r
 
@@ -384,10 +379,10 @@ round(Beta_estimate(X[, selected, drop = FALSE], y_binom, family = "Binomial",
 
 ## Multinomial Regression: `family = "Multinomial"`
 
-For a categorical response with $`C`$ categories, the coefficients form
-a $`p \times (C - 1)`$ matrix, with the last category as the baseline.
+For a categorical response with C categories, the coefficients form a p
+\times (C - 1) matrix, with the last category as the baseline.
 [`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
-returns an $`n \times (C - 1)`$ matrix, and the search treats it as a
+returns an n \times (C - 1) matrix, and the search treats it as a
 multivariate response, so a variable is selected if it matters for any
 category:
 
@@ -429,41 +424,33 @@ for the link each family uses.
 ## Appendix 1: How the Search Stays Fast
 
 Every criterion in the package depends on the data only through a few
-quantities of the least-squares fit on the selected columns $`X_S`$:
-``` math
-Y^\top H Y = b^\top M b, \qquad
-\mathrm{RSS} = Y^\top Y - Y^\top H Y, \qquad
-b = X_S^\top Y, \quad M = (X_S^\top X_S)^{-1}.
-```
-So the $`n \times n`$ hat matrix $`H`$ is never formed. The search keeps
-$`M`$ and $`b`$ for the current model and scores each proposed move with
-a rank-one update.
+quantities of the least-squares fit on the selected columns X_S: Y^\top
+H Y = b^\top M b, \qquad \mathrm{RSS} = Y^\top Y - Y^\top H Y, \qquad b
+= X_S^\top Y, \quad M = (X_S^\top X_S)^{-1}. So the n \times n hat
+matrix H is never formed. The search keeps M and b for the current model
+and scores each proposed move with a rank-one update.
 
-- **Adding** a column $`x_z`$: with $`u = X_S^\top x_z`$,
-  $`s = x_z^\top x_z - u^\top M u`$ and $`e = x_z^\top Y - b^\top M u`$,
-  ``` math
-  Y^\top H Y \;\to\; Y^\top H Y + e\,e^\top / s .
-  ```
+- **Adding** a column x_z: with u = X_S^\top x_z, s = x_z^\top x_z -
+  u^\top M u and e = x_z^\top Y - b^\top M u, Y^\top H Y \\\to\\ Y^\top
+  H Y + e\\e^\top / s .
 
-- **Removing** column $`j`$: with $`\hat\beta_j = (M b)_j`$,
-  ``` math
-  Y^\top H Y \;\to\; Y^\top H Y - \hat\beta_j^\top \hat\beta_j / M_{jj} .
-  ```
+- **Removing** column j: with \hat\beta_j = (M b)\_j, Y^\top H Y \\\to\\
+  Y^\top H Y - \hat\beta_j^\top \hat\beta_j / M\_{jj} .
 
-Scoring a move costs $`O(nK + K^2)`$ for a model with $`K`$ variables,
-and $`M`$ is only updated when a move is accepted. Version 0.1.2 rebuilt
-$`H`$ for every proposal, at $`O(n^2 K)`$ cost per move.
+Scoring a move costs O(nK + K^2) for a model with K variables, and M is
+only updated when a move is accepted. Version 0.1.2 rebuilt H for every
+proposal, at O(n^2 K) cost per move.
 
 The table below gives the speed-up over version 0.1.2 (Julia search
 only, EBIC or SIC, Apple M-series laptop). Both versions select the same
 variables at every step:
 
-| $`n`$ | $`p`$ |   Passes |  0.1.2 | Current | Speed-up |
-|------:|------:|---------:|-------:|--------:|---------:|
-|  1000 |   100 |        2 | 0.18 s | 0.002 s |      91× |
-|  3000 |   100 |        2 | 1.29 s | 0.005 s |     247× |
-|  3000 |   100 | 2 (EBIC) | 1.61 s | 0.004 s |     371× |
-|  2000 |   400 |        1 | 1.74 s | 0.046 s |      38× |
+|    n |   p |   Passes |  0.1.2 | Current | Speed-up |
+|-----:|----:|---------:|-------:|--------:|---------:|
+| 1000 | 100 |        2 | 0.18 s | 0.002 s |      91× |
+| 3000 | 100 |        2 | 1.29 s | 0.005 s |     247× |
+| 3000 | 100 | 2 (EBIC) | 1.61 s | 0.004 s |     371× |
+| 2000 | 400 |        1 | 1.74 s | 0.046 s |      38× |
 
 Larger problems, timed from R with
 [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
@@ -471,7 +458,7 @@ Larger problems, timed from R with
 `Nsim = 3`). The time includes copying `X` from R to Julia, and every
 run recovered exactly the 10 true predictors:
 
-| $`n`$ |  $`p`$ |  Time |
+|     n |      p |  Time |
 |------:|-------:|------:|
 |   500 |  1,000 | 0.9 s |
 | 1,000 |  5,000 | 7.6 s |
@@ -497,15 +484,14 @@ system.time(
 This appendix compares the search with the lasso and the adaptive lasso
 on larger simulations: a high-dimensional linear model, a multivariate
 normal model, Poisson, binomial and multinomial GLMs, and a Cox model.
-Each example simulates $`n = 2000`$ observations on $`p = 500`$
-candidate predictors and compares three criteria, on the first 1000
-observations and on all 2000. In increasing order of penalty per
-variable, the criteria are AIC ($`c_n = 2`$), BIC ($`\log n`$) and GIC6
-($`\log n \, \log p`$). Each example also runs the [Boltzmann
-search](#boltzmann-search) with GIC6, whose temperature $`T`$ is a
-tuning parameter. The temperature used in each example is: linear
-$`T = 0.1`$, multivariate normal $`T = 0.05`$, Poisson $`T = 0.001`$,
-binomial $`T = 0.1`$, multinomial $`T = 0.1`$ and Cox $`T = 0.001`$.
+Each example simulates n = 2000 observations on p = 500 candidate
+predictors and compares three criteria, on the first 1000 observations
+and on all 2000. In increasing order of penalty per variable, the
+criteria are AIC (c_n = 2), BIC (\log n) and GIC6 (\log n \\ \log p).
+Each example also runs the [Boltzmann search](#boltzmann-search) with
+GIC6, whose temperature T is a tuning parameter. The temperature used in
+each example is: linear T = 0.1, multivariate normal T = 0.05, Poisson T
+= 0.001, binomial T = 0.1, multinomial T = 0.1 and Cox T = 0.001.
 
 The lasso and the adaptive lasso are fitted with the
 [glmnet](https://CRAN.R-project.org/package=glmnet) package ([Friedman,
@@ -518,7 +504,7 @@ Each table reports the size, false positives and false negatives of the
 selected model, and the wall-clock time of each method in seconds. The
 right-hand panel of each figure shows the same times, and the middle
 panel shows the number of predictors the lasso and the adaptive lasso
-select at the cross-validated $`\lambda`$ (`lambda.min`) as horizontal
+select at the cross-validated \lambda (`lambda.min`) as horizontal
 lines.
 
 ### Helpers
@@ -605,27 +591,27 @@ selection_table <- function(fits, truth) {
 ```
 
 Each figure shows, for every criterion, its value and the number of
-selected variables after each search step: solid lines for $`n = 1000`$
-and dotted lines for $`n = 2000`$. Light grey vertical lines mark a new
-pass over the predictors, and the dashed line marks the true model size.
+selected variables after each search step: solid lines for n = 1000 and
+dotted lines for n = 2000. Light grey vertical lines mark a new pass
+over the predictors, and the dashed line marks the true model size.
 Criteria with larger penalties take lower values, so compare the shapes
 of the curves, not their heights. The script `data-raw/readme_figures.R`
 in the package source runs the code in this appendix and redraws the
 figures.
 
-All examples use the same setting. The design matrix $`X`$ has
-$`n = 2000`$ observations of $`p = 500`$ independent standard normal
-predictors, so the predictor covariance is $`\Sigma = I`$, and only a
-few predictors affect the response. Every search runs twice, on the
-first 1000 observations and on all 2000.
+All examples use the same setting. The design matrix X has n = 2000
+observations of p = 500 independent standard normal predictors, so the
+predictor covariance is \Sigma = I, and only a few predictors affect the
+response. Every search runs twice, on the first 1000 observations and on
+all 2000.
 
 ### Linear model
 
-Here the response is $`Y = X\beta + \varepsilon`$ with
-$`\varepsilon \sim N(0, \sigma^2 I)`$. Five randomly chosen coefficients
-equal 2 and the rest are 0, and $`\sigma^2`$ gives a signal-to-noise
-ratio of $`\beta^\top\Sigma\beta/\sigma^2 = 0.71`$. Every search starts
-from the full model:
+Here the response is Y = X\beta + \varepsilon with \varepsilon \sim N(0,
+\sigma^2 I). Five randomly chosen coefficients equal 2 and the rest are
+0, and \sigma^2 gives a signal-to-noise ratio of
+\beta^\top\Sigma\beta/\sigma^2 = 0.71. Every search starts from the full
+model:
 
 ``` r
 
@@ -661,7 +647,7 @@ Criteria, model size and run time, linear model with p = 500
 ### Multivariate normal
 
 Five responses, each with its own 5 predictors and coefficients from 10
-down to 0.1. Pass the $`n \times 5`$ response matrix as `Y`:
+down to 0.1. Pass the n \times 5 response matrix as `Y`:
 
 ``` r
 
@@ -701,9 +687,9 @@ Criteria, model size and run time, multivariate normal response
 
 ### Generalized linear models
 
-The GLM examples reuse the design matrix `X` from above ($`n = 2000`$,
-$`p = 500`$), with 5 true predictors, and start each search from the
-first 10 columns.
+The GLM examples reuse the design matrix `X` from above (n = 2000, p =
+500), with 5 true predictors, and start each search from the first 10
+columns.
 
 ``` r
 
@@ -778,8 +764,8 @@ response](../reference/figures/README-binomial-runtime.png)
 
 Criteria, model size and run time, binomial response
 
-**Multinomial (three categories).** The coefficients form a
-$`p \times 2`$ matrix, and category 3 is the baseline:
+**Multinomial (three categories).** The coefficients form a p \times 2
+matrix, and category 3 is the baseline:
 
 ``` r
 
@@ -807,12 +793,11 @@ Criteria, model size and run time, multinomial response
 
 #### Cox proportional hazards
 
-The survival times follow a Cox model,
-$`h(t \mid x) = h_0(t)\, e^{x^\top\beta}`$, with the same $`\beta`$, an
-exponential baseline hazard $`h_0(t) = 1`$ and independent exponential
-censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` ([Bender,
-Augustin and Blettner, 2005](https://doi.org/10.1002/sim.2059)). For the
-searches,
+The survival times follow a Cox model, h(t \mid x) = h_0(t)\\
+e^{x^\top\beta}, with the same \beta, an exponential baseline hazard
+h_0(t) = 1 and independent exponential censoring at rate 0.3, simulated
+by `LP_to_Y(family = "Cox")` ([Bender, Augustin and Blettner,
+2005](https://doi.org/10.1002/sim.2059)). For the searches,
 [`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
 maps each (time, status) pair to the deviance residual of the null Cox
 model ([Therneau, Grambsch and Fleming,
@@ -896,6 +881,6 @@ Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
 Martingale-based residuals for survival models. *Biometrika*, 77(1),
 147–160. <https://doi.org/10.1093/biomet/77.1.147>
 
-Xiao, Y. and Walker, S. (2026). Fast variable selection under $`\ell_0`$
+Xiao, Y. and Walker, S. (2026). Fast variable selection under \ell_0
 regularization in high-dimensions. *Statistics and Computing*, 36(3),
 100. <https://doi.org/10.1007/s11222-026-10853-5>

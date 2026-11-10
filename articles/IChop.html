@@ -10,7 +10,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -74,41 +75,31 @@ Walker</h4>
 </h2>
 <p><code>IChop</code> is a package that selects variables in
 high-dimensional regression by maximizing a generalized information
-criterion (GIC). Finding the best subset of variables under an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>
-penalty is a combinatorial problem, and an exhaustive search is out of
-reach once there are more than a few dozen candidate predictors. The
-package instead runs a Hopfield-network style coordinate search (Xiao
-and Walker, 2026): it visits the candidate variables in random order,
-proposes adding a variable that is out of the model or removing one that
-is in it, and keeps the move when the criterion improves. The stable
-states of this search are local optima of the criterion, and in practice
-it finds the true model quickly when one exists.</p>
-<p>Every criterion in the package has the form
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">I</mi><mi mathvariant="normal">C</mi></mrow><mo>=</mo><mfrac><mrow><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi></mrow><mi>n</mi></mfrac><mo>−</mo><mfrac><mrow><mi>K</mi><mspace width="0.167em"></mspace><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup></mrow><mi>n</mi></mfrac><mspace width="0.167em"></mspace><msub><mi>c</mi><mi>n</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
+criterion (GIC). Finding the best subset of variables under an <span class="math inline">\ell_0</span> penalty is a combinatorial problem,
+and an exhaustive search is out of reach once there are more than a few
+dozen candidate predictors. The package instead runs a Hopfield-network
+style coordinate search (Xiao and Walker, 2026): it visits the candidate
+variables in random order, proposes adding a variable that is out of the
+model or removing one that is in it, and keeps the move when the
+criterion improves. The stable states of this search are local optima of
+the criterion, and in practice it finds the true model quickly when one
+exists.</p>
+<p>Every criterion in the package has the form <span class="math display">
 \mathrm{GIC} = \frac{Y^\top H Y}{n} - \frac{K\,\hat\sigma^2}{n}\,c_n ,
-</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>
-is the hat matrix of the selected columns,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-the number of selected variables,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup><annotation encoding="application/x-tex">\hat\sigma^2</annotation></semantics></math>
-the residual variance, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>n</mi></msub><annotation encoding="application/x-tex">c_n</annotation></semantics></math>
-the penalty per variable. AIC
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_n = 2</annotation></semantics></math>)
-and BIC
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">c_n = \log n</annotation></semantics></math>)
-are special cases; the GIC family of Kim, Kwon and Choi (2012) uses
-penalties that grow with the number of candidate predictors
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>,
+</span> where <span class="math inline">H</span> is the hat matrix of
+the selected columns, <span class="math inline">K</span> the number of
+selected variables, <span class="math inline">\hat\sigma^2</span> the
+residual variance, and <span class="math inline">c_n</span> the penalty
+per variable. AIC (<span class="math inline">c_n = 2</span>) and BIC
+(<span class="math inline">c_n = \log n</span>) are special cases; the
+GIC family of Kim, Kwon and Choi (2012) uses penalties that grow with
+the number of candidate predictors <span class="math inline">p</span>,
 which is what makes selection consistent in high dimensions. The package
 implements thirteen criteria, listed in <a href="#choosing-a-criterion">Choosing a criterion</a>.</p>
 <p>The search itself runs in Julia, which R calls through the
-<code>JuliaCall</code> package. It never forms the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math>
-hat matrix and scores each proposed move with a rank-one update, so a
-pass over thousands of predictors takes seconds (<a href="#appendix-1-how-the-search-stays-fast">Appendix 1</a>).</p>
+<code>JuliaCall</code> package. It never forms the <span class="math inline">n \times n</span> hat matrix and scores each
+proposed move with a rank-one update, so a pass over thousands of
+predictors takes seconds (<a href="#appendix-1-how-the-search-stays-fast">Appendix 1</a>).</p>
 <p>The package handles Gaussian responses, multivariate Gaussian
 responses (several outcomes sharing the same predictors), and
 generalized linear models through a transformation to the
@@ -138,14 +129,12 @@ a few seconds once.</p>
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>This section gives a quick overview of the package. We simulate a
-sparse linear model with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>300</mn></mrow><annotation encoding="application/x-tex">n = 300</annotation></semantics></math>
-observations and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">p = 30</annotation></semantics></math>
-candidate predictors, of which the first three are active. The
-simulation and the random visiting order of the search both use Julia’s
-random number generator, which <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> does not control,
-so we seed both:</p>
+sparse linear model with <span class="math inline">n = 300</span>
+observations and <span class="math inline">p = 30</span> candidate
+predictors, of which the first three are active. The simulation and the
+random visiting order of the search both use Julia’s random number
+generator, which <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> does not control, so we seed
+both:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">set_seeds</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">seed</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span>
@@ -207,8 +196,7 @@ the Boltzmann variant of the search. We keep using <code>X</code> and
 <div class="section level3">
 <h3 id="choosing-a-criterion">Choosing a criterion<a class="anchor" aria-label="anchor" href="#choosing-a-criterion"></a>
 </h3>
-<p>The criteria differ only in the penalty
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>n</mi></msub><annotation encoding="application/x-tex">c_n</annotation></semantics></math>:</p>
+<p>The criteria differ only in the penalty <span class="math inline">c_n</span>:</p>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -219,8 +207,7 @@ the Boltzmann variant of the search. We keep using <code>X</code> and
 <thead><tr class="header">
 <th align="left">Function</th>
 <th align="left">Criterion</th>
-<th align="left">Penalty
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>n</mi></msub><annotation encoding="application/x-tex">c_n</annotation></semantics></math>
+<th align="left">Penalty <span class="math inline">c_n</span>
 </th>
 <th align="left">Reference</th>
 </tr></thead>
@@ -228,85 +215,86 @@ the Boltzmann variant of the search. We keep using <code>X</code> and
 <tr class="odd">
 <td align="left"><code>Calculate_AIC</code></td>
 <td align="left">AIC</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2</mn><annotation encoding="application/x-tex">2</annotation></semantics></math></td>
+<td align="left"><span class="math inline">2</span></td>
 <td align="left">Akaike (1974)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_BIC</code></td>
 <td align="left">BIC</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math></td>
+<td align="left"><span class="math inline">\log n</span></td>
 <td align="left">Schwarz (1978)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_CAIC</code></td>
 <td align="left">Consistent AIC</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + \log n</annotation></semantics></math></td>
+<td align="left"><span class="math inline">1 + \log n</span></td>
 <td align="left">Bozdogan (1987)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_CAICF</code></td>
 <td align="left">Consistent AIC with Fisher information</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">det</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><mi>/</mi><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">1 + \log n + \log\det(X_S^\top X_S / \hat\sigma^2) / K</annotation></semantics></math></td>
+<td align="left"><span class="math inline">1 + \log n +
+\log\det(X_S^\top X_S / \hat\sigma^2) / K</span></td>
 <td align="left">Bozdogan (1987)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_SIC</code></td>
 <td align="left">Square-root IC</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>n</mi></msqrt><annotation encoding="application/x-tex">\sqrt n</annotation></semantics></math></td>
+<td align="left"><span class="math inline">\sqrt n</span></td>
 <td align="left">Shao (1997)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC2</code></td>
-<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>2</mn></msub><annotation encoding="application/x-tex">_2</annotation></semantics></math>
+<td align="left">GIC<span class="math inline">_2</span>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>p</mi><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow></msup><annotation encoding="application/x-tex">p^{1/3}</annotation></semantics></math></td>
+<td align="left"><span class="math inline">p^{1/3}</span></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC3</code></td>
-<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>3</mn></msub><annotation encoding="application/x-tex">_3</annotation></semantics></math>
+<td align="left">GIC<span class="math inline">_3</span>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">2 \log p</annotation></semantics></math></td>
+<td align="left"><span class="math inline">2 \log p</span></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC4</code></td>
-<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>4</mn></msub><annotation encoding="application/x-tex">_4</annotation></semantics></math>
+<td align="left">GIC<span class="math inline">_4</span>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2(\log p + \log\log p)</annotation></semantics></math></td>
+<td align="left"><span class="math inline">2(\log p + \log\log
+p)</span></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_GIC5</code></td>
-<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>5</mn></msub><annotation encoding="application/x-tex">_5</annotation></semantics></math>
+<td align="left">GIC<span class="math inline">_5</span>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log\log n \, \log p</annotation></semantics></math></td>
+<td align="left"><span class="math inline">\log\log n \, \log
+p</span></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Calculate_GIC6</code></td>
-<td align="left">GIC<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mn>6</mn></msub><annotation encoding="application/x-tex">_6</annotation></semantics></math>
+<td align="left">GIC<span class="math inline">_6</span>
 </td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log n \, \log p</annotation></semantics></math></td>
+<td align="left"><span class="math inline">\log n \, \log p</span></td>
 <td align="left">Kim, Kwon and Choi (2012)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>Calculate_EBIC</code></td>
 <td align="left">Extended BIC</td>
 <td align="left">
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mo>+</mo><mi>γ</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>p</mi><mi>K</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log n + \gamma \log \binom{p}{K}</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>0.6</mn></mrow><annotation encoding="application/x-tex">\gamma = 0.6</annotation></semantics></math>
-by default</td>
+<span class="math inline">\log n + \gamma \log
+\binom{p}{K}</span>, <span class="math inline">\gamma = 0.6</span> by
+default</td>
 <td align="left">Chen and Chen (2008)</td>
 </tr>
 </tbody>
 </table>
-<p>Here
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
-is the number of candidate variables and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>S</mi></msub><annotation encoding="application/x-tex">X_S</annotation></semantics></math>
-the selected columns; CAICF supports vector responses only. Two criteria
-use slightly different forms (see <code><a href="../reference/information_criteria.html">?information_criteria</a></code>):
+<p>Here <span class="math inline">p</span> is the number of candidate
+variables and <span class="math inline">X_S</span> the selected columns;
+CAICF supports vector responses only. Two criteria use slightly
+different forms (see <code><a href="../reference/information_criteria.html">?information_criteria</a></code>):
 <code>Calculate_AICc</code>, the small-sample corrected AIC (Hurvich and
 Tsai, 1989), and <code>Calculate_AttIC</code>, an attention-weighted
 criterion specific to this package.</p>
@@ -330,8 +318,7 @@ recover the true model:</p>
 <p>Each criterion can also score a single model directly. For example,
 <code>Calculate_EBIC(Y, X[, 1:3])</code> returns a list with
 <code>CriterionValue</code>, the value of EBIC for the model with the
-first three variables, and <code>InverseMatrix</code>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">(X_S^\top X_S)^{-1}</annotation></semantics></math>.</p>
+first three variables, and <code>InverseMatrix</code>, <span class="math inline">(X_S^\top X_S)^{-1}</span>.</p>
 </div>
 <div class="section level3">
 <h3 id="commonly-used-function-arguments">Commonly used function arguments<a class="anchor" aria-label="anchor" href="#commonly-used-function-arguments"></a>
@@ -340,28 +327,19 @@ first three variables, and <code>InverseMatrix</code>,
 problems need only the following:</p>
 <ul>
 <li><p><code>Initial_Column</code>: the variables in the starting model.
-Starting from all variables (<code>1:p</code>) works well when
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
-is small relative to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>;
-for larger
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>,
-start from a handful of variables.</p></li>
+Starting from all variables (<code>1:p</code>) works well when <span class="math inline">p</span> is small relative to <span class="math inline">n</span>; for larger <span class="math inline">p</span>, start from a handful of
+variables.</p></li>
 <li><p><code>k</code>: the model-size cap. A move that would give a
 model with <code>k</code> or more variables is skipped, and models never
-exceed
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
-variables, so the selected model has at most <code>min(k, n) - 1</code>
-variables. Set <code>k</code> well above the model size you
-expect.</p></li>
+exceed <span class="math inline">n - 1</span> variables, so the selected
+model has at most <code>min(k, n) - 1</code> variables. Set
+<code>k</code> well above the model size you expect.</p></li>
 <li><p><code>Nsim</code>: the number of passes over the variables, each
 in a new random order. The search usually settles within two or three
 passes; more passes cost little because a pass that changes nothing is
 cheap.</p></li>
-<li><p><code>gamma</code>: the EBIC tuning constant
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
-(default 0.6). Larger values penalize large models more. Other criteria
-ignore it.</p></li>
+<li><p><code>gamma</code>: the EBIC tuning constant <span class="math inline">\gamma</span> (default 0.6). Larger values penalize
+large models more. Other criteria ignore it.</p></li>
 </ul>
 </div>
 <div class="section level3">
@@ -370,20 +348,13 @@ ignore it.</p></li>
 <p>The coordinate search is greedy: it only accepts moves that increase
 the criterion, so it stops at the first local optimum it reaches.
 <code><a href="../reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code> runs the same search but also
-accepts a move that lowers the criterion by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>,
-with probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mi mathvariant="normal">Δ</mi><mi>/</mi><mi>T</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1/(1 + e^{\Delta/T})</annotation></semantics></math>,
-so it can leave a local optimum. The temperature
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
-controls how often this happens.</p>
+accepts a move that lowers the criterion by <span class="math inline">\Delta</span>, with probability <span class="math inline">1/(1 + e^{\Delta/T})</span>, so it can leave a local
+optimum. The temperature <span class="math inline">T</span> controls how
+often this happens.</p>
 <p>The size of a typical change in the criterion depends on the data and
-the criterion, so the right
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
-differs between problems. On the Quick Start data, the default
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>
-is far too permissive, and the search ends with eleven variables;
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>
+the criterion, so the right <span class="math inline">T</span> differs
+between problems. On the Quick Start data, the default <span class="math inline">T = 0.1</span> is far too permissive, and the search
+ends with eleven variables; <span class="math inline">T = 0.001</span>
 recovers the true model:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
@@ -407,12 +378,11 @@ recovers the true model:</p>
 <code>family = "MultivariateNormal"</code><a class="anchor" aria-label="anchor" href="#multivariate-regression-family-multivariatenormal"></a>
 </h2>
 <p>When several responses share the same predictors, pass them as an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">n \times q</annotation></semantics></math>
-matrix. The criterion is then the trace of a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>×</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">q \times q</annotation></semantics></math>
-matrix, and a variable is selected if it improves the fit for the
-responses jointly. Here three responses depend on five of the
-predictors, with each response using a different subset:</p>
+<span class="math inline">n \times q</span> matrix. The criterion is
+then the trace of a <span class="math inline">q \times q</span> matrix,
+and a variable is selected if it improves the fit for the responses
+jointly. Here three responses depend on five of the predictors, with
+each response using a different subset:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="fl">3</span><span class="op">)</span></span>
@@ -511,15 +481,12 @@ link:</p>
 <div class="section level2">
 <h2 id="multinomial-regression-family-multinomial">Multinomial Regression: <code>family = "Multinomial"</code><a class="anchor" aria-label="anchor" href="#multinomial-regression-family-multinomial"></a>
 </h2>
-<p>For a categorical response with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
-categories, the coefficients form a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p \times (C - 1)</annotation></semantics></math>
-matrix, with the last category as the baseline. <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code>
-returns an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n \times (C - 1)</annotation></semantics></math>
-matrix, and the search treats it as a multivariate response, so a
-variable is selected if it matters for any category:</p>
+<p>For a categorical response with <span class="math inline">C</span>
+categories, the coefficients form a <span class="math inline">p \times
+(C - 1)</span> matrix, with the last category as the baseline.
+<code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code> returns an <span class="math inline">n \times (C
+- 1)</span> matrix, and the search treats it as a multivariate response,
+so a variable is selected if it matters for any category:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">B_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -555,55 +522,36 @@ the link each family uses.</p>
 <h2 id="appendix-1-how-the-search-stays-fast">Appendix 1: How the Search Stays Fast<a class="anchor" aria-label="anchor" href="#appendix-1-how-the-search-stays-fast"></a>
 </h2>
 <p>Every criterion in the package depends on the data only through a few
-quantities of the least-squares fit on the selected columns
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>S</mi></msub><annotation encoding="application/x-tex">X_S</annotation></semantics></math>:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi><mo>=</mo><msup><mi>b</mi><mi>⊤</mi></msup><mi>M</mi><mi>b</mi><mo>,</mo><mspace width="2.0em"></mspace><mrow><mi mathvariant="normal">R</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">S</mi></mrow><mo>=</mo><msup><mi>Y</mi><mi>⊤</mi></msup><mi>Y</mi><mo>−</mo><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi><mo>,</mo><mspace width="2.0em"></mspace><mi>b</mi><mo>=</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><mi>Y</mi><mo>,</mo><mspace width="1.0em"></mspace><mi>M</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+quantities of the least-squares fit on the selected columns <span class="math inline">X_S</span>: <span class="math display">
 Y^\top H Y = b^\top M b, \qquad
 \mathrm{RSS} = Y^\top Y - Y^\top H Y, \qquad
 b = X_S^\top Y, \quad M = (X_S^\top X_S)^{-1}.
-</annotation></semantics></math> So the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math>
-hat matrix
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>
-is never formed. The search keeps
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
-for the current model and scores each proposed move with a rank-one
-update.</p>
+</span> So the <span class="math inline">n \times n</span> hat matrix
+<span class="math inline">H</span> is never formed. The search keeps
+<span class="math inline">M</span> and <span class="math inline">b</span> for the current model and scores each
+proposed move with a rank-one update.</p>
 <ul>
-<li><p><strong>Adding</strong> a column
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>z</mi></msub><annotation encoding="application/x-tex">x_z</annotation></semantics></math>:
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>x</mi><mi>z</mi></msub></mrow><annotation encoding="application/x-tex">u = X_S^\top x_z</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msubsup><mi>x</mi><mi>z</mi><mi>⊤</mi></msubsup><msub><mi>x</mi><mi>z</mi></msub><mo>−</mo><msup><mi>u</mi><mi>⊤</mi></msup><mi>M</mi><mi>u</mi></mrow><annotation encoding="application/x-tex">s = x_z^\top x_z - u^\top M u</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><msubsup><mi>x</mi><mi>z</mi><mi>⊤</mi></msubsup><mi>Y</mi><mo>−</mo><msup><mi>b</mi><mi>⊤</mi></msup><mi>M</mi><mi>u</mi></mrow><annotation encoding="application/x-tex">e = x_z^\top Y - b^\top M u</annotation></semantics></math>,
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi><mspace width="0.278em"></mspace><mo>→</mo><mspace width="0.278em"></mspace><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi><mo>+</mo><mi>e</mi><mspace width="0.167em"></mspace><msup><mi>e</mi><mi>⊤</mi></msup><mi>/</mi><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">Y^\top H Y \;\to\; Y^\top H Y + e\,e^\top / s .</annotation></semantics></math></p></li>
-<li><p><strong>Removing</strong> column
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>:
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mi>b</mi><msub><mo stretchy="false" form="postfix">)</mo><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\hat\beta_j = (M b)_j</annotation></semantics></math>,
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi><mspace width="0.278em"></mspace><mo>→</mo><mspace width="0.278em"></mspace><msup><mi>Y</mi><mi>⊤</mi></msup><mi>H</mi><mi>Y</mi><mo>−</mo><msubsup><mover><mi>β</mi><mo accent="true">̂</mo></mover><mi>j</mi><mi>⊤</mi></msubsup><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mi>/</mi><msub><mi>M</mi><mrow><mi>j</mi><mi>j</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">Y^\top H Y \;\to\; Y^\top H Y - \hat\beta_j^\top \hat\beta_j / M_{jj} .</annotation></semantics></math></p></li>
+<li><p><strong>Adding</strong> a column <span class="math inline">x_z</span>: with <span class="math inline">u =
+X_S^\top x_z</span>, <span class="math inline">s = x_z^\top x_z - u^\top
+M u</span> and <span class="math inline">e = x_z^\top Y - b^\top M
+u</span>, <span class="math display">Y^\top H Y \;\to\; Y^\top H Y +
+e\,e^\top / s .</span></p></li>
+<li><p><strong>Removing</strong> column <span class="math inline">j</span>: with <span class="math inline">\hat\beta_j
+= (M b)_j</span>, <span class="math display">Y^\top H Y \;\to\; Y^\top H
+Y - \hat\beta_j^\top \hat\beta_j / M_{jj} .</span></p></li>
 </ul>
-<p>Scoring a move costs
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>K</mi><mo>+</mo><msup><mi>K</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(nK + K^2)</annotation></semantics></math>
-for a model with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-variables, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
-is only updated when a move is accepted. Version 0.1.2 rebuilt
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>
-for every proposal, at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2 K)</annotation></semantics></math>
-cost per move.</p>
+<p>Scoring a move costs <span class="math inline">O(nK + K^2)</span> for
+a model with <span class="math inline">K</span> variables, and <span class="math inline">M</span> is only updated when a move is accepted.
+Version 0.1.2 rebuilt <span class="math inline">H</span> for every
+proposal, at <span class="math inline">O(n^2 K)</span> cost per
+move.</p>
 <p>The table below gives the speed-up over version 0.1.2 (Julia search
 only, EBIC or SIC, Apple M-series laptop). Both versions select the same
 variables at every step:</p>
 <table class="table">
 <thead><tr class="header">
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></th>
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math></th>
+<th align="right"><span class="math inline">n</span></th>
+<th align="right"><span class="math inline">p</span></th>
 <th align="right">Passes</th>
 <th align="right">0.1.2</th>
 <th align="right">Current</th>
@@ -650,8 +598,8 @@ variables at every step:</p>
 to Julia, and every run recovered exactly the 10 true predictors:</p>
 <table class="table">
 <thead><tr class="header">
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></th>
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math></th>
+<th align="right"><span class="math inline">n</span></th>
+<th align="right"><span class="math inline">p</span></th>
 <th align="right">Time</th>
 </tr></thead>
 <tbody>
@@ -690,33 +638,17 @@ to Julia, and every run recovered exactly the 10 true predictors:</p>
 <p>This appendix compares the search with the lasso and the adaptive
 lasso on larger simulations: a high-dimensional linear model, a
 multivariate normal model, Poisson, binomial and multinomial GLMs, and a
-Cox model. Each example simulates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>
-observations on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>
+Cox model. Each example simulates <span class="math inline">n =
+2000</span> observations on <span class="math inline">p = 500</span>
 candidate predictors and compares three criteria, on the first 1000
 observations and on all 2000. In increasing order of penalty per
-variable, the criteria are AIC
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_n = 2</annotation></semantics></math>),
-BIC
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>)
-and GIC6
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log n \, \log p</annotation></semantics></math>).
-Each example also runs the <a href="#boltzmann-search">Boltzmann
-search</a> with GIC6, whose temperature
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
-is a tuning parameter. The temperature used in each example is: linear
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>,
-multivariate normal
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">T = 0.05</annotation></semantics></math>,
-Poisson
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>,
-binomial
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>,
-multinomial
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>
-and Cox
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>.</p>
+variable, the criteria are AIC (<span class="math inline">c_n =
+2</span>), BIC (<span class="math inline">\log n</span>) and GIC6 (<span class="math inline">\log n \, \log p</span>). Each example also runs the
+<a href="#boltzmann-search">Boltzmann search</a> with GIC6, whose
+temperature <span class="math inline">T</span> is a tuning parameter.
+The temperature used in each example is: linear <span class="math inline">T = 0.1</span>, multivariate normal <span class="math inline">T = 0.05</span>, Poisson <span class="math inline">T
+= 0.001</span>, binomial <span class="math inline">T = 0.1</span>,
+multinomial <span class="math inline">T = 0.1</span> and Cox <span class="math inline">T = 0.001</span>.</p>
 <p>The lasso and the adaptive lasso are fitted with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package (<a href="https://doi.org/10.18637/jss.v033.i01" class="external-link">Friedman, Hastie and
 Tibshirani, 2010</a>), using <code>cv.glmnet()</code> with 10-fold
 cross-validation and <code>lambda.min</code>, and
@@ -727,8 +659,7 @@ as in glmnet’s own articles.</p>
 the selected model, and the wall-clock time of each method in seconds.
 The right-hand panel of each figure shows the same times, and the middle
 panel shows the number of predictors the lasso and the adaptive lasso
-select at the cross-validated
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+select at the cross-validated <span class="math inline">\lambda</span>
 (<code>lambda.min</code>) as horizontal lines.</p>
 <div class="section level3">
 <h3 id="helpers">Helpers<a class="anchor" aria-label="anchor" href="#helpers"></a>
@@ -771,10 +702,10 @@ order shown to reproduce the output.</p>
 <span><span class="va">fit_lasso</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, <span class="va">family</span>, <span class="va">adaptive</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">args</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, family <span class="op">=</span> <span class="va">family</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">adaptive</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">ridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">glmnet</span><span class="fu">::</span><span class="va"><a href="https://glmnet.stanford.edu/reference/cv.glmnet.html" class="external-link">cv.glmnet</a></span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">args</span>, alpha <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">ridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">glmnet</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/glmnet/man/cv.glmnet.html" class="external-link">cv.glmnet</a></span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">args</span>, alpha <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="va">args</span><span class="op">$</span><span class="va">penalty.factor</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">lasso_coef</span><span class="op">(</span><span class="va">ridge</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span>  <span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">glmnet</span><span class="fu">::</span><span class="va"><a href="https://glmnet.stanford.edu/reference/cv.glmnet.html" class="external-link">cv.glmnet</a></span>, <span class="va">args</span><span class="op">)</span></span>
+<span>  <span class="va">cvfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">glmnet</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/glmnet/man/cv.glmnet.html" class="external-link">cv.glmnet</a></span>, <span class="va">args</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">lasso_coef</span><span class="op">(</span><span class="va">cvfit</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -811,39 +742,28 @@ order shown to reproduce the output.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">rows</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Each figure shows, for every criterion, its value and the number of
-selected variables after each search step: solid lines for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>
-and dotted lines for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>.
-Light grey vertical lines mark a new pass over the predictors, and the
-dashed line marks the true model size. Criteria with larger penalties
-take lower values, so compare the shapes of the curves, not their
-heights. The script <code>data-raw/readme_figures.R</code> in the
-package source runs the code in this appendix and redraws the
-figures.</p>
-<p>All examples use the same setting. The design matrix
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
-has
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>
-observations of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>
+selected variables after each search step: solid lines for <span class="math inline">n = 1000</span> and dotted lines for <span class="math inline">n = 2000</span>. Light grey vertical lines mark a
+new pass over the predictors, and the dashed line marks the true model
+size. Criteria with larger penalties take lower values, so compare the
+shapes of the curves, not their heights. The script
+<code>data-raw/readme_figures.R</code> in the package source runs the
+code in this appendix and redraws the figures.</p>
+<p>All examples use the same setting. The design matrix <span class="math inline">X</span> has <span class="math inline">n =
+2000</span> observations of <span class="math inline">p = 500</span>
 independent standard normal predictors, so the predictor covariance is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">\Sigma = I</annotation></semantics></math>,
-and only a few predictors affect the response. Every search runs twice,
-on the first 1000 observations and on all 2000.</p>
+<span class="math inline">\Sigma = I</span>, and only a few predictors
+affect the response. Every search runs twice, on the first 1000
+observations and on all 2000.</p>
 </div>
 <div class="section level3">
 <h3 id="linear-model">Linear model<a class="anchor" aria-label="anchor" href="#linear-model"></a>
 </h3>
-<p>Here the response is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>X</mi><mi>β</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">Y = X\beta + \varepsilon</annotation></semantics></math>
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ε</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\varepsilon \sim N(0, \sigma^2 I)</annotation></semantics></math>.
-Five randomly chosen coefficients equal 2 and the rest are 0, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
-gives a signal-to-noise ratio of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>β</mi><mi>⊤</mi></msup><mi mathvariant="normal">Σ</mi><mi>β</mi><mi>/</mi><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mn>0.71</mn></mrow><annotation encoding="application/x-tex">\beta^\top\Sigma\beta/\sigma^2 = 0.71</annotation></semantics></math>.
-Every search starts from the full model:</p>
+<p>Here the response is <span class="math inline">Y = X\beta +
+\varepsilon</span> with <span class="math inline">\varepsilon \sim N(0,
+\sigma^2 I)</span>. Five randomly chosen coefficients equal 2 and the
+rest are 0, and <span class="math inline">\sigma^2</span> gives a
+signal-to-noise ratio of <span class="math inline">\beta^\top\Sigma\beta/\sigma^2 = 0.71</span>. Every
+search starts from the full model:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">2000</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
@@ -876,8 +796,7 @@ with p = 500</div>
 <h3 id="multivariate-normal">Multivariate normal<a class="anchor" aria-label="anchor" href="#multivariate-normal"></a>
 </h3>
 <p>Five responses, each with its own 5 predictors and coefficients from
-10 down to 0.1. Pass the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">n \times 5</annotation></semantics></math>
+10 down to 0.1. Pass the <span class="math inline">n \times 5</span>
 response matrix as <code>Y</code>:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
@@ -916,10 +835,9 @@ normal response</div>
 <h3 id="generalized-linear-models">Generalized linear models<a class="anchor" aria-label="anchor" href="#generalized-linear-models"></a>
 </h3>
 <p>The GLM examples reuse the design matrix <code>X</code> from above
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">n = 2000</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>),
-with 5 true predictors, and start each search from the first 10
-columns.</p>
+(<span class="math inline">n = 2000</span>, <span class="math inline">p
+= 500</span>), with 5 true predictors, and start each search from the
+first 10 columns.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">set_seeds</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">true_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">17</span>, <span class="fl">42</span>, <span class="fl">88</span>, <span class="fl">150</span><span class="op">)</span></span>
@@ -981,9 +899,8 @@ response</div>
 response</div>
 </div>
 <p><strong>Multinomial (three categories).</strong> The coefficients
-form a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>×</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">p \times 2</annotation></semantics></math>
-matrix, and category 3 is the baseline:</p>
+form a <span class="math inline">p \times 2</span> matrix, and category
+3 is the baseline:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">B_mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">B_mn</span><span class="op">[</span><span class="va">true_cols</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
@@ -1007,16 +924,12 @@ response</div>
 <div class="section level4">
 <h4 id="cox-proportional-hazards">Cox proportional hazards<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards"></a>
 </h4>
-<p>The survival times follow a Cox model,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>∣</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>h</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><msup><mi>x</mi><mi>⊤</mi></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">h(t \mid x) = h_0(t)\, e^{x^\top\beta}</annotation></semantics></math>,
-with the same
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>,
-an exponential baseline hazard
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">h_0(t) = 1</annotation></semantics></math>
-and independent exponential censoring at rate 0.3, simulated by
-<code>LP_to_Y(family = "Cox")</code> (<a href="https://doi.org/10.1002/sim.2059" class="external-link">Bender, Augustin and Blettner,
-2005</a>). For the searches, <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code> maps each (time,
-status) pair to the deviance residual of the null Cox model (<a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link">Therneau, Grambsch and
+<p>The survival times follow a Cox model, <span class="math inline">h(t
+\mid x) = h_0(t)\, e^{x^\top\beta}</span>, with the same <span class="math inline">\beta</span>, an exponential baseline hazard <span class="math inline">h_0(t) = 1</span> and independent exponential
+censoring at rate 0.3, simulated by <code>LP_to_Y(family = "Cox")</code>
+(<a href="https://doi.org/10.1002/sim.2059" class="external-link">Bender, Augustin and
+Blettner, 2005</a>). For the searches, <code><a href="../reference/Y_to_LP.html">Y_to_LP()</a></code> maps each
+(time, status) pair to the deviance residual of the null Cox model (<a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link">Therneau, Grambsch and
 Fleming, 1990</a>), which increases with the linear predictor. The
 selected model is then fitted with <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code>.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
@@ -1082,10 +995,8 @@ Annals of Statistics</em>, 6(2), 461–464. <a href="https://doi.org/10.1214/aos
 <p>Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
 Martingale-based residuals for survival models. <em>Biometrika</em>,
 77(1), 147–160. <a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link uri">https://doi.org/10.1093/biomet/77.1.147</a></p>
-<p>Xiao, Y. and Walker, S. (2026). Fast variable selection under
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math>
-regularization in high-dimensions. <em>Statistics and Computing</em>,
-36(3), 100. <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link uri">https://doi.org/10.1007/s11222-026-10853-5</a></p>
+<p>Xiao, Y. and Walker, S. (2026). Fast variable selection under <span class="math inline">\ell_0</span> regularization in high-dimensions.
+<em>Statistics and Computing</em>, 36(3), 100. <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link uri">https://doi.org/10.1007/s11222-026-10853-5</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

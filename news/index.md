@@ -19,14 +19,14 @@ stands; later entries will list changes relative to this version.
   <doi:10.1007/s11222-026-10853-5>).
 - [`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md)
   runs the same search but also accepts a move that lowers the
-  criterion, with probability $`1/(1 + e^{\Delta/T})`$, so it can leave
-  a local optimum.
+  criterion, with probability 1/(1 + e^{\Delta/T}), so it can leave a
+  local optimum.
 - Both return the criterion value and the selected variables after each
   step;
   [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
   also returns `elapsed`, the time since the search started.
-- `k` caps the model size, and models never exceed $`n - 1`$ variables,
-  so the search also works when $`p > n`$.
+- `k` caps the model size, and models never exceed n - 1 variables, so
+  the search also works when p \> n.
 - Vector responses and matrix responses (several outcomes sharing the
   same predictors) are supported.
 
@@ -36,15 +36,15 @@ stands; later entries will list changes relative to this version.
   `Calculate_*()` function that scores a single model. See
   [`?information_criteria`](https://yuchenxiao95.github.io/IChop/reference/information_criteria.md)
   for their penalties and references.
-- EBIC’s $`\gamma`$ is set with the `gamma` argument (default 0.6).
+- EBIC’s \gamma is set with the `gamma` argument (default 0.6).
 
 ### Speed
 
-- The search never forms the $`n \times n`$ hat matrix. Every criterion
-  is computed from $`X^\top Y`$ and $`(X^\top X)^{-1}`$, and each move
-  is scored with a rank-one update at $`O(nK + K^2)`$ cost for a model
-  with $`K`$ variables. On simulated data this is 38–371 times faster
-  than version 0.1.2.
+- The search never forms the n \times n hat matrix. Every criterion is
+  computed from X^\top Y and (X^\top X)^{-1}, and each move is scored
+  with a rank-one update at O(nK + K^2) cost for a model with K
+  variables. On simulated data this is 38–371 times faster than version
+  0.1.2.
 - The search runs in Julia, and the Julia code is loaded once per
   session.
   [`setup_julia()`](https://yuchenxiao95.github.io/IChop/reference/setup_julia.md)
@@ -57,7 +57,7 @@ stands; later entries will list changes relative to this version.
   pass the criterion to Julia by name. Passing the function itself
   turned it into an R wrapper that the search did not recognise, so
   calls from R fell back to refitting every candidate model; they are
-  now 17–25 times faster ($`n = 1000`$, $`p = 500`$).
+  now 17–25 times faster (n = 1000, p = 500).
 
 ### Generalized linear models
 

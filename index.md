@@ -26,111 +26,90 @@ rather work in Julia directly.
 
 ## Overview
 
-IChop addresses the computational barrier of solving
-$`\ell_0`$-penalized regression in linear models where the number of
-predictors $`p`$ is large, in the hundreds or even the thousands, yet
-smaller than the number of observations $`n`$. Finding the optimal
-solution of $`\ell_0`$-penalized regression has been treated as a
-combinatorial problem that requires discrete optimization and is
-NP-hard. This package builds on a connection with Hopfield networks,
-which are used for associative memory retrieval ([Xiao and Walker,
+IChop addresses the computational barrier of solving \ell_0-penalized
+regression in linear models where the number of predictors p is large,
+in the hundreds or even the thousands, yet smaller than the number of
+observations n. Finding the optimal solution of \ell_0-penalized
+regression has been treated as a combinatorial problem that requires
+discrete optimization and is NP-hard. This package builds on a
+connection with Hopfield networks, which are used for associative memory
+retrieval ([Xiao and Walker,
 2026](https://doi.org/10.1007/s11222-026-10853-5)). It makes generalized
 information criteria (GIC; [Kim, Kwon and Choi,
 2012](https://jmlr.org/papers/v13/kim12a.html)) for variable selection,
-which are equivalent to $`\ell_0`$-penalized regression, computationally
+which are equivalent to \ell_0-penalized regression, computationally
 feasible. The rationale is that there remains strong interest in GIC,
-whose statistical properties are superior to those of $`\ell_1`$-based
+whose statistical properties are superior to those of \ell_1-based
 regularization.
 
 ### The Hopfield network
 
 A Hopfield network ([Hopfield,
 1982](https://doi.org/10.1073/pnas.79.8.2554)) is a model of associative
-memory with $`p`$ neurons, each connected to every other neuron by
-undirected edges with no self-connections. The state
-$`z \in \lbrace 1, -1 \rbrace^p`$ evolves through a symmetric weight
-matrix $`W`$, built from a stored pattern $`z_s`$ by Hebb’s law,
-$`W = z_s^\top z_s - I`$, so that $`W_{ij} = W_{ji} = z_i z_j`$ and
-$`W_{ii} = 0`$. The network updates one neuron at a time,
+memory with p neurons, each connected to every other neuron by
+undirected edges with no self-connections. The state z \in \lbrace 1, -1
+\rbrace^p evolves through a symmetric weight matrix W, built from a
+stored pattern z_s by Hebb’s law, W = z_s^\top z_s - I, so that W\_{ij}
+= W\_{ji} = z_i z_j and W\_{ii} = 0. The network updates one neuron at a
+time,
 
-``` math
-z_i(t+1) = \mathrm{sgn}\big(H_i(t)\big), \qquad
-H_i(t) = \sum_{j \ne i} w_{ij} z_j(t),
-```
+z_i(t+1) = \mathrm{sgn}\big(H_i(t)\big), \qquad H_i(t) = \sum\_{j \ne i}
+w\_{ij} z_j(t),
 
-with $`\mathrm{sgn}(H) = 1`$ if $`H \ge 0`$ and $`-1`$ otherwise,
-cycling through $`i = 1, \dots, p`$ until $`z`$ is stable. Each update
-can only lower the energy
+with \mathrm{sgn}(H) = 1 if H \ge 0 and -1 otherwise, cycling through i
+= 1, \dots, p until z is stable. Each update can only lower the energy
 
-``` math
 E(z) = -z^\top W z ,
-```
 
-and $`E`$ is bounded below, so the network always converges to a locally
+and E is bounded below, so the network always converges to a locally
 stable state ([Bruck, 1990](https://doi.org/10.1109/5.58341)).
 
 ### Connection with AIC
 
-Write the linear model with inclusion indicators
-$`z_j \in \lbrace 0, 1 \rbrace`$:
+Write the linear model with inclusion indicators z_j \in \lbrace 0, 1
+\rbrace:
 
-``` math
-y_i = \sum_{j=1}^{p} x_{ij} z_j \beta_j + \sigma \varepsilon_i ,
-\qquad\text{or}\qquad
-y = X D_t^p \beta + \sigma \varepsilon ,
-```
+y_i = \sum\_{j=1}^{p} x\_{ij} z_j \beta_j + \sigma \varepsilon_i ,
+\qquad\text{or}\qquad y = X D_t^p \beta + \sigma \varepsilon ,
 
-where $`D_t^p = \mathrm{diag}(z_1, \dots, z_p)`$ has $`t`$ nonzero
-entries, so $`X_t = X D_t^p`$ holds the true predictors. For a candidate
-model $`X_d = X D_d^p`$ with hat matrix
-$`H_d = X_d (X_d^\top X_d)^{-1} X_d^\top`$, AIC is an asymptotically
-unbiased estimate of
+where D_t^p = \mathrm{diag}(z_1, \dots, z_p) has t nonzero entries, so
+X_t = X D_t^p holds the true predictors. For a candidate model X_d = X
+D_d^p with hat matrix H_d = X_d (X_d^\top X_d)^{-1} X_d^\top, AIC is an
+asymptotically unbiased estimate of
 
-``` math
-\frac{1}{n} \beta^\top X_t^\top H_d X_t \beta
-= \frac{1}{n} \langle X_t \beta, X_t \beta \rangle_{H_d}
-= \frac{1}{n} \langle X_t \beta, \widehat{X_t \beta} \rangle ,
-```
+\frac{1}{n} \beta^\top X_t^\top H_d X_t \beta = \frac{1}{n} \langle X_t
+\beta, X_t \beta \rangle\_{H_d} = \frac{1}{n} \langle X_t \beta,
+\widehat{X_t \beta} \rangle ,
 
-where $`\widehat{X_t \beta} = H_d X_t \beta`$. Maximizing it minimizes
-the expected out-of-sample error and finds the optimal orthogonal
-projection onto the span of $`X_t \beta`$, reached when $`X_d = X_t`$.
-This quantity plays the role of the energy term in a Hopfield network
-and allows the indicators to be updated one at a time:
+where \widehat{X_t \beta} = H_d X_t \beta. Maximizing it minimizes the
+expected out-of-sample error and finds the optimal orthogonal projection
+onto the span of X_t \beta, reached when X_d = X_t. This quantity plays
+the role of the energy term in a Hopfield network and allows the
+indicators to be updated one at a time:
 
-``` math
-z_j(t+1) = \mathbf{1}\left\lbrace
-\frac{1}{n} \beta^\top X_t^\top H_{d+1} X_t \beta >
-  \frac{1}{n} \beta^\top X_t^\top H_d X_t \beta \right\rbrace ,
-```
+z_j(t+1) = \mathbf{1}\left\lbrace \frac{1}{n} \beta^\top X_t^\top
+H\_{d+1} X_t \beta \> \frac{1}{n} \beta^\top X_t^\top H_d X_t \beta
+\right\rbrace ,
 
-where $`H_{d+1}`$ includes $`x_j`$. Under these updates the energy term
-is nondecreasing and bounded above by
-$`\frac{1}{n} \beta^\top X_t^\top X_t \beta`$. The true signal is
-unknown, but it is linked to the data through
+where H\_{d+1} includes x_j. Under these updates the energy term is
+nondecreasing and bounded above by \frac{1}{n} \beta^\top X_t^\top X_t
+\beta. The true signal is unknown, but it is linked to the data through
 
-``` math
-\frac{1}{n} \beta^\top X^\top H_d X \beta
-= \mathbb{E}\left[ \frac{1}{n} y^\top H_d y \right] - d \frac{\sigma^2}{n}
-\xrightarrow{p} \mathbb{E}\left[ \beta^\top X^\top H_d X \beta \right] .
-```
+\frac{1}{n} \beta^\top X^\top H_d X \beta = \mathbb{E}\left\[
+\frac{1}{n} y^\top H_d y \right\] - d \frac{\sigma^2}{n} \xrightarrow{p}
+\mathbb{E}\left\[ \beta^\top X^\top H_d X \beta \right\] .
 
 Replacing the unknown signal with the data gives the update rule for
 AIC,
 
-``` math
-z_j(t+1) = \mathbf{1}\left\lbrace
-\frac{1}{n} y^\top H_{d+1} y - 2(d+1) \frac{\sigma^2}{n} >
-  \frac{1}{n} y^\top H_d y - 2d \frac{\sigma^2}{n} \right\rbrace ,
-```
+z_j(t+1) = \mathbf{1}\left\lbrace \frac{1}{n} y^\top H\_{d+1} y - 2(d+1)
+\frac{\sigma^2}{n} \> \frac{1}{n} y^\top H_d y - 2d \frac{\sigma^2}{n}
+\right\rbrace ,
 
-and, for any GIC with penalty $`p(n, d)`$,
+and, for any GIC with penalty p(n, d),
 
-``` math
-z_j(t+1) = \mathbf{1}\left\lbrace
-\frac{1}{n} y^\top H_{d+1} y - p(n, d+1) >
-  \frac{1}{n} y^\top H_d y - p(n, d) \right\rbrace .
-```
+z_j(t+1) = \mathbf{1}\left\lbrace \frac{1}{n} y^\top H\_{d+1} y - p(n,
+d+1) \> \frac{1}{n} y^\top H_d y - p(n, d) \right\rbrace .
 
 This establishes a connection between the expected out-of-sample MSE and
 the energy function of the Hopfield network for associative memory,
@@ -139,41 +118,38 @@ network correspond to optimal sparse solutions.
 
 AIC is minimax-rate optimal but inconsistent when a true model exists;
 criteria with stronger penalties achieve consistency. Table 1 lists the
-criteria in the package and their penalties $`p(n, d)`$, where $`d`$ is
-the number of selected variables and $`p`$ the number of candidate
-predictors:
+criteria in the package and their penalties p(n, d), where d is the
+number of selected variables and p the number of candidate predictors:
 
-| Name | $`p(n, d)`$ | Reference |
+| Name | p(n, d) | Reference |
 |:---|:---|:---|
-| AIC | $`2d \frac{\sigma^2}{n}`$ | [Akaike (1974)](https://doi.org/10.1109/TAC.1974.1100705) |
-| BIC | $`d \frac{\sigma^2}{n} \log n`$ | [Schwarz (1978)](https://doi.org/10.1214/aos/1176344136) |
-| GIC2 | $`d \frac{\sigma^2}{n} p^{1/3}`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC3 | $`2d \frac{\sigma^2}{n} \log p`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC4 | $`2d \frac{\sigma^2}{n} (\log p + \log\log p)`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC5 | $`d \frac{\sigma^2}{n} \log\log n \log p`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| GIC6 | $`d \frac{\sigma^2}{n} \log n \log p`$ | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
-| CAIC | $`d \frac{\sigma^2}{n} (\log n + 1)`$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
-| CAICF | $`d \frac{\sigma^2}{n} (\log n + 1) + \frac{\sigma^2}{n} \log\det(X_d^\top X_d / \sigma^2)`$ | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
-| SIC | $`d \frac{\sigma^2}{n} \sqrt{n}`$ | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
-| AICc | $`(d + 1) \frac{\sigma^2}{n - d - 2}`$ | [Hurvich and Tsai (1989)](https://doi.org/10.1093/biomet/76.2.297) |
-| EBIC | $`d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{p}{d}\right)`$, $`\gamma = 0.6`$ by default | [Chen and Chen (2008)](https://doi.org/10.1093/biomet/asn034) |
+| AIC | 2d \frac{\sigma^2}{n} | [Akaike (1974)](https://doi.org/10.1109/TAC.1974.1100705) |
+| BIC | d \frac{\sigma^2}{n} \log n | [Schwarz (1978)](https://doi.org/10.1214/aos/1176344136) |
+| GIC2 | d \frac{\sigma^2}{n} p^{1/3} | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC3 | 2d \frac{\sigma^2}{n} \log p | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC4 | 2d \frac{\sigma^2}{n} (\log p + \log\log p) | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC5 | d \frac{\sigma^2}{n} \log\log n \log p | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| GIC6 | d \frac{\sigma^2}{n} \log n \log p | [Kim et al. (2012)](https://jmlr.org/papers/v13/kim12a.html) |
+| CAIC | d \frac{\sigma^2}{n} (\log n + 1) | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
+| CAICF | d \frac{\sigma^2}{n} (\log n + 1) + \frac{\sigma^2}{n} \log\det(X_d^\top X_d / \sigma^2) | [Bozdogan (1987)](https://doi.org/10.1007/BF02294361) |
+| SIC | d \frac{\sigma^2}{n} \sqrt{n} | [Shao (1997)](https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm) |
+| AICc | (d + 1) \frac{\sigma^2}{n - d - 2} | [Hurvich and Tsai (1989)](https://doi.org/10.1093/biomet/76.2.297) |
+| EBIC | d \frac{\sigma^2}{n} \left(\log n + \gamma \log \binom{p}{d}\right), \gamma = 0.6 by default | [Chen and Chen (2008)](https://doi.org/10.1093/biomet/asn034) |
 
 ## Examples
 
 The examples below compare three IC on the same data. In increasing
-order of penalty per variable, they are AIC ($`c_n = 2`$), BIC
-($`\log n`$) and GIC6 ($`\log n \log p`$), where $`p`$ is the number of
-candidate predictors. Each example also runs the Boltzmann machine
-([`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md))
-with GIC6, which uses probabilistic updates instead of the deterministic
-updates of a standard Hopfield network. The Boltzmann machine accepts a
-move that lowers the criterion by $`\Delta`$ with probability
-$`1/(1 + e^{\Delta/T})`$, where the temperature $`T`$ is a tuning
-parameter. The Boltzmann machine can leave a local optimum and provide
-some uncertainty quantification. The temperature used in each example
-is: linear $`T = 0.1`$, multivariate normal $`T = 0.05`$, Poisson
-$`T = 0.001`$, binomial $`T = 0.1`$, multinomial $`T = 0.1`$ and Cox
-$`T = 0.001`$.
+order of penalty per variable, they are AIC (c_n = 2), BIC (\log n) and
+GIC6 (\log n \log p), where p is the number of candidate predictors.
+Each example also runs the Boltzmann machine with GIC6, which uses
+probabilistic updates instead of the deterministic updates of a standard
+Hopfield network. The Boltzmann machine accepts a move that lowers the
+criterion by \Delta with probability 1/(1 + e^{\Delta/T}), where the
+temperature T is a tuning parameter. The Boltzmann machine can leave a
+local optimum and provide some uncertainty quantification. The
+temperature used in each example is: linear T = 0.1, multivariate normal
+T = 0.05, Poisson T = 0.001, binomial T = 0.1, multinomial T = 0.1 and
+Cox T = 0.001.
 
 For reference, the examples also fit the lasso and the adaptive lasso
 with the [glmnet](https://CRAN.R-project.org/package=glmnet) package
@@ -187,14 +163,14 @@ Each table reports the size, false positives and false negatives of the
 selected model, and the wall-clock time of each method in seconds. The
 right-hand panel of each figure shows the same times, and the middle
 panel shows the number of predictors the lasso and the adaptive lasso
-select at the cross-validated $`\lambda`$ (`lambda.min`) as horizontal
+select at the cross-validated \lambda (`lambda.min`) as horizontal
 lines.
 
-All examples use the same setting. The design matrix $`X`$ has
-$`n = 2000`$ observations of $`p = 500`$ independent standard normal
-predictors, so the predictor covariance is $`\Sigma = I`$, and only a
-few predictors affect the response. Every search runs twice, on the
-first 1000 observations and on all 2000.
+All examples use the same setting. The design matrix X has n = 2000
+observations of p = 500 independent standard normal predictors, so the
+predictor covariance is \Sigma = I, and only a few predictors affect the
+response. Every search runs twice, on the first 1000 observations and on
+all 2000.
 
 The examples below highlight some well-known statistical properties of
 these criteria:
@@ -211,11 +187,11 @@ these criteria:
 
 ### Linear model
 
-Here the response is $`Y = X\beta + \varepsilon`$ with
-$`\varepsilon \sim N(0, \sigma^2 I)`$. Five randomly chosen coefficients
-equal 2 and the rest are 0, and $`\sigma^2`$ gives a signal-to-noise
-ratio of $`\beta^\top\Sigma\beta/\sigma^2 = 0.71`$. Every search starts
-from the full model:
+Here the response is Y = X\beta + \varepsilon with \varepsilon \sim N(0,
+\sigma^2 I). Five randomly chosen coefficients equal 2 and the rest are
+0, and \sigma^2 gives a signal-to-noise ratio of
+\beta^\top\Sigma\beta/\sigma^2 = 0.71. Every search starts from the full
+model:
 
 ``` r
 
@@ -251,7 +227,7 @@ Criteria, model size and run time, linear model with p = 500
 ### Multivariate normal
 
 Five responses, each with its own 5 predictors and coefficients from 10
-down to 0.1. Pass the $`n \times 5`$ response matrix as `Y`:
+down to 0.1. Pass the n \times 5 response matrix as `Y`:
 
 ``` r
 
@@ -297,9 +273,9 @@ select with
 [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md),
 and then fit the selected model with
 [`Beta_estimate()`](https://yuchenxiao95.github.io/IChop/reference/Beta_estimate.md).
-The GLM examples reuse the design matrix `X` from above ($`n = 2000`$,
-$`p = 500`$), with 5 true predictors, and start each search from the
-first 10 columns.
+The GLM examples reuse the design matrix `X` from above (n = 2000, p =
+500), with 5 true predictors, and start each search from the first 10
+columns.
 
 ``` r
 
@@ -376,7 +352,7 @@ Criteria, model size and run time, binomial response
 
 #### Multinomial (three categories)
 
-The coefficients form a $`p \times 2`$ matrix, and category 3 is the
+The coefficients form a p \times 2 matrix, and category 3 is the
 baseline:
 
 ``` r
@@ -405,12 +381,11 @@ Criteria, model size and run time, multinomial response
 
 #### Cox proportional hazards
 
-The survival times follow a Cox model,
-$`h(t \mid x) = h_0(t)\, e^{x^\top\beta}`$, with the same $`\beta`$, an
-exponential baseline hazard $`h_0(t) = 1`$ and independent exponential
-censoring at rate 0.3, simulated by `LP_to_Y(family = "Cox")` ([Bender,
-Augustin and Blettner, 2005](https://doi.org/10.1002/sim.2059)). For the
-searches,
+The survival times follow a Cox model, h(t \mid x) = h_0(t)\\
+e^{x^\top\beta}, with the same \beta, an exponential baseline hazard
+h_0(t) = 1 and independent exponential censoring at rate 0.3, simulated
+by `LP_to_Y(family = "Cox")` ([Bender, Augustin and Blettner,
+2005](https://doi.org/10.1002/sim.2059)). For the searches,
 [`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
 maps each (time, status) pair to the deviance residual of the null Cox
 model ([Therneau, Grambsch and Fleming,
@@ -453,16 +428,15 @@ human-written version of the package, which results in an 8–230× speedup
 of
 [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
 from R, with the same variables selected. The gain grows with the sample
-size: from 1.9 s to 0.23 s at $`n = 1000`$, $`p = 200`$, from 16 s to
-0.52 s at $`n = 1000`$, $`p = 500`$, and from 101 s to 0.44 s at
-$`n = 5000`$, $`p = 500`$.
+size: from 1.9 s to 0.23 s at n = 1000, p = 200, from 16 s to 0.52 s at
+n = 1000, p = 500, and from 101 s to 0.44 s at n = 5000, p = 500.
 
-- **The search rebuilt the $`n \times n`$ hat matrix for every proposed
-  move.** Version 0.1.2 formed $`H = X_S (X_S^\top X_S)^{-1} X_S^\top`$
-  to score each add or remove, at $`O(n^2 K)`$ cost per move. Claude
-  Code updated the search to compute every criterion from $`X^\top Y`$
-  and $`(X_S^\top X_S)^{-1}`$ and to score each move with a rank-one
-  update, at $`O(nK + K^2)`$ cost. See Appendix 1 of the [package
+- **The search rebuilt the n \times n hat matrix for every proposed
+  move.** Version 0.1.2 formed H = X_S (X_S^\top X_S)^{-1} X_S^\top to
+  score each add or remove, at O(n^2 K) cost per move. Claude Code
+  updated the search to compute every criterion from X^\top Y and
+  (X_S^\top X_S)^{-1} and to score each move with a rank-one update, at
+  O(nK + K^2) cost. See Appendix 1 of the [package
   article](https://yuchenxiao95.github.io/IChop/vignettes/IChop.Rmd) for
   the details.
 - **Calls from R did not use the fast search.**
@@ -525,6 +499,6 @@ Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
 Martingale-based residuals for survival models. *Biometrika*, 77(1),
 147–160. <https://doi.org/10.1093/biomet/77.1.147>
 
-Xiao, Y. and Walker, S. (2026). Fast variable selection under $`\ell_0`$
+Xiao, Y. and Walker, S. (2026). Fast variable selection under \ell_0
 regularization in high-dimensions. *Statistics and Computing*, 36(3),
 100. <https://doi.org/10.1007/s11222-026-10853-5>
