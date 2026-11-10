@@ -86,16 +86,12 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   # multivariate examples), so the end of the path stays visible; both use the
   # same range and ticks, plus a tick at the true size
   log_ticks <- sort(unique(c(5, 10, 100, 500, true_size)))
-  # Lasso paths: nonzero predictors along the lambda grid, smallest lambda on
-  # the left, spread over the same width as the search (zero-size models are
-  # dropped so the log axis works)
+  # Lasso and adaptive lasso: one model each, at the cross-validated lambda,
+  # drawn as a horizontal line at its size
   shown <- methods[names(methods) %in% names(fits[[1]])]   # methods run in this example
   lasso <- setdiff(names(shown), names(palette))
   lasso_paths <- unlist(lapply(fits, function(by_method) by_method[lasso]), recursive = FALSE)
-  lasso_y <- lapply(lasso_paths, function(fit) {
-    y <- rev(fit$path)
-    replace(y, y == 0, NA)
-  })
+  lasso_y <- lapply(lasso_paths, function(fit) max(length(fit$selected), 1))
   log_y <- max(c(sizes, unlist(lasso_y)), na.rm = TRUE) > 100
   ylim <- range(c(sizes, unlist(lasso_y), true_size, if (log_y) range(log_ticks)), na.rm = TRUE)
   matplot(steps, sizes, type = "n", ylim = ylim,
@@ -109,8 +105,7 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   lasso_col <- rep(methods[lasso], times = length(fits))
   lasso_lty <- rep(size_lty[names(fits)], each = length(lasso))
   for (i in seq_along(lasso_y))
-    lines(seq(min(steps), max(steps), length.out = length(lasso_y[[i]])), lasso_y[[i]],
-          type = "s", lwd = 2, col = lasso_col[i], lty = lasso_lty[i])
+    abline(h = lasso_y[[i]], lwd = 2, col = lasso_col[i], lty = lasso_lty[i])
   title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
         line = 3.9)
 
