@@ -27,8 +27,9 @@ local({
   invisible(glmnet::cv.glmnet(Xw, yw))
 })
 
-palette <- c(AIC = "#2a78d6", BIC = "#eb6834", GIC6 = "#1baf7a", Boltzmann = "#d0459b")
-methods <- c(palette, Lasso = "#8a5cc2", AdaLasso = "#b8860b")
+# Okabe-Ito colours, chosen to stay distinguishable (also for colour-blind readers)
+palette <- c(AIC = "#0072B2", BIC = "#D55E00", GIC6 = "#009E73", Boltzmann = "#CC79A7")
+methods <- c(palette, Lasso = "#E69F00", AdaLasso = "#000000")
 
 # Lighter shade of a colour (used for n = 1000)
 tint <- function(col) {
@@ -42,7 +43,10 @@ size_lty <- c(n1000 = 1, n2000 = 3)       # solid: n = 1000, dotted: n = 2000
 # method, including the lasso and adaptive lasso. Light grey vertical lines
 # mark a new pass over the predictors; the dashed line marks the true size.
 # `fits` is fits[[sample size]][[method]], as returned by compare_criteria().
-plot_criteria <- function(fits, p, true_size, file) {
+# Signed log scale, sign(y) log10(1 + |y|), for criteria that go negative
+slog <- function(y) sign(y) * log10(1 + abs(y))
+
+plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   # 2 x 2 grid: criterion and model size on top, run time and the legend below
   png(file, width = 10, height = 8.4, units = "in", res = 200)
   on.exit(dev.off())
@@ -61,11 +65,22 @@ plot_criteria <- function(fits, p, true_size, file) {
   cols <- rep(palette, times = length(fits))
   ltys <- rep(size_lty[names(fits)], each = length(palette))
 
-  matplot(steps, values, type = "n", xlab = "Search step", ylab = "",
-          main = "Criterion along the search")
+  # Criterion panel, optionally on the signed log scale, labelled in the
+  # original units
+  yv <- if (log_criterion) slog(values) else values
+  matplot(steps, yv, type = "n", xlab = "Search step", ylab = "",
+          yaxt = if (log_criterion) "n" else "s", main = "Criterion along the search")
+  if (log_criterion) {
+    r <- range(values)
+    at <- c(-10^(4:0), 0, 10^(0:4))
+    at <- at[at >= r[1] & at <= r[2]]
+    if (length(at) < 3) at <- pretty(r)
+    axis(2, at = slog(at), labels = format(at, big.mark = ",", trim = TRUE))
+  }
   abline(v = passes, col = "grey85", lwd = 0.8)
-  matlines(steps, values, type = "s", lwd = 2, col = cols, lty = ltys)
-  title(ylab = "Criterion value", line = 3.9)
+  matlines(steps, yv, type = "s", lwd = 2, col = cols, lty = ltys)
+  title(ylab = if (log_criterion) "Criterion value (signed log scale)" else "Criterion value",
+        line = 3.9)
 
   # Log scale when the search starts from all predictors (linear and
   # multivariate examples), so the end of the path stays visible; both use the
@@ -118,7 +133,7 @@ plot_criteria <- function(fits, p, true_size, file) {
   par(mar = c(0, 0, 0, 0))
   plot.new()
   legend("center", inset = c(0, -0.12), legend = names(shown), col = shown,
-         lty = 1, lwd = 3, bty = "n", cex = 1.5, seg.len = 3, ncol = 2,
+         lty = 1, lwd = 3, bty = "n", cex = 1.25, seg.len = 3, ncol = 2,
          title = "Method", y.intersp = 1.3)
   legend("bottom", legend = c("n = 1000", "n = 2000"), col = "grey25",
          lty = size_lty, lwd = 2.5, horiz = TRUE, bty = "n", cex = 1.5,
@@ -166,7 +181,8 @@ process <- function(path, start_heading, figure_dir, draw) {
           if (draw) {
             truth <- if (!is.null(env$true_union) && grepl("multivariate", m))
               env$true_union else env$true_cols
-            plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, m))
+            plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, m),
+                          log_criterion = grepl("linear|multivariate", m))
           }
           break
         }
