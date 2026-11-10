@@ -67,8 +67,7 @@ E(z) = -z^\top W z ,
 ```
 
 and $`E`$ is bounded below, so the network always converges to a locally
-stable state ([Bruck, 1990](https://doi.org/10.1109/5.58341); [Rojas,
-1996](https://doi.org/10.1007/978-3-642-61068-4)).
+stable state ([Bruck, 1990](https://doi.org/10.1109/5.58341)).
 
 ### Connection with AIC
 
@@ -94,10 +93,10 @@ unbiased estimate of
 ```
 
 where $`\widehat{X_t \beta} = H_d X_t \beta`$. Maximizing it minimizes
-the expected out-of-sample error and finds the best orthogonal
+the expected out-of-sample error and finds the optimal orthogonal
 projection onto the span of $`X_t \beta`$, reached when $`X_d = X_t`$.
-This quantity plays the role of a Hopfield energy: updating one
-indicator at a time,
+This quantity plays the role of the energy term in a Hopfield network
+and allows the indicators to be updated one at a time:
 
 ``` math
 z_j(t+1) = \mathbf{1}\left\lbrace
@@ -105,9 +104,10 @@ z_j(t+1) = \mathbf{1}\left\lbrace
   \frac{1}{n} \beta^\top X_t^\top H_d X_t \beta \right\rbrace ,
 ```
 
-where $`H_{d+1}`$ includes $`x_j`$, it never decreases and is bounded
-above by $`\frac{1}{n} \beta^\top X_t^\top X_t \beta`$. Replacing the
-unknown signal with the data gives the update rule for AIC,
+where $`H_{d+1}`$ includes $`x_j`$. Under these updates the quantity
+never decreases, and it is bounded above by
+$`\frac{1}{n} \beta^\top X_t^\top X_t \beta`$. Replacing the unknown
+signal with the data gives the update rule for AIC,
 
 ``` math
 z_j(t+1) = \mathbf{1}\left\lbrace
@@ -509,9 +509,6 @@ selection in small samples. *Biometrika*, 76(2), 297–307.
 Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection
 criteria on high dimensions. *Journal of Machine Learning Research*, 13,
 1037–1057. <https://jmlr.org/papers/v13/kim12a.html>
-
-Rojas, R. (1996). *Neural Networks: A Systematic Introduction*.
-Springer, Berlin. <https://doi.org/10.1007/978-3-642-61068-4>
 
 Schwarz, G. (1978). Estimating the dimension of a model. *The Annals of
 Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
