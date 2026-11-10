@@ -328,27 +328,24 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC        152       147         0    0.61</span></span>
-<span><span class="co">#&gt; n1000 BIC          8         3         0    0.58</span></span>
+<span><span class="co">#&gt; n1000 AIC        152       147         0    0.63</span></span>
+<span><span class="co">#&gt; n1000 BIC          8         3         0    0.59</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.38</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.41</span></span>
-<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.82</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.63</span></span>
-<span><span class="co">#&gt; n2000 AIC        116       111         0    0.63</span></span>
-<span><span class="co">#&gt; n2000 BIC          9         4         0    0.67</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.74</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.62</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.43</span></span>
+<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.84</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.62</span></span>
+<span><span class="co">#&gt; n2000 AIC        116       111         0    0.67</span></span>
+<span><span class="co">#&gt; n2000 BIC          9         4         0    0.70</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.66</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.63</span></span>
 <span><span class="co">#&gt; n2000 Lasso       18        13         0    0.94</span></span>
 <span><span class="co">#&gt; n2000 AdaLasso    24        19         0    2.58</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/README-linear-criterion.png" alt="Criterion along the search, linear model with p = 500"><div class="figcaption">Criterion along the search, linear model with p = 500</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-linear-size.png" alt="Model size along the search, linear model with p = 500"><div class="figcaption">Model size along the search, linear model with p = 500</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-linear-runtime.png" alt="Run time, linear model with p = 500"><div class="figcaption">Run time, linear model with p = 500</div>
-</div>
+<p align="center">
+<img src="reference/figures/README-linear-criterion.png" alt="Criterion along the search, linear model with p = 500" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-linear-size.png" alt="Model size along the search, linear model with p = 500" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-linear-runtime.png" alt="Run time, linear model with p = 500" width="85%"></p>
 </div>
 <div class="section level3">
 <h3 id="multivariate-normal">Multivariate normal<a class="anchor" aria-label="anchor" href="#multivariate-normal"></a>
@@ -370,27 +367,24 @@ section and redraws the figures.
 <span>                         lasso_family <span class="op">=</span> <span class="st">"mgaussian"</span>, T <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC        102        80         2    0.51</span></span>
-<span><span class="co">#&gt; n1000 BIC         20         0         4    0.64</span></span>
-<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.44</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.48</span></span>
+<span><span class="co">#&gt; n1000 AIC        102        80         2    0.44</span></span>
+<span><span class="co">#&gt; n1000 BIC         20         0         4    0.52</span></span>
+<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.36</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.41</span></span>
 <span><span class="co">#&gt; n1000 Lasso      129       106         1    2.27</span></span>
 <span><span class="co">#&gt; n1000 AdaLasso    21         2         5    5.27</span></span>
-<span><span class="co">#&gt; n2000 AIC         69        45         0    0.65</span></span>
-<span><span class="co">#&gt; n2000 BIC         20         0         4    0.59</span></span>
-<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.66</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.60</span></span>
-<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.75</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.57</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/README-multivariate-criterion.png" alt="Criterion along the search, multivariate normal response"><div class="figcaption">Criterion along the search, multivariate normal response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-multivariate-size.png" alt="Model size along the search, multivariate normal response"><div class="figcaption">Model size along the search, multivariate normal response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-multivariate-runtime.png" alt="Run time, multivariate normal response"><div class="figcaption">Run time, multivariate normal response</div>
-</div>
+<span><span class="co">#&gt; n2000 AIC         69        45         0    0.67</span></span>
+<span><span class="co">#&gt; n2000 BIC         20         0         4    0.83</span></span>
+<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.71</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.74</span></span>
+<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.83</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.37</span></span></code></pre></div>
+<p align="center">
+<img src="reference/figures/README-multivariate-criterion.png" alt="Criterion along the search, multivariate normal response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-multivariate-size.png" alt="Model size along the search, multivariate normal response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-multivariate-runtime.png" alt="Run time, multivariate normal response" width="85%"></p>
 </div>
 <div class="section level3">
 <h3 id="generalized-linear-models">Generalized linear models<a class="anchor" aria-label="anchor" href="#generalized-linear-models"></a>
@@ -415,31 +409,28 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, <span class="va">y_pois</span>, <span class="st">"poisson"</span>, family <span class="op">=</span> <span class="st">"Poisson"</span>, T <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         48        43         0    0.41</span></span>
-<span><span class="co">#&gt; n1000 BIC          9         4         0    0.13</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 AIC         48        43         0    0.33</span></span>
+<span><span class="co">#&gt; n1000 BIC          9         4         0    0.06</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.07</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.93</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.14</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        44         0    0.16</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.91</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.10</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        44         0    0.06</span></span>
 <span><span class="co">#&gt; n2000 BIC         10         5         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.11</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.13</span></span>
 <span><span class="co">#&gt; n2000 Lasso       51        46         0    1.47</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    3.95</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.04</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, intercept first</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] -0.03  1.00 -1.01  0.79 -0.80  0.62</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/README-poisson-criterion.png" alt="Criterion along the search, Poisson response"><div class="figcaption">Criterion along the search, Poisson response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-poisson-size.png" alt="Model size along the search, Poisson response"><div class="figcaption">Model size along the search, Poisson response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-poisson-runtime.png" alt="Run time, Poisson response"><div class="figcaption">Run time, Poisson response</div>
-</div>
+<p align="center">
+<img src="reference/figures/README-poisson-criterion.png" alt="Criterion along the search, Poisson response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-poisson-size.png" alt="Model size along the search, Poisson response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-poisson-runtime.png" alt="Run time, Poisson response" width="85%"></p>
 </div>
 <div class="section level4">
 <h4 id="binomial-counts-10-trials">Binomial counts (10 trials)<a class="anchor" aria-label="anchor" href="#binomial-counts-10-trials"></a>
@@ -450,27 +441,24 @@ section and redraws the figures.
 <span>                    family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        46         2    0.21</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        46         2    0.19</span></span>
 <span><span class="co">#&gt; n1000 BIC          7         2         0    0.03</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.08</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.48</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.91</span></span>
-<span><span class="co">#&gt; n2000 AIC         48        46         3    0.08</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.38</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.92</span></span>
+<span><span class="co">#&gt; n2000 AIC         48        46         3    0.06</span></span>
 <span><span class="co">#&gt; n2000 BIC          7         2         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.14</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 Lasso       39        34         0    2.00</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    5.18</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/README-binomial-criterion.png" alt="Criterion along the search, binomial response"><div class="figcaption">Criterion along the search, binomial response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-binomial-size.png" alt="Model size along the search, binomial response"><div class="figcaption">Model size along the search, binomial response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-binomial-runtime.png" alt="Run time, binomial response"><div class="figcaption">Run time, binomial response</div>
-</div>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.11</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.16</span></span>
+<span><span class="co">#&gt; n2000 Lasso       39        34         0    1.70</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.81</span></span></code></pre></div>
+<p align="center">
+<img src="reference/figures/README-binomial-criterion.png" alt="Criterion along the search, binomial response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-binomial-size.png" alt="Model size along the search, binomial response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-binomial-runtime.png" alt="Run time, binomial response" width="85%"></p>
 </div>
 <div class="section level4">
 <h4 id="multinomial-three-categories">Multinomial (three categories)<a class="anchor" aria-label="anchor" href="#multinomial-three-categories"></a>
@@ -484,23 +472,20 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_mn</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>, family <span class="op">=</span> <span class="st">"Multinomial"</span>, n_categories <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        47         3    0.14</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        47         3    0.13</span></span>
 <span><span class="co">#&gt; n1000 BIC          7         2         0    0.03</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.03</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        45         1    0.26</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.03</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        45         1    0.13</span></span>
 <span><span class="co">#&gt; n2000 BIC          6         1         0    0.06</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.06</span></span>
 <span><span class="co">#&gt; n2000 Boltzmann   13         8         0    0.05</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/README-multinomial-criterion.png" alt="Criterion along the search, multinomial response"><div class="figcaption">Criterion along the search, multinomial response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-multinomial-size.png" alt="Model size along the search, multinomial response"><div class="figcaption">Model size along the search, multinomial response</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-multinomial-runtime.png" alt="Run time, multinomial response"><div class="figcaption">Run time, multinomial response</div>
-</div>
+<p align="center">
+<img src="reference/figures/README-multinomial-criterion.png" alt="Criterion along the search, multinomial response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-multinomial-size.png" alt="Model size along the search, multinomial response" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-multinomial-runtime.png" alt="Run time, multinomial response" width="85%"></p>
 </div>
 <div class="section level4">
 <h4 id="cox-proportional-hazards">Cox proportional hazards<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards"></a>
@@ -514,11 +499,11 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_cox</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>, family <span class="op">=</span> <span class="st">"Cox"</span>, T <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        47         3    0.63</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        47         3    0.60</span></span>
 <span><span class="co">#&gt; n1000 BIC          9         4         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        46         2    0.14</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.11</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        46         2    0.12</span></span>
 <span><span class="co">#&gt; n2000 BIC         11         6         0    0.05</span></span>
 <span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
 <span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
@@ -526,15 +511,12 @@ section and redraws the figures.
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, from survival::coxph()</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="va">y_surv</span> <span class="op">~</span> <span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]  0.97 -0.99  0.80 -0.84  0.59</span></span></code></pre></div>
-<div class="float">
-<img src="reference/figures/README-cox-criterion.png" alt="Criterion along the search, Cox model"><div class="figcaption">Criterion along the search, Cox model</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-cox-size.png" alt="Model size along the search, Cox model"><div class="figcaption">Model size along the search, Cox model</div>
-</div>
-<div class="float">
-<img src="reference/figures/README-cox-runtime.png" alt="Run time, Cox model"><div class="figcaption">Run time, Cox model</div>
-</div>
+<p align="center">
+<img src="reference/figures/README-cox-criterion.png" alt="Criterion along the search, Cox model" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-cox-size.png" alt="Model size along the search, Cox model" width="85%"></p>
+<p align="center">
+<img src="reference/figures/README-cox-runtime.png" alt="Run time, Cox model" width="85%"></p>
 </div>
 </div>
 </div>

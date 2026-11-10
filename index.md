@@ -207,16 +207,16 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        152       147         0    0.61
-#> n1000 BIC          8         3         0    0.58
+#> n1000 AIC        152       147         0    0.63
+#> n1000 BIC          8         3         0    0.59
 #> n1000 GIC6         5         0         0    0.38
-#> n1000 Boltzmann    5         0         0    0.41
-#> n1000 Lasso       22        17         0    0.82
-#> n1000 AdaLasso    25        20         0    1.63
-#> n2000 AIC        116       111         0    0.63
-#> n2000 BIC          9         4         0    0.67
-#> n2000 GIC6         5         0         0    0.74
-#> n2000 Boltzmann    5         0         0    0.62
+#> n1000 Boltzmann    5         0         0    0.43
+#> n1000 Lasso       22        17         0    0.84
+#> n1000 AdaLasso    25        20         0    1.62
+#> n2000 AIC        116       111         0    0.67
+#> n2000 BIC          9         4         0    0.70
+#> n2000 GIC6         5         0         0    0.66
+#> n2000 Boltzmann    5         0         0    0.63
 #> n2000 Lasso       18        13         0    0.94
 #> n2000 AdaLasso    24        19         0    2.58
 ```
@@ -224,17 +224,11 @@ selection_table(fits, true_cols)
 ![Criterion along the search, linear model with p =
 500](reference/figures/README-linear-criterion.png)
 
-Criterion along the search, linear model with p = 500
-
 ![Model size along the search, linear model with p =
 500](reference/figures/README-linear-size.png)
 
-Model size along the search, linear model with p = 500
-
 ![Run time, linear model with p =
 500](reference/figures/README-linear-runtime.png)
-
-Run time, linear model with p = 500
 
 ### Multivariate normal
 
@@ -258,34 +252,28 @@ fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5,
                          lasso_family = "mgaussian", T = 0.05)
 selection_table(fits, true_union)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        102        80         2    0.51
-#> n1000 BIC         20         0         4    0.64
-#> n1000 GIC6        19         0         5    0.44
-#> n1000 Boltzmann   26         7         5    0.48
+#> n1000 AIC        102        80         2    0.44
+#> n1000 BIC         20         0         4    0.52
+#> n1000 GIC6        19         0         5    0.36
+#> n1000 Boltzmann   26         7         5    0.41
 #> n1000 Lasso      129       106         1    2.27
 #> n1000 AdaLasso    21         2         5    5.27
-#> n2000 AIC         69        45         0    0.65
-#> n2000 BIC         20         0         4    0.59
-#> n2000 GIC6        19         0         5    0.66
-#> n2000 Boltzmann   68        47         3    0.60
-#> n2000 Lasso      131       107         0    3.75
-#> n2000 AdaLasso    41        17         0    8.57
+#> n2000 AIC         69        45         0    0.67
+#> n2000 BIC         20         0         4    0.83
+#> n2000 GIC6        19         0         5    0.71
+#> n2000 Boltzmann   68        47         3    0.74
+#> n2000 Lasso      131       107         0    3.83
+#> n2000 AdaLasso    41        17         0    8.37
 ```
 
 ![Criterion along the search, multivariate normal
 response](reference/figures/README-multivariate-criterion.png)
 
-Criterion along the search, multivariate normal response
-
 ![Model size along the search, multivariate normal
 response](reference/figures/README-multivariate-size.png)
 
-Model size along the search, multivariate normal response
-
 ![Run time, multivariate normal
 response](reference/figures/README-multivariate-runtime.png)
-
-Run time, multivariate normal response
 
 ### Generalized linear models
 
@@ -321,18 +309,18 @@ y_pois <- LP_to_Y(X, beta, family = "Poisson")
 fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson", T = 0.001)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         48        43         0    0.41
-#> n1000 BIC          9         4         0    0.13
-#> n1000 GIC6         5         0         0    0.02
+#> n1000 AIC         48        43         0    0.33
+#> n1000 BIC          9         4         0    0.06
+#> n1000 GIC6         5         0         0    0.07
 #> n1000 Boltzmann    5         0         0    0.02
-#> n1000 Lasso       29        24         0    1.93
-#> n1000 AdaLasso     5         0         0    2.14
-#> n2000 AIC         49        44         0    0.16
+#> n1000 Lasso       29        24         0    1.91
+#> n1000 AdaLasso     5         0         0    2.10
+#> n2000 AIC         49        44         0    0.06
 #> n2000 BIC         10         5         0    0.05
-#> n2000 GIC6         5         0         0    0.04
-#> n2000 Boltzmann    5         0         0    0.04
+#> n2000 GIC6         5         0         0    0.11
+#> n2000 Boltzmann    5         0         0    0.13
 #> n2000 Lasso       51        46         0    1.47
-#> n2000 AdaLasso     5         0         0    3.95
+#> n2000 AdaLasso     5         0         0    4.04
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -342,17 +330,11 @@ round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"
 ![Criterion along the search, Poisson
 response](reference/figures/README-poisson-criterion.png)
 
-Criterion along the search, Poisson response
-
 ![Model size along the search, Poisson
 response](reference/figures/README-poisson-size.png)
 
-Model size along the search, Poisson response
-
 ![Run time, Poisson
 response](reference/figures/README-poisson-runtime.png)
-
-Run time, Poisson response
 
 #### Binomial counts (10 trials)
 
@@ -363,34 +345,28 @@ fits <- compare_glm(y_binom, cbind(10 - y_binom, y_binom), "binomial",
                     family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        46         2    0.21
+#> n1000 AIC         49        46         2    0.19
 #> n1000 BIC          7         2         0    0.03
-#> n1000 GIC6         5         0         0    0.08
+#> n1000 GIC6         5         0         0    0.02
 #> n1000 Boltzmann    5         0         0    0.02
-#> n1000 Lasso       29        24         0    1.48
-#> n1000 AdaLasso    35        30         0    2.91
-#> n2000 AIC         48        46         3    0.08
+#> n1000 Lasso       29        24         0    1.38
+#> n1000 AdaLasso    35        30         0    2.92
+#> n2000 AIC         48        46         3    0.06
 #> n2000 BIC          7         2         0    0.05
-#> n2000 GIC6         5         0         0    0.14
-#> n2000 Boltzmann    5         0         0    0.05
-#> n2000 Lasso       39        34         0    2.00
-#> n2000 AdaLasso     5         0         0    5.18
+#> n2000 GIC6         5         0         0    0.11
+#> n2000 Boltzmann    5         0         0    0.16
+#> n2000 Lasso       39        34         0    1.70
+#> n2000 AdaLasso     5         0         0    4.81
 ```
 
 ![Criterion along the search, binomial
 response](reference/figures/README-binomial-criterion.png)
 
-Criterion along the search, binomial response
-
 ![Model size along the search, binomial
 response](reference/figures/README-binomial-size.png)
 
-Model size along the search, binomial response
-
 ![Run time, binomial
 response](reference/figures/README-binomial-runtime.png)
-
-Run time, binomial response
 
 #### Multinomial (three categories)
 
@@ -406,30 +382,24 @@ y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
 fits <- compare_glm(y_mn, NULL, NULL, family = "Multinomial", n_categories = 3)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        47         3    0.14
+#> n1000 AIC         49        47         3    0.13
 #> n1000 BIC          7         2         0    0.03
 #> n1000 GIC6         5         0         0    0.03
-#> n1000 Boltzmann    5         0         0    0.04
-#> n2000 AIC         49        45         1    0.26
+#> n1000 Boltzmann    5         0         0    0.03
+#> n2000 AIC         49        45         1    0.13
 #> n2000 BIC          6         1         0    0.06
-#> n2000 GIC6         5         0         0    0.05
+#> n2000 GIC6         5         0         0    0.06
 #> n2000 Boltzmann   13         8         0    0.05
 ```
 
 ![Criterion along the search, multinomial
 response](reference/figures/README-multinomial-criterion.png)
 
-Criterion along the search, multinomial response
-
 ![Model size along the search, multinomial
 response](reference/figures/README-multinomial-size.png)
 
-Model size along the search, multinomial response
-
 ![Run time, multinomial
 response](reference/figures/README-multinomial-runtime.png)
-
-Run time, multinomial response
 
 #### Cox proportional hazards
 
@@ -454,11 +424,11 @@ y_surv <- survival::Surv(y_cox[, "time"], y_cox[, "status"])
 fits <- compare_glm(y_cox, NULL, NULL, family = "Cox", T = 0.001)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        47         3    0.63
+#> n1000 AIC         49        47         3    0.60
 #> n1000 BIC          9         4         0    0.02
 #> n1000 GIC6         5         0         0    0.02
-#> n1000 Boltzmann    5         0         0    0.02
-#> n2000 AIC         49        46         2    0.14
+#> n1000 Boltzmann    5         0         0    0.11
+#> n2000 AIC         49        46         2    0.12
 #> n2000 BIC         11         6         0    0.05
 #> n2000 GIC6         5         0         0    0.05
 #> n2000 Boltzmann    5         0         0    0.04
@@ -471,16 +441,10 @@ round(unname(coef(survival::coxph(y_surv ~ X[, last_model(fits$n2000$GIC6)]))), 
 ![Criterion along the search, Cox
 model](reference/figures/README-cox-criterion.png)
 
-Criterion along the search, Cox model
-
 ![Model size along the search, Cox
 model](reference/figures/README-cox-size.png)
 
-Model size along the search, Cox model
-
 ![Run time, Cox model](reference/figures/README-cox-runtime.png)
-
-Run time, Cox model
 
 ## Performance
 
