@@ -67,7 +67,8 @@ E(z) = -z^\top W z ,
 ```
 
 and $`E`$ is bounded below, so the network always converges to a locally
-stable state (Bruck, 1990; Rojas, 1996).
+stable state ([Bruck, 1990](https://doi.org/10.1109/5.58341); [Rojas,
+1996](https://doi.org/10.1007/978-3-642-61068-4)).
 
 ### Connection with AIC
 
@@ -224,18 +225,18 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        152       147         0    0.54
-#> n1000 BIC          8         3         0    0.54
-#> n1000 GIC6         5         0         0    0.35
-#> n1000 Boltzmann    5         0         0    0.39
-#> n1000 Lasso       22        17         0    0.82
-#> n1000 AdaLasso    25        20         0    1.63
+#> n1000 AIC        152       147         0    0.71
+#> n1000 BIC          8         3         0    0.62
+#> n1000 GIC6         5         0         0    0.40
+#> n1000 Boltzmann    5         0         0    0.43
+#> n1000 Lasso       22        17         0    0.84
+#> n1000 AdaLasso    25        20         0    1.64
 #> n2000 AIC        116       111         0    0.68
-#> n2000 BIC          9         4         0    0.66
-#> n2000 GIC6         5         0         0    0.63
-#> n2000 Boltzmann    5         0         0    0.62
-#> n2000 Lasso       18        13         0    0.93
-#> n2000 AdaLasso    24        19         0    2.55
+#> n2000 BIC          9         4         0    0.77
+#> n2000 GIC6         5         0         0    0.67
+#> n2000 Boltzmann    5         0         0    0.60
+#> n2000 Lasso       18        13         0    0.95
+#> n2000 AdaLasso    24        19         0    2.62
 ```
 
 ![Criteria, model size and run time, linear model with p =
@@ -265,18 +266,18 @@ fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5,
                          lasso_family = "mgaussian", T = 0.05)
 selection_table(fits, true_union)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        102        80         2    0.52
-#> n1000 BIC         20         0         4    0.49
-#> n1000 GIC6        19         0         5    0.49
-#> n1000 Boltzmann   26         7         5    0.46
-#> n1000 Lasso      129       106         1    2.25
-#> n1000 AdaLasso    21         2         5    5.16
-#> n2000 AIC         69        45         0    0.71
-#> n2000 BIC         20         0         4    0.67
-#> n2000 GIC6        19         0         5    0.70
-#> n2000 Boltzmann   68        47         3    0.67
-#> n2000 Lasso      131       107         0    3.71
-#> n2000 AdaLasso    41        17         0    8.62
+#> n1000 AIC        102        80         2    0.49
+#> n1000 BIC         20         0         4    0.57
+#> n1000 GIC6        19         0         5    0.45
+#> n1000 Boltzmann   26         7         5    0.48
+#> n1000 Lasso      129       106         1    2.30
+#> n1000 AdaLasso    21         2         5    5.25
+#> n2000 AIC         69        45         0    0.87
+#> n2000 BIC         20         0         4    0.94
+#> n2000 GIC6        19         0         5    0.71
+#> n2000 Boltzmann   68        47         3    0.78
+#> n2000 Lasso      131       107         0    3.59
+#> n2000 AdaLasso    41        17         0    8.39
 ```
 
 ![Criteria, model size and run time, multivariate normal
@@ -318,18 +319,18 @@ y_pois <- LP_to_Y(X, beta, family = "Poisson")
 fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson", T = 0.001)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         48        43         0    0.40
-#> n1000 BIC          9         4         0    0.06
-#> n1000 GIC6         5         0         0    0.02
-#> n1000 Boltzmann    5         0         0    0.09
-#> n1000 Lasso       29        24         0    1.93
-#> n1000 AdaLasso     5         0         0    2.14
-#> n2000 AIC         49        44         0    0.08
-#> n2000 BIC         10         5         0    0.06
-#> n2000 GIC6         5         0         0    0.11
-#> n2000 Boltzmann    5         0         0    0.04
-#> n2000 Lasso       51        46         0    1.52
-#> n2000 AdaLasso     5         0         0    4.19
+#> n1000 AIC         48        43         0    0.34
+#> n1000 BIC          9         4         0    0.14
+#> n1000 GIC6         5         0         0    0.07
+#> n1000 Boltzmann    5         0         0    0.02
+#> n1000 Lasso       29        24         0    1.95
+#> n1000 AdaLasso     5         0         0    2.23
+#> n2000 AIC         49        44         0    0.07
+#> n2000 BIC         10         5         0    0.05
+#> n2000 GIC6         5         0         0    0.13
+#> n2000 Boltzmann    5         0         0    0.05
+#> n2000 Lasso       51        46         0    1.48
+#> n2000 AdaLasso     5         0         0    4.02
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -350,18 +351,18 @@ fits <- compare_glm(y_binom, cbind(10 - y_binom, y_binom), "binomial",
                     family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        46         2    0.21
+#> n1000 AIC         49        46         2    0.16
 #> n1000 BIC          7         2         0    0.02
-#> n1000 GIC6         5         0         0    0.11
-#> n1000 Boltzmann    5         0         0    0.03
-#> n1000 Lasso       29        24         0    1.38
-#> n1000 AdaLasso    35        30         0    2.89
-#> n2000 AIC         48        46         3    0.06
+#> n1000 GIC6         5         0         0    0.02
+#> n1000 Boltzmann    5         0         0    0.02
+#> n1000 Lasso       29        24         0    1.39
+#> n1000 AdaLasso    35        30         0    2.87
+#> n2000 AIC         48        46         3    0.11
 #> n2000 BIC          7         2         0    0.05
-#> n2000 GIC6         5         0         0    0.10
-#> n2000 Boltzmann    5         0         0    0.04
-#> n2000 Lasso       39        34         0    1.72
-#> n2000 AdaLasso     5         0         0    4.83
+#> n2000 GIC6         5         0         0    0.05
+#> n2000 Boltzmann    5         0         0    0.13
+#> n2000 Lasso       39        34         0    1.70
+#> n2000 AdaLasso     5         0         0    4.87
 ```
 
 ![Criteria, model size and run time, binomial
@@ -384,11 +385,11 @@ fits <- compare_glm(y_mn, NULL, NULL, family = "Multinomial", n_categories = 3)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
 #> n1000 AIC         49        47         3    0.13
-#> n1000 BIC          7         2         0    0.03
-#> n1000 GIC6         5         0         0    0.03
-#> n1000 Boltzmann    5         0         0    0.03
-#> n2000 AIC         49        45         1    0.15
-#> n2000 BIC          6         1         0    0.05
+#> n1000 BIC          7         2         0    0.02
+#> n1000 GIC6         5         0         0    0.02
+#> n1000 Boltzmann    5         0         0    0.02
+#> n2000 AIC         49        45         1    0.12
+#> n2000 BIC          6         1         0    0.04
 #> n2000 GIC6         5         0         0    0.05
 #> n2000 Boltzmann   13         8         0    0.05
 ```
@@ -422,14 +423,14 @@ y_surv <- survival::Surv(y_cox[, "time"], y_cox[, "status"])
 fits <- compare_glm(y_cox, NULL, NULL, family = "Cox", T = 0.001)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        47         3    0.66
+#> n1000 AIC         49        47         3    0.62
 #> n1000 BIC          9         4         0    0.03
 #> n1000 GIC6         5         0         0    0.02
 #> n1000 Boltzmann    5         0         0    0.02
-#> n2000 AIC         49        46         2    0.12
-#> n2000 BIC         11         6         0    0.04
-#> n2000 GIC6         5         0         0    0.04
-#> n2000 Boltzmann    5         0         0    0.05
+#> n2000 AIC         49        46         2    0.13
+#> n2000 BIC         11         6         0    0.05
+#> n2000 GIC6         5         0         0    0.05
+#> n2000 Boltzmann    5         0         0    0.04
 
 # Coefficients of the GIC6 model for n = 2000, from survival::coxph()
 round(unname(coef(survival::coxph(y_surv ~ X[, last_model(fits$n2000$GIC6)]))), 2)
@@ -443,18 +444,23 @@ Criteria, model size and run time, Cox model
 
 ## Performance
 
-Claude Code identified two slowdowns in the variable-selection search
-and fixed both, with the same variables selected at every step:
+Claude Code identified and fixed two slowdowns in the original,
+human-written version of the package, which results in an 8–230× speedup
+of
+[`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
+from R, with the same variables selected. The gain grows with the sample
+size: from 1.9 s to 0.23 s at $`n = 1000`$, $`p = 200`$, from 16 s to
+0.52 s at $`n = 1000`$, $`p = 500`$, and from 101 s to 0.44 s at
+$`n = 5000`$, $`p = 500`$.
 
 - **The search rebuilt the $`n \times n`$ hat matrix for every proposed
   move.** Version 0.1.2 formed $`H = X_S (X_S^\top X_S)^{-1} X_S^\top`$
   to score each add or remove, at $`O(n^2 K)`$ cost per move. Claude
   Code updated the search to compute every criterion from $`X^\top Y`$
   and $`(X_S^\top X_S)^{-1}`$ and to score each move with a rank-one
-  update, at $`O(nK + K^2)`$ cost, which results in a 38–371× speedup of
-  the Julia search on simulated data. See the [Performance
-  article](https://yuchenxiao95.github.io/IChop/vignettes/performance.Rmd)
-  for the details.
+  update, at $`O(nK + K^2)`$ cost. See Appendix 1 of the [package
+  article](https://yuchenxiao95.github.io/IChop/vignettes/IChop.Rmd) for
+  the details.
 - **Calls from R did not use the fast search.**
   [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
   and
@@ -462,16 +468,29 @@ and fixed both, with the same variables selected at every step:
   passed the criterion to Julia as a function, which arrived as an
   R-wrapped object that the search did not recognise, so it fell back to
   refitting every candidate model and calling back into R. Claude Code
-  updated the R functions to pass the criterion by name, which results
-  in a 17–25× speedup of
-  [`GICSelection()`](https://yuchenxiao95.github.io/IChop/reference/GICSelection.md)
-  from R ($`n = 1000`$, $`p = 500`$, starting from all 500 predictors).
+  updated the R functions to pass the criterion by name.
 
 ## References
+
+Akaike, H. (1974). A new look at the statistical model identification.
+*IEEE Transactions on Automatic Control*, 19(6), 716–723.
+<https://doi.org/10.1109/TAC.1974.1100705>
 
 Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival
 times to simulate Cox proportional hazards models. *Statistics in
 Medicine*, 24(11), 1713–1723. <https://doi.org/10.1002/sim.2059>
+
+Bozdogan, H. (1987). Model selection and Akaike’s information criterion
+(AIC): The general theory and its analytical extensions.
+*Psychometrika*, 52(3), 345–370. <https://doi.org/10.1007/BF02294361>
+
+Bruck, J. (1990). On the convergence properties of the Hopfield model.
+*Proceedings of the IEEE*, 78(10), 1579–1585.
+<https://doi.org/10.1109/5.58341>
+
+Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for
+model selection with large model spaces. *Biometrika*, 95(3), 759–771.
+<https://doi.org/10.1093/biomet/asn034>
 
 Friedman, J., Hastie, T. and Tibshirani, R. (2010). Regularization paths
 for generalized linear models via coordinate descent. *Journal of
@@ -483,6 +502,28 @@ emergent collective computational abilities. *Proceedings of the
 National Academy of Sciences*, 79(8), 2554–2558.
 <https://doi.org/10.1073/pnas.79.8.2554>
 
+Hurvich, C. M. and Tsai, C.-L. (1989). Regression and time series model
+selection in small samples. *Biometrika*, 76(2), 297–307.
+<https://doi.org/10.1093/biomet/76.2.297>
+
+Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection
+criteria on high dimensions. *Journal of Machine Learning Research*, 13,
+1037–1057. <https://jmlr.org/papers/v13/kim12a.html>
+
+Rojas, R. (1996). *Neural Networks: A Systematic Introduction*.
+Springer, Berlin. <https://doi.org/10.1007/978-3-642-61068-4>
+
+Schwarz, G. (1978). Estimating the dimension of a model. *The Annals of
+Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
+
+Shao, J. (1997). An asymptotic theory for linear model selection.
+*Statistica Sinica*, 7(2), 221–264.
+<https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm>
+
 Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
 Martingale-based residuals for survival models. *Biometrika*, 77(1),
 147–160. <https://doi.org/10.1093/biomet/77.1.147>
+
+Xiao, Y. and Walker, S. (2026). Fast variable selection under $`\ell_0`$
+regularization in high-dimensions. *Statistics and Computing*, 36(3),
+100. <https://doi.org/10.1007/s11222-026-10853-5>

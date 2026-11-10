@@ -87,7 +87,7 @@ H_i(t) = \sum_{j \ne i} w_{ij} z_j(t),
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><msup><mi>z</mi><mi>⊤</mi></msup><mi>W</mi><mi>z</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
 E(z) = -z^\top W z ,
 </annotation></semantics></math></p>
-<p>and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math> is bounded below, so the network always converges to a locally stable state (Bruck, 1990; Rojas, 1996).</p>
+<p>and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math> is bounded below, so the network always converges to a locally stable state (<a href="https://doi.org/10.1109/5.58341" class="external-link">Bruck, 1990</a>; <a href="https://doi.org/10.1007/978-3-642-61068-4" class="external-link">Rojas, 1996</a>).</p>
 </div>
 <div class="section level3">
 <h3 id="connection-with-aic">Connection with AIC<a class="anchor" aria-label="anchor" href="#connection-with-aic"></a>
@@ -323,18 +323,18 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC        152       147         0    0.54</span></span>
-<span><span class="co">#&gt; n1000 BIC          8         3         0    0.54</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.35</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.39</span></span>
-<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.82</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.63</span></span>
+<span><span class="co">#&gt; n1000 AIC        152       147         0    0.71</span></span>
+<span><span class="co">#&gt; n1000 BIC          8         3         0    0.62</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.40</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.43</span></span>
+<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.84</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.64</span></span>
 <span><span class="co">#&gt; n2000 AIC        116       111         0    0.68</span></span>
-<span><span class="co">#&gt; n2000 BIC          9         4         0    0.66</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.63</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.62</span></span>
-<span><span class="co">#&gt; n2000 Lasso       18        13         0    0.93</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso    24        19         0    2.55</span></span></code></pre></div>
+<span><span class="co">#&gt; n2000 BIC          9         4         0    0.77</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.67</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.60</span></span>
+<span><span class="co">#&gt; n2000 Lasso       18        13         0    0.95</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    24        19         0    2.62</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-linear-runtime.png" alt="Criteria, model size and run time, linear model with p = 500"><div class="figcaption">Criteria, model size and run time, linear model with p = 500</div>
 </div>
@@ -359,18 +359,18 @@ section and redraws the figures.
 <span>                         lasso_family <span class="op">=</span> <span class="st">"mgaussian"</span>, T <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC        102        80         2    0.52</span></span>
-<span><span class="co">#&gt; n1000 BIC         20         0         4    0.49</span></span>
-<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.49</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.46</span></span>
-<span><span class="co">#&gt; n1000 Lasso      129       106         1    2.25</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    21         2         5    5.16</span></span>
-<span><span class="co">#&gt; n2000 AIC         69        45         0    0.71</span></span>
-<span><span class="co">#&gt; n2000 BIC         20         0         4    0.67</span></span>
-<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.70</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.67</span></span>
-<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.71</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.62</span></span></code></pre></div>
+<span><span class="co">#&gt; n1000 AIC        102        80         2    0.49</span></span>
+<span><span class="co">#&gt; n1000 BIC         20         0         4    0.57</span></span>
+<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.45</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.48</span></span>
+<span><span class="co">#&gt; n1000 Lasso      129       106         1    2.30</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    21         2         5    5.25</span></span>
+<span><span class="co">#&gt; n2000 AIC         69        45         0    0.87</span></span>
+<span><span class="co">#&gt; n2000 BIC         20         0         4    0.94</span></span>
+<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.71</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.78</span></span>
+<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.59</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.39</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-multivariate-runtime.png" alt="Criteria, model size and run time, multivariate normal response"><div class="figcaption">Criteria, model size and run time, multivariate normal response</div>
 </div>
@@ -398,18 +398,18 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_pois</span>, <span class="va">y_pois</span>, <span class="st">"poisson"</span>, family <span class="op">=</span> <span class="st">"Poisson"</span>, T <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         48        43         0    0.40</span></span>
-<span><span class="co">#&gt; n1000 BIC          9         4         0    0.06</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.09</span></span>
-<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.93</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.14</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        44         0    0.08</span></span>
-<span><span class="co">#&gt; n2000 BIC         10         5         0    0.06</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.11</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 Lasso       51        46         0    1.52</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.19</span></span>
+<span><span class="co">#&gt; n1000 AIC         48        43         0    0.34</span></span>
+<span><span class="co">#&gt; n1000 BIC          9         4         0    0.14</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.07</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.95</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.23</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        44         0    0.07</span></span>
+<span><span class="co">#&gt; n2000 BIC         10         5         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.13</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 Lasso       51        46         0    1.48</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.02</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, intercept first</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -427,18 +427,18 @@ section and redraws the figures.
 <span>                    family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        46         2    0.21</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        46         2    0.16</span></span>
 <span><span class="co">#&gt; n1000 BIC          7         2         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.11</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.03</span></span>
-<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.38</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.89</span></span>
-<span><span class="co">#&gt; n2000 AIC         48        46         3    0.06</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.39</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.87</span></span>
+<span><span class="co">#&gt; n2000 AIC         48        46         3    0.11</span></span>
 <span><span class="co">#&gt; n2000 BIC          7         2         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.10</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 Lasso       39        34         0    1.72</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.83</span></span></code></pre></div>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.13</span></span>
+<span><span class="co">#&gt; n2000 Lasso       39        34         0    1.70</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.87</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-binomial-runtime.png" alt="Criteria, model size and run time, binomial response"><div class="figcaption">Criteria, model size and run time, binomial response</div>
 </div>
@@ -456,11 +456,11 @@ section and redraws the figures.
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
 <span><span class="co">#&gt; n1000 AIC         49        47         3    0.13</span></span>
-<span><span class="co">#&gt; n1000 BIC          7         2         0    0.03</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.03</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.03</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        45         1    0.15</span></span>
-<span><span class="co">#&gt; n2000 BIC          6         1         0    0.05</span></span>
+<span><span class="co">#&gt; n1000 BIC          7         2         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        45         1    0.12</span></span>
+<span><span class="co">#&gt; n2000 BIC          6         1         0    0.04</span></span>
 <span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
 <span><span class="co">#&gt; n2000 Boltzmann   13         8         0    0.05</span></span></code></pre></div>
 <div class="float">
@@ -479,14 +479,14 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_cox</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>, family <span class="op">=</span> <span class="st">"Cox"</span>, T <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        47         3    0.66</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        47         3    0.62</span></span>
 <span><span class="co">#&gt; n1000 BIC          9         4         0    0.03</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        46         2    0.12</span></span>
-<span><span class="co">#&gt; n2000 BIC         11         6         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        46         2    0.13</span></span>
+<span><span class="co">#&gt; n2000 BIC         11         6         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, from survival::coxph()</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="va">y_surv</span> <span class="op">~</span> <span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -500,21 +500,31 @@ section and redraws the figures.
 <div class="section level2">
 <h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
 </h2>
-<p>Claude Code identified two slowdowns in the variable-selection search and fixed both, with the same variables selected at every step:</p>
+<p>Claude Code identified and fixed two slowdowns in the original, human-written version of the package, which results in an 8–230× speedup of <code><a href="reference/GICSelection.html">GICSelection()</a></code> from R, with the same variables selected. The gain grows with the sample size: from 1.9 s to 0.23 s at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>200</mn></mrow><annotation encoding="application/x-tex">p = 200</annotation></semantics></math>, from 16 s to 0.52 s at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>, and from 101 s to 0.44 s at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>5000</mn></mrow><annotation encoding="application/x-tex">n = 5000</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>.</p>
 <ul>
 <li>
-<strong>The search rebuilt the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math> hat matrix for every proposed move.</strong> Version 0.1.2 formed <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><msub><mi>X</mi><mi>S</mi></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup></mrow><annotation encoding="application/x-tex">H = X_S (X_S^\top X_S)^{-1} X_S^\top</annotation></semantics></math> to score each add or remove, at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2 K)</annotation></semantics></math> cost per move. Claude Code updated the search to compute every criterion from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>⊤</mi></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">X^\top Y</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">(X_S^\top X_S)^{-1}</annotation></semantics></math> and to score each move with a rank-one update, at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>K</mi><mo>+</mo><msup><mi>K</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(nK + K^2)</annotation></semantics></math> cost, which results in a 38–371× speedup of the Julia search on simulated data. See the <a href="vignettes/performance.Rmd">Performance article</a> for the details.</li>
+<strong>The search rebuilt the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math> hat matrix for every proposed move.</strong> Version 0.1.2 formed <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><msub><mi>X</mi><mi>S</mi></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup></mrow><annotation encoding="application/x-tex">H = X_S (X_S^\top X_S)^{-1} X_S^\top</annotation></semantics></math> to score each add or remove, at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2 K)</annotation></semantics></math> cost per move. Claude Code updated the search to compute every criterion from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>⊤</mi></msup><mi>Y</mi></mrow><annotation encoding="application/x-tex">X^\top Y</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mi>S</mi><mi>⊤</mi></msubsup><msub><mi>X</mi><mi>S</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">(X_S^\top X_S)^{-1}</annotation></semantics></math> and to score each move with a rank-one update, at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>K</mi><mo>+</mo><msup><mi>K</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(nK + K^2)</annotation></semantics></math> cost. See Appendix 1 of the <a href="vignettes/IChop.Rmd">package article</a> for the details.</li>
 <li>
-<strong>Calls from R did not use the fast search.</strong> <code><a href="reference/GICSelection.html">GICSelection()</a></code> and <code><a href="reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code> passed the criterion to Julia as a function, which arrived as an R-wrapped object that the search did not recognise, so it fell back to refitting every candidate model and calling back into R. Claude Code updated the R functions to pass the criterion by name, which results in a 17–25× speedup of <code><a href="reference/GICSelection.html">GICSelection()</a></code> from R (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n = 1000</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">p = 500</annotation></semantics></math>, starting from all 500 predictors).</li>
+<strong>Calls from R did not use the fast search.</strong> <code><a href="reference/GICSelection.html">GICSelection()</a></code> and <code><a href="reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code> passed the criterion to Julia as a function, which arrived as an R-wrapped object that the search did not recognise, so it fell back to refitting every candidate model and calling back into R. Claude Code updated the R functions to pass the criterion by name.</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<p>Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE Transactions on Automatic Control</em>, 19(6), 716–723. <a href="https://doi.org/10.1109/TAC.1974.1100705" class="external-link uri">https://doi.org/10.1109/TAC.1974.1100705</a></p>
 <p>Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival times to simulate Cox proportional hazards models. <em>Statistics in Medicine</em>, 24(11), 1713–1723. <a href="https://doi.org/10.1002/sim.2059" class="external-link uri">https://doi.org/10.1002/sim.2059</a></p>
+<p>Bozdogan, H. (1987). Model selection and Akaike’s information criterion (AIC): The general theory and its analytical extensions. <em>Psychometrika</em>, 52(3), 345–370. <a href="https://doi.org/10.1007/BF02294361" class="external-link uri">https://doi.org/10.1007/BF02294361</a></p>
+<p>Bruck, J. (1990). On the convergence properties of the Hopfield model. <em>Proceedings of the IEEE</em>, 78(10), 1579–1585. <a href="https://doi.org/10.1109/5.58341" class="external-link uri">https://doi.org/10.1109/5.58341</a></p>
+<p>Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for model selection with large model spaces. <em>Biometrika</em>, 95(3), 759–771. <a href="https://doi.org/10.1093/biomet/asn034" class="external-link uri">https://doi.org/10.1093/biomet/asn034</a></p>
 <p>Friedman, J., Hastie, T. and Tibshirani, R. (2010). Regularization paths for generalized linear models via coordinate descent. <em>Journal of Statistical Software</em>, 33(1), 1–22. <a href="https://doi.org/10.18637/jss.v033.i01" class="external-link uri">https://doi.org/10.18637/jss.v033.i01</a></p>
 <p>Hopfield, J. J. (1982). Neural networks and physical systems with emergent collective computational abilities. <em>Proceedings of the National Academy of Sciences</em>, 79(8), 2554–2558. <a href="https://doi.org/10.1073/pnas.79.8.2554" class="external-link uri">https://doi.org/10.1073/pnas.79.8.2554</a></p>
+<p>Hurvich, C. M. and Tsai, C.-L. (1989). Regression and time series model selection in small samples. <em>Biometrika</em>, 76(2), 297–307. <a href="https://doi.org/10.1093/biomet/76.2.297" class="external-link uri">https://doi.org/10.1093/biomet/76.2.297</a></p>
+<p>Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection criteria on high dimensions. <em>Journal of Machine Learning Research</em>, 13, 1037–1057. <a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link uri">https://jmlr.org/papers/v13/kim12a.html</a></p>
+<p>Rojas, R. (1996). <em>Neural Networks: A Systematic Introduction</em>. Springer, Berlin. <a href="https://doi.org/10.1007/978-3-642-61068-4" class="external-link uri">https://doi.org/10.1007/978-3-642-61068-4</a></p>
+<p>Schwarz, G. (1978). Estimating the dimension of a model. <em>The Annals of Statistics</em>, 6(2), 461–464. <a href="https://doi.org/10.1214/aos/1176344136" class="external-link uri">https://doi.org/10.1214/aos/1176344136</a></p>
+<p>Shao, J. (1997). An asymptotic theory for linear model selection. <em>Statistica Sinica</em>, 7(2), 221–264. <a href="https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm" class="external-link uri">https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm</a></p>
 <p>Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990). Martingale-based residuals for survival models. <em>Biometrika</em>, 77(1), 147–160. <a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link uri">https://doi.org/10.1093/biomet/77.1.147</a></p>
+<p>Xiao, Y. and Walker, S. (2026). Fast variable selection under <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\ell_0</annotation></semantics></math> regularization in high-dimensions. <em>Statistics and Computing</em>, 36(3), 100. <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link uri">https://doi.org/10.1007/s11222-026-10853-5</a></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
