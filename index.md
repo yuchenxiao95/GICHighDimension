@@ -163,14 +163,17 @@ predictors:
 The examples below compare three IC on the same data. In increasing
 order of penalty per variable, they are AIC ($`c_n = 2`$), BIC
 ($`\log n`$) and GIC6 ($`\log n \log p`$), where $`p`$ is the number of
-candidate predictors. Each example also runs the Boltzmann search
+candidate predictors. Each example also runs the Boltzmann machine
 ([`GICSelectionBoltzmann()`](https://yuchenxiao95.github.io/IChop/reference/GICSelectionBoltzmann.md))
-with GIC6, which accepts a move that lowers the criterion by $`\Delta`$
-with probability $`1/(1 + e^{\Delta/T})`$, so it can leave a local
-optimum. The temperature $`T`$ is a tuning parameter. The temperature
-used in each example is: linear $`T = 0.1`$, multivariate normal
-$`T = 0.05`$, Poisson $`T = 0.001`$, binomial $`T = 0.1`$, multinomial
-$`T = 0.1`$ and Cox $`T = 0.001`$.
+with GIC6, which uses probabilistic updates instead of the deterministic
+updates of a standard Hopfield network. The Boltzmann machine accepts a
+move that lowers the criterion by $`\Delta`$ with probability
+$`1/(1 + e^{\Delta/T})`$, where the temperature $`T`$ is a tuning
+parameter. The Boltzmann machine can leave a local optimum and provide
+some uncertainty quantification. The temperature used in each example
+is: linear $`T = 0.1`$, multivariate normal $`T = 0.05`$, Poisson
+$`T = 0.001`$, binomial $`T = 0.1`$, multinomial $`T = 0.1`$ and Cox
+$`T = 0.001`$.
 
 For reference, the examples also fit the lasso and the adaptive lasso
 with the [glmnet](https://CRAN.R-project.org/package=glmnet) package
