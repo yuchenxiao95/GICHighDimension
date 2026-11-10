@@ -38,23 +38,35 @@ tint <- function(col) {
 }
 size_lty <- c(n1000 = 1, n2000 = 3)       # solid: n = 1000, dotted: n = 2000
 
-# Three panels: each criterion's value, and its model size, after every search
-# step, with one line per criterion and sample size; then the run time of every
-# method, including the lasso and adaptive lasso. Light grey vertical lines
-# mark a new pass over the predictors; the dashed line marks the true size.
+# Three figures per example, each drawn at full page width: each criterion's
+# value after every search step, the model size after every step (with the
+# lasso and adaptive lasso as horizontal lines), and the run time of every
+# method. One line per method and sample size; light grey vertical lines mark a
+# new pass over the predictors; the dashed line marks the true size.
 # `fits` is fits[[sample size]][[method]], as returned by compare_criteria().
 # Signed log scale, sign(y) log10(1 + |y|), for criteria that go negative
 slog <- function(y) sign(y) * log10(1 + abs(y))
 
-plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
-  # 2 x 2 grid: criterion and model size on top, run time and the legend below
-  png(file, width = 8, height = 6.7, units = "in", res = 250)
-  on.exit(dev.off())
-  layout(matrix(1:4, 2, byrow = TRUE))
-  op <- par(mar = c(4.6, 5.2, 2.6, 1.2), las = 1,
-            cex.axis = 1.25, cex.lab = 1.35, cex.main = 1.45)
-  on.exit(par(op), add = TRUE)
+# Open a full-width figure, with a legend strip below the panel if `strip`
+open_figure <- function(file, strip = TRUE) {
+  png(file, width = 8, height = if (strip) 4.6 else 4, units = "in", res = 250)
+  if (strip) layout(matrix(1:2), heights = c(5, 1))
+  par(mar = c(4.4, 5.6, 2.4, 1), las = 1, cex.axis = 1.1, cex.lab = 1.2,
+      cex.main = 1.3)
+}
 
+# Legend strip: method colours, then the sample-size line types
+legend_strip <- function(cols) {
+  par(mar = c(0, 0, 0, 0))
+  plot.new()
+  legend("center", legend = c(names(cols), "n = 1000", "n = 2000"),
+         col = c(cols, "grey25", "grey25"),
+         lty = c(rep(1, length(cols)), size_lty), lwd = 3, seg.len = 2.5,
+         ncol = ceiling((length(cols) + 2) / 2), bty = "n", cex = 1.05,
+         x.intersp = 0.8, text.width = max(strwidth(c(names(cols), "n = 1000"))))
+}
+
+plot_criteria <- function(fits, p, true_size, stem, log_criterion = FALSE) {
   steps  <- seq_along(fits[[1]][[names(palette)[1]]]$GIC_values)
   passes <- seq(p, length(steps) - 1, by = p)
   # One column per (sample size, criterion)
@@ -64,9 +76,11 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   sizes  <- series(function(fit) lengths(fit$selected_coeffs))
   cols <- rep(palette, times = length(fits))
   ltys <- rep(size_lty[names(fits)], each = length(palette))
+  shown <- methods[names(methods) %in% names(fits[[1]])]   # methods run in this example
 
-  # Criterion panel, optionally on the signed log scale, labelled in the
-  # original units
+  # Criterion along the search, optionally on the signed log scale, labelled
+  # in the original units
+  open_figure(paste0(stem, "-criterion.png"))
   yv <- if (log_criterion) slog(values) else values
   matplot(steps, yv, type = "n", xlab = "Search step", ylab = "",
           yaxt = if (log_criterion) "n" else "s", main = "Criterion along the search")
@@ -80,15 +94,16 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   abline(v = passes, col = "grey85", lwd = 0.8)
   matlines(steps, yv, type = "s", lwd = 2.6, col = cols, lty = ltys)
   title(ylab = if (log_criterion) "Criterion value (signed log scale)" else "Criterion value",
-        line = 3.9)
+        line = 4.1)
+  legend_strip(palette)
+  dev.off()
 
-  # Log scale when the search starts from all predictors (linear and
-  # multivariate examples), so the end of the path stays visible; both use the
-  # same range and ticks, plus a tick at the true size
+  # Model size along the search. Log scale when the search starts from all
+  # predictors (linear and multivariate examples), so the end of the path stays
+  # visible, with a tick at the true size. Lasso and adaptive lasso: one model
+  # each, at the cross-validated lambda, drawn as a horizontal line at its size.
+  open_figure(paste0(stem, "-size.png"))
   log_ticks <- sort(unique(c(5, 10, 100, 500, true_size)))
-  # Lasso and adaptive lasso: one model each, at the cross-validated lambda,
-  # drawn as a horizontal line at its size
-  shown <- methods[names(methods) %in% names(fits[[1]])]   # methods run in this example
   lasso <- setdiff(names(shown), names(palette))
   lasso_paths <- unlist(lapply(fits, function(by_method) by_method[lasso]), recursive = FALSE)
   lasso_y <- lapply(lasso_paths, function(fit) max(length(fit$selected), 1))
@@ -107,33 +122,24 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   for (i in seq_along(lasso_y))
     abline(h = lasso_y[[i]], lwd = 2.6, col = lasso_col[i], lty = lasso_lty[i])
   title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
-        line = 3.9)
+        line = 4.1)
+  legend_strip(shown)
+  dev.off()
 
   # Run time of every method: light bars n = 1000, dark bars n = 2000
+  open_figure(paste0(stem, "-runtime.png"), strip = FALSE)
   secs <- sapply(fits, function(by_method)
     sapply(by_method[names(shown)], function(fit) fit$seconds))
   secs <- pmax(secs, 0.005)                 # keep sub-millisecond times on the log axis
   ylim_t <- 10^c(floor(log10(min(secs))), ceiling(log10(max(secs))))
-  bars <- barplot(t(secs), beside = TRUE, log = "y", ylim = ylim_t, border = NA,
-                  col = rbind(tint(shown), shown), names.arg = rep("", length(shown)),
-                  main = "Run time", ylab = "")
-  # method names on two staggered lines, so long names never overlap
-  mtext(names(shown), side = 1, at = colMeans(bars), cex = 0.95,
-        line = rep(c(0.6, 1.8), length.out = length(shown)))
-  title(xlab = "light: n = 1000, dark: n = 2000", line = 3.4)
-  title(ylab = "Seconds (log scale)", line = 3.9)
+  barplot(t(secs), beside = TRUE, log = "y", ylim = ylim_t, border = NA,
+          col = rbind(tint(shown), shown), names.arg = names(shown),
+          main = "Run time", ylab = "")
+  title(xlab = "light: n = 1000, dark: n = 2000", line = 2.9)
+  title(ylab = "Seconds (log scale)", line = 4.1)
   box()
-
-  # Legend in the fourth panel: method colours, then sample-size line types
-  par(mar = c(0, 0, 0, 0))
-  plot.new()
-  legend("center", inset = c(0, -0.12), legend = names(shown), col = shown,
-         lty = 1, lwd = 3, bty = "n", cex = 1.25, seg.len = 3, ncol = 2,
-         title = "Method", y.intersp = 1.3)
-  legend("bottom", legend = c("n = 1000", "n = 2000"), col = "grey25",
-         lty = size_lty, lwd = 2.5, horiz = TRUE, bty = "n", cex = 1.5,
-         seg.len = 3, inset = c(0, 0.08))
-  message("wrote ", file)
+  dev.off()
+  message("wrote ", stem, "-{criterion,size,runtime}.png")
 }
 
 # Evaluate one code block in `env` and return its lines with fresh output.
@@ -156,7 +162,7 @@ run_block <- function(lines, env) {
 }
 
 # Process one document: run its code blocks in order, refresh the output, and
-# draw the figure named in the first image link after each block.
+# draw the three figures named by the first image link after each block.
 process <- function(path, start_heading, figure_dir, draw) {
   doc   <- readLines(path)
   start <- grep(start_heading, doc)[1]
@@ -176,7 +182,8 @@ process <- function(path, start_heading, figure_dir, draw) {
           if (draw) {
             truth <- if (!is.null(env$true_union) && grepl("multivariate", m))
               env$true_union else env$true_cols
-            plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, m),
+            stem <- sub("-(criterion|size|runtime)\\.png$", "", m)
+            plot_criteria(env$fits, env$p, length(truth), file.path(figure_dir, stem),
                           log_criterion = grepl("linear|multivariate", m))
           }
           break
