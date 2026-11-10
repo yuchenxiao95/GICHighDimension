@@ -62,8 +62,7 @@ E(z) = -z^\top W z ,
 $$
 
 and $E$ is bounded below, so the network always converges to a locally stable
-state ([Bruck, 1990](https://doi.org/10.1109/5.58341);
-[Rojas, 1996](https://doi.org/10.1007/978-3-642-61068-4)).
+state ([Bruck, 1990](https://doi.org/10.1109/5.58341)).
 
 ### Connection with AIC
 
@@ -87,7 +86,7 @@ $$
 $$
 
 where $\widehat{X_t \beta} = H_d X_t \beta$. Maximizing it minimizes the
-expected out-of-sample error and finds the best orthogonal projection onto
+expected out-of-sample error and finds the optimal orthogonal projection onto
 the span of $X_t \beta$, reached when $X_d = X_t$. This quantity plays the
 role of a Hopfield energy: updating one indicator at a time,
 
@@ -545,9 +544,6 @@ selection in small samples. *Biometrika*, 76(2), 297–307.
 Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection criteria on
 high dimensions. *Journal of Machine Learning Research*, 13, 1037–1057.
 <https://jmlr.org/papers/v13/kim12a.html>
-
-Rojas, R. (1996). *Neural Networks: A Systematic Introduction*. Springer,
-Berlin. <https://doi.org/10.1007/978-3-642-61068-4>
 
 Schwarz, G. (1978). Estimating the dimension of a model. *The Annals of
 Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
