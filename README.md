@@ -159,10 +159,8 @@ with GIC6, which uses probabilistic updates instead of the deterministic
 updates of a standard Hopfield network. The Boltzmann machine accepts a move
 that lowers the criterion by $\Delta$ with probability $1/(1 + e^{\Delta/T})$,
 where the temperature $T$ is a tuning parameter. The Boltzmann machine can
-leave a local optimum and provide some uncertainty quantification. The temperature
-used in each example is: linear $T = 0.1$, multivariate normal
-$T = 0.05$, Poisson $T = 0.001$, binomial $T = 0.1$, multinomial $T = 0.1$
-and Cox $T = 0.001$.
+leave a local optimum and provide some uncertainty quantification. Every example uses
+the default $T = 0.1$.
 
 For reference, the examples also fit the lasso and the adaptive lasso with the
 [glmnet](https://CRAN.R-project.org/package=glmnet) package
@@ -310,18 +308,18 @@ Y <- LP_to_Y(X, beta, family = "Normal", std = sqrt(sum(beta^2) / 0.71))
 fits <- compare_criteria(X, Y, 1:p, k = p, Nsim = 5)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        152       147         0    0.63
-#> n1000 BIC          8         3         0    0.59
-#> n1000 GIC6         5         0         0    0.38
-#> n1000 Boltzmann    5         0         0    0.43
-#> n1000 Lasso       22        17         0    0.84
-#> n1000 AdaLasso    25        20         0    1.62
-#> n2000 AIC        116       111         0    0.67
-#> n2000 BIC          9         4         0    0.70
-#> n2000 GIC6         5         0         0    0.66
-#> n2000 Boltzmann    5         0         0    0.63
+#> n1000 AIC        152       147         0    0.52
+#> n1000 BIC          8         3         0    0.49
+#> n1000 GIC6         5         0         0    0.36
+#> n1000 Boltzmann    5         0         0    0.42
+#> n1000 Lasso       22        17         0    0.81
+#> n1000 AdaLasso    25        20         0    1.60
+#> n2000 AIC        116       111         0    0.64
+#> n2000 BIC          9         4         0    0.61
+#> n2000 GIC6         5         0         0    0.60
+#> n2000 Boltzmann    5         0         0    0.58
 #> n2000 Lasso       18        13         0    0.94
-#> n2000 AdaLasso    24        19         0    2.58
+#> n2000 AdaLasso    24        19         0    2.56
 ```
 
 <p align="center"><img src="man/figures/README-linear-criterion.png" alt="Criterion along the search, linear model with p = 500" width="85%"></p>
@@ -349,21 +347,21 @@ Y_multi <- LP_to_Y(X, B, family = "MultivariateNormal", cov_matrix = diag(m))
 true_union <- sort(unique(unlist(true_by_response)))
 
 fits <- compare_criteria(X, Y_multi, 1:p, k = p, Nsim = 5,
-                         lasso_family = "mgaussian", T = 0.05)
+                         lasso_family = "mgaussian")
 selection_table(fits, true_union)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC        102        80         2    0.44
-#> n1000 BIC         20         0         4    0.52
-#> n1000 GIC6        19         0         5    0.36
-#> n1000 Boltzmann   26         7         5    0.41
-#> n1000 Lasso      129       106         1    2.27
-#> n1000 AdaLasso    21         2         5    5.27
-#> n2000 AIC         69        45         0    0.67
-#> n2000 BIC         20         0         4    0.83
-#> n2000 GIC6        19         0         5    0.71
-#> n2000 Boltzmann   68        47         3    0.74
-#> n2000 Lasso      131       107         0    3.83
-#> n2000 AdaLasso    41        17         0    8.37
+#> n1000 AIC        102        80         2    0.43
+#> n1000 BIC         20         0         4    0.53
+#> n1000 GIC6        19         0         5    0.39
+#> n1000 Boltzmann   82        62         4    0.49
+#> n1000 Lasso      129       106         1    2.23
+#> n1000 AdaLasso    21         2         5    5.09
+#> n2000 AIC         69        45         0    0.70
+#> n2000 BIC         20         0         4    0.84
+#> n2000 GIC6        19         0         5    0.72
+#> n2000 Boltzmann  132       111         3    1.11
+#> n2000 Lasso      131       107         0    3.54
+#> n2000 AdaLasso    41        17         0    8.30
 ```
 
 <p align="center"><img src="man/figures/README-multivariate-criterion.png" alt="Criterion along the search, multivariate normal response" width="85%"></p>
@@ -398,21 +396,21 @@ compare_glm <- function(y, lasso_y, lasso_family, ..., T = 0.1)
 
 ```r
 y_pois <- LP_to_Y(X, beta, family = "Poisson")
-fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson", T = 0.001)
+fits <- compare_glm(y_pois, y_pois, "poisson", family = "Poisson")
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         48        43         0    0.33
-#> n1000 BIC          9         4         0    0.06
-#> n1000 GIC6         5         0         0    0.07
-#> n1000 Boltzmann    5         0         0    0.02
-#> n1000 Lasso       29        24         0    1.91
-#> n1000 AdaLasso     5         0         0    2.10
-#> n2000 AIC         49        44         0    0.06
+#> n1000 AIC         48        43         0    0.38
+#> n1000 BIC          9         4         0    0.03
+#> n1000 GIC6         5         0         0    0.02
+#> n1000 Boltzmann   49        46         2    0.04
+#> n1000 Lasso       29        24         0    1.90
+#> n1000 AdaLasso     5         0         0    2.12
+#> n2000 AIC         49        45         1    0.19
 #> n2000 BIC         10         5         0    0.05
-#> n2000 GIC6         5         0         0    0.11
-#> n2000 Boltzmann    5         0         0    0.13
-#> n2000 Lasso       51        46         0    1.47
-#> n2000 AdaLasso     5         0         0    4.04
+#> n2000 GIC6         5         0         0    0.14
+#> n2000 Boltzmann   49        47         3    0.13
+#> n2000 Lasso       51        46         0    1.52
+#> n2000 AdaLasso     5         0         0    3.97
 
 # Coefficients of the GIC6 model for n = 2000, intercept first
 round(Beta_estimate(X[, last_model(fits$n2000$GIC6)], y_pois, family = "Poisson"), 2)
@@ -433,18 +431,18 @@ fits <- compare_glm(y_binom, cbind(10 - y_binom, y_binom), "binomial",
                     family = "Binomial", n_trials = 10)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        46         2    0.19
-#> n1000 BIC          7         2         0    0.03
+#> n1000 AIC         49        44         0    0.22
+#> n1000 BIC         15        10         0    0.03
 #> n1000 GIC6         5         0         0    0.02
-#> n1000 Boltzmann    5         0         0    0.02
-#> n1000 Lasso       29        24         0    1.38
-#> n1000 AdaLasso    35        30         0    2.92
-#> n2000 AIC         48        46         3    0.06
-#> n2000 BIC          7         2         0    0.05
-#> n2000 GIC6         5         0         0    0.11
-#> n2000 Boltzmann    5         0         0    0.16
-#> n2000 Lasso       39        34         0    1.70
-#> n2000 AdaLasso     5         0         0    4.81
+#> n1000 Boltzmann    5         0         0    0.03
+#> n1000 Lasso       47        42         0    1.36
+#> n1000 AdaLasso    37        32         0    2.84
+#> n2000 AIC         49        46         2    0.06
+#> n2000 BIC          8         3         0    0.05
+#> n2000 GIC6         5         0         0    0.10
+#> n2000 Boltzmann    5         0         0    0.13
+#> n2000 Lasso       34        29         0    1.69
+#> n2000 AdaLasso    44        39         0    5.14
 ```
 
 <p align="center"><img src="man/figures/README-binomial-criterion.png" alt="Criterion along the search, binomial response" width="85%"></p>
@@ -465,14 +463,14 @@ y_mn <- LP_to_Y(X, B_mn, family = "Multinomial", n_categories = 3)
 fits <- compare_glm(y_mn, NULL, NULL, family = "Multinomial", n_categories = 3)
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        47         3    0.13
-#> n1000 BIC          7         2         0    0.03
-#> n1000 GIC6         5         0         0    0.03
-#> n1000 Boltzmann    5         0         0    0.03
-#> n2000 AIC         49        45         1    0.13
-#> n2000 BIC          6         1         0    0.06
-#> n2000 GIC6         5         0         0    0.06
-#> n2000 Boltzmann   13         8         0    0.05
+#> n1000 AIC         49        45         1    0.13
+#> n1000 BIC          6         1         0    0.08
+#> n1000 GIC6         5         0         0    0.02
+#> n1000 Boltzmann    5         0         0    0.02
+#> n2000 AIC         49        46         2    0.09
+#> n2000 BIC          7         2         0    0.05
+#> n2000 GIC6         5         0         0    0.11
+#> n2000 Boltzmann   14         9         0    0.12
 ```
 
 <p align="center"><img src="man/figures/README-multinomial-criterion.png" alt="Criterion along the search, multinomial response" width="85%"></p>
@@ -495,23 +493,23 @@ the linear predictor. The selected model is then fitted with
 ```r
 y_cox <- LP_to_Y(X, beta, family = "Cox", censor_rate = 0.3)
 mean(y_cox[, "status"] == 0)       # share of censored observations
-#> [1] 0.31
+#> [1] 0.3335
 y_surv <- survival::Surv(y_cox[, "time"], y_cox[, "status"])
-fits <- compare_glm(y_cox, NULL, NULL, family = "Cox", T = 0.001)
+fits <- compare_glm(y_cox, NULL, NULL, family = "Cox")
 selection_table(fits, true_cols)
 #>                 size false_pos false_neg seconds
-#> n1000 AIC         49        47         3    0.60
-#> n1000 BIC          9         4         0    0.02
-#> n1000 GIC6         5         0         0    0.02
-#> n1000 Boltzmann    5         0         0    0.11
-#> n2000 AIC         49        46         2    0.12
-#> n2000 BIC         11         6         0    0.05
-#> n2000 GIC6         5         0         0    0.05
-#> n2000 Boltzmann    5         0         0    0.04
+#> n1000 AIC         49        45         1    0.62
+#> n1000 BIC         10         5         0    0.02
+#> n1000 GIC6         5         0         0    0.03
+#> n1000 Boltzmann   49        46         2    0.10
+#> n2000 AIC         49        47         3    0.07
+#> n2000 BIC         10         5         0    0.04
+#> n2000 GIC6         5         0         0    0.04
+#> n2000 Boltzmann   49        46         2    0.12
 
 # Coefficients of the GIC6 model for n = 2000, from survival::coxph()
 round(unname(coef(survival::coxph(y_surv ~ X[, last_model(fits$n2000$GIC6)]))), 2)
-#> [1]  0.97 -0.99  0.80 -0.84  0.59
+#> [1]  1.02 -1.00  0.78 -0.77  0.61
 ```
 
 <p align="center"><img src="man/figures/README-cox-criterion.png" alt="Criterion along the search, Cox model" width="85%"></p>
