@@ -61,7 +61,7 @@ Xiao</h4>
                         <h4 data-toc-skip class="author">Stephen
 Walker</h4>
             
-            <h4 data-toc-skip class="date">November 09, 2026</h4>
+            <h4 data-toc-skip class="date">November 10, 2026</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/yuchenxiao95/IChop/blob/main/vignettes/IChop.Rmd" class="external-link"><code>vignettes/IChop.Rmd</code></a></small>
       <div class="d-none name"><code>IChop.Rmd</code></div>
@@ -722,20 +722,12 @@ Tibshirani, 2010</a>), using <code>cv.glmnet()</code> with 10-fold
 cross-validation and <code>lambda.min</code>, and
 <code>family = "gaussian"</code>, <code>"mgaussian"</code>,
 <code>"poisson"</code> or <code>"binomial"</code> to match the response,
-as in glmnet’s own articles. The multinomial and Cox examples leave the
-lasso out: glmnet’s cross-validated fits for those families (grouped
-multinomial, and Cox) take several minutes each at this size, against
-well under a second for each search. The adaptive lasso uses penalty
-factors
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">‖</mo><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">‖</mo></mrow></mrow><annotation encoding="application/x-tex">1/\lVert\hat\beta_j\rVert</annotation></semantics></math>
-from a ridge (<code>alpha = 0</code>) pilot fit. Their run times are
-those of glmnet’s own fitting routines.</p>
+as in glmnet’s own articles.</p>
 <p>Each table reports the size, false positives and false negatives of
-the selected model, and the wall-clock time of each method in seconds
-(Apple M-series laptop, Julia 1.11, after Julia has compiled; the search
-times include copying the data from R to Julia). The right-hand panel of
-each figure shows the same times, and the middle panel also shows the
-lasso paths: the number of nonzero coefficients along the
+the selected model, and the wall-clock time of each method in seconds.
+The right-hand panel of each figure shows the same times, and the middle
+panel also shows the lasso paths: the number of nonzero coefficients
+along the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
 grid, from the smallest
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>

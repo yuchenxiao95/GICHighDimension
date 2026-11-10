@@ -512,21 +512,14 @@ The lasso and the adaptive lasso are fitted with the
 Hastie and Tibshirani, 2010](https://doi.org/10.18637/jss.v033.i01)),
 using `cv.glmnet()` with 10-fold cross-validation and `lambda.min`, and
 `family = "gaussian"`, `"mgaussian"`, `"poisson"` or `"binomial"` to
-match the response, as in glmnet’s own articles. The multinomial and Cox
-examples leave the lasso out: glmnet’s cross-validated fits for those
-families (grouped multinomial, and Cox) take several minutes each at
-this size, against well under a second for each search. The adaptive
-lasso uses penalty factors $`1/\lVert\hat\beta_j\rVert`$ from a ridge
-(`alpha = 0`) pilot fit. Their run times are those of glmnet’s own
-fitting routines.
+match the response, as in glmnet’s own articles.
 
 Each table reports the size, false positives and false negatives of the
-selected model, and the wall-clock time of each method in seconds (Apple
-M-series laptop, Julia 1.11, after Julia has compiled; the search times
-include copying the data from R to Julia). The right-hand panel of each
-figure shows the same times, and the middle panel also shows the lasso
-paths: the number of nonzero coefficients along the $`\lambda`$ grid,
-from the smallest $`\lambda`$ on the left to the largest on the right.
+selected model, and the wall-clock time of each method in seconds. The
+right-hand panel of each figure shows the same times, and the middle
+panel also shows the lasso paths: the number of nonzero coefficients
+along the $`\lambda`$ grid, from the smallest $`\lambda`$ on the left to
+the largest on the right.
 
 ### Helpers
 
