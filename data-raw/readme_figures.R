@@ -48,7 +48,7 @@ slog <- function(y) sign(y) * log10(1 + abs(y))
 
 plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   # 2 x 2 grid: criterion and model size on top, run time and the legend below
-  png(file, width = 10, height = 8.4, units = "in", res = 200)
+  png(file, width = 8, height = 6.7, units = "in", res = 250)
   on.exit(dev.off())
   layout(matrix(1:4, 2, byrow = TRUE))
   op <- par(mar = c(4.6, 5.2, 2.6, 1.2), las = 1,
@@ -78,7 +78,7 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
     axis(2, at = slog(at), labels = format(at, big.mark = ",", trim = TRUE))
   }
   abline(v = passes, col = "grey85", lwd = 0.8)
-  matlines(steps, yv, type = "s", lwd = 2, col = cols, lty = ltys)
+  matlines(steps, yv, type = "s", lwd = 2.6, col = cols, lty = ltys)
   title(ylab = if (log_criterion) "Criterion value (signed log scale)" else "Criterion value",
         line = 3.9)
 
@@ -101,11 +101,11 @@ plot_criteria <- function(fits, p, true_size, file, log_criterion = FALSE) {
   if (log_y) axis(2, at = log_ticks)
   abline(v = passes, col = "grey85", lwd = 0.8)
   abline(h = true_size, lty = 2, col = "grey35")
-  matlines(steps, sizes, type = "s", lwd = 2, col = cols, lty = ltys)
+  matlines(steps, sizes, type = "s", lwd = 2.6, col = cols, lty = ltys)
   lasso_col <- rep(methods[lasso], times = length(fits))
   lasso_lty <- rep(size_lty[names(fits)], each = length(lasso))
   for (i in seq_along(lasso_y))
-    abline(h = lasso_y[[i]], lwd = 2, col = lasso_col[i], lty = lasso_lty[i])
+    abline(h = lasso_y[[i]], lwd = 2.6, col = lasso_col[i], lty = lasso_lty[i])
   title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
         line = 3.9)
 
