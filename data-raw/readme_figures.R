@@ -43,10 +43,12 @@ size_lty <- c(n1000 = 1, n2000 = 3)       # solid: n = 1000, dotted: n = 2000
 # mark a new pass over the predictors; the dashed line marks the true size.
 # `fits` is fits[[sample size]][[method]], as returned by compare_criteria().
 plot_criteria <- function(fits, p, true_size, file) {
-  png(file, width = 11.5, height = 4.2, units = "in", res = 200)
+  # 2 x 2 grid: criterion and model size on top, run time and the legend below
+  png(file, width = 10, height = 8.4, units = "in", res = 200)
   on.exit(dev.off())
-  op <- par(mfrow = c(1, 3), mar = c(4.2, 4.6, 2.2, 1), oma = c(3.8, 0, 0, 0),
-            las = 1, cex.axis = 0.95, cex.lab = 1.1, cex.main = 1.1)
+  layout(matrix(1:4, 2, byrow = TRUE))
+  op <- par(mar = c(4.6, 5.2, 2.6, 1.2), las = 1,
+            cex.axis = 1.25, cex.lab = 1.35, cex.main = 1.45)
   on.exit(par(op), add = TRUE)
 
   steps  <- seq_along(fits[[1]][[names(palette)[1]]]$GIC_values)
@@ -63,7 +65,7 @@ plot_criteria <- function(fits, p, true_size, file) {
           main = "Criterion along the search")
   abline(v = passes, col = "grey85", lwd = 0.8)
   matlines(steps, values, type = "s", lwd = 2, col = cols, lty = ltys)
-  title(ylab = "Criterion value", line = 3.4)
+  title(ylab = "Criterion value", line = 3.9)
 
   # Log scale when the search starts from all predictors (linear and
   # multivariate examples), so the end of the path stays visible; both use the
@@ -95,28 +97,32 @@ plot_criteria <- function(fits, p, true_size, file) {
     lines(seq(min(steps), max(steps), length.out = length(lasso_y[[i]])), lasso_y[[i]],
           type = "s", lwd = 2, col = lasso_col[i], lty = lasso_lty[i])
   title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
-        line = 3.4)
+        line = 3.9)
 
   # Run time of every method: light bars n = 1000, dark bars n = 2000
   secs <- sapply(fits, function(by_method)
     sapply(by_method[names(shown)], function(fit) fit$seconds))
   secs <- pmax(secs, 0.005)                 # keep sub-millisecond times on the log axis
   ylim_t <- 10^c(floor(log10(min(secs))), ceiling(log10(max(secs))))
-  barplot(t(secs), beside = TRUE, log = "y", ylim = ylim_t, border = NA,
-          col = rbind(tint(shown), shown), names.arg = names(shown),
-          cex.names = 0.85, main = "Run time", ylab = "",
-          xlab = "light: n = 1000, dark: n = 2000")
-  title(ylab = "Seconds (log scale)", line = 3.4)
+  bars <- barplot(t(secs), beside = TRUE, log = "y", ylim = ylim_t, border = NA,
+                  col = rbind(tint(shown), shown), names.arg = rep("", length(shown)),
+                  main = "Run time", ylab = "")
+  # method names on two staggered lines, so long names never overlap
+  mtext(names(shown), side = 1, at = colMeans(bars), cex = 0.95,
+        line = rep(c(0.6, 1.8), length.out = length(shown)))
+  title(xlab = "light: n = 1000, dark: n = 2000", line = 3.4)
+  title(ylab = "Seconds (log scale)", line = 3.9)
   box()
 
-  # Legend rows under the panels: method colours, then sample-size line types
-  par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+  # Legend in the fourth panel: method colours, then sample-size line types
+  par(mar = c(0, 0, 0, 0))
   plot.new()
-  legend("bottom", inset = c(0, 0.075), legend = names(shown), col = shown,
-         lty = 1, lwd = 2.5, horiz = TRUE, bty = "n", cex = 0.95, seg.len = 2.5)
-  legend("bottom", inset = c(0, 0.005), legend = c("n = 1000", "n = 2000"),
-         col = "grey25", lty = size_lty, lwd = 2, horiz = TRUE, bty = "n",
-         cex = 0.95, seg.len = 3)
+  legend("center", inset = c(0, -0.12), legend = names(shown), col = shown,
+         lty = 1, lwd = 3, bty = "n", cex = 1.5, seg.len = 3, ncol = 2,
+         title = "Method", y.intersp = 1.3)
+  legend("bottom", legend = c("n = 1000", "n = 2000"), col = "grey25",
+         lty = size_lty, lwd = 2.5, horiz = TRUE, bty = "n", cex = 1.5,
+         seg.len = 3, inset = c(0, 0.08))
   message("wrote ", file)
 }
 
