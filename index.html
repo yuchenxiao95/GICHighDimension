@@ -207,7 +207,7 @@ z_j(t+1) = \mathbf{1}\left\lbrace
 </h2>
 <p>The examples below compare three criteria on the same data. In increasing order of penalty per variable, they are AIC (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_n = 2</annotation></semantics></math>), BIC (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>) and GIC6 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">\log n \log p</annotation></semantics></math>), where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> is the number of candidate predictors. Each example also runs the Boltzmann search (<code><a href="reference/GICSelectionBoltzmann.html">GICSelectionBoltzmann()</a></code>) with GIC6, which accepts a move that lowers the criterion by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math> with probability <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mi mathvariant="normal">Δ</mi><mi>/</mi><mi>T</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1/(1 + e^{\Delta/T})</annotation></semantics></math>, so it can leave a local optimum. The temperature <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math> is a tuning parameter. The temperature used in each example is: linear <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>, multivariate normal <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">T = 0.05</annotation></semantics></math>, Poisson <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>, binomial <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math>, multinomial <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">T = 0.1</annotation></semantics></math> and Cox <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">T = 0.001</annotation></semantics></math>.</p>
 <p>For reference, the examples also fit the lasso and the adaptive lasso with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package (<a href="https://doi.org/10.18637/jss.v033.i01" class="external-link">Friedman, Hastie and Tibshirani, 2010</a>), using <code>cv.glmnet()</code> with 10-fold cross-validation and <code>lambda.min</code>, and <code>family = "gaussian"</code>, <code>"mgaussian"</code>, <code>"poisson"</code> or <code>"binomial"</code> to match the response, as in glmnet’s own articles.</p>
-<p>Each table reports the size, false positives and false negatives of the selected model, and the wall-clock time of each method in seconds. The right-hand panel of each figure shows the same times, and the middle panel also shows the lasso paths: the number of nonzero coefficients along the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> grid, from the smallest <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> on the left to the largest on the right.</p>
+<p>Each table reports the size, false positives and false negatives of the selected model, and the wall-clock time of each method in seconds. The right-hand panel of each figure shows the same times, and the middle panel also shows the lasso paths: the number of nonzero coefficients along the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> grid, from the smallest <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> on the left to the cross-validated <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math> (<code>lambda.min</code>) on the right, so each path ends at the selected model.</p>
 <!-- Helper functions used in the examples (hidden; run by data-raw/readme_figures.R)
 
 ```r
@@ -254,8 +254,10 @@ fit_lasso <- function(X, y, family, adaptive = FALSE) {
     args$penalty.factor <- 1 / sqrt(rowSums(lasso_coef(ridge)^2))
   }
   cvfit <- do.call(glmnet::cv.glmnet, args)
+  # path: number of predictors at each lambda from lambda.min down to the
+  # smallest lambda, so it ends at the selected model
   list(selected = which(rowSums(lasso_coef(cvfit) != 0) > 0),
-       path = cvfit$nzero)        # number of predictors at each lambda
+       path = cvfit$nzero[cvfit$index["min", 1]:length(cvfit$nzero)])
 }
 
 # For each n, run the search once per criterion on the first n observations,
@@ -323,18 +325,18 @@ section and redraws the figures.
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_criteria</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, k <span class="op">=</span> <span class="va">p</span>, Nsim <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC        152       147         0    0.71</span></span>
-<span><span class="co">#&gt; n1000 BIC          8         3         0    0.62</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.40</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.43</span></span>
-<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.84</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.64</span></span>
-<span><span class="co">#&gt; n2000 AIC        116       111         0    0.68</span></span>
-<span><span class="co">#&gt; n2000 BIC          9         4         0    0.77</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.67</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.60</span></span>
-<span><span class="co">#&gt; n2000 Lasso       18        13         0    0.95</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso    24        19         0    2.62</span></span></code></pre></div>
+<span><span class="co">#&gt; n1000 AIC        152       147         0    0.61</span></span>
+<span><span class="co">#&gt; n1000 BIC          8         3         0    0.59</span></span>
+<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.50</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.46</span></span>
+<span><span class="co">#&gt; n1000 Lasso       22        17         0    0.87</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    25        20         0    1.65</span></span>
+<span><span class="co">#&gt; n2000 AIC        116       111         0    0.90</span></span>
+<span><span class="co">#&gt; n2000 BIC          9         4         0    0.78</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.68</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.64</span></span>
+<span><span class="co">#&gt; n2000 Lasso       18        13         0    0.96</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    24        19         0    2.73</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-linear-runtime.png" alt="Criteria, model size and run time, linear model with p = 500"><div class="figcaption">Criteria, model size and run time, linear model with p = 500</div>
 </div>
@@ -359,18 +361,18 @@ section and redraws the figures.
 <span>                         lasso_family <span class="op">=</span> <span class="st">"mgaussian"</span>, T <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_union</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC        102        80         2    0.49</span></span>
-<span><span class="co">#&gt; n1000 BIC         20         0         4    0.57</span></span>
-<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.45</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.48</span></span>
-<span><span class="co">#&gt; n1000 Lasso      129       106         1    2.30</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    21         2         5    5.25</span></span>
-<span><span class="co">#&gt; n2000 AIC         69        45         0    0.87</span></span>
-<span><span class="co">#&gt; n2000 BIC         20         0         4    0.94</span></span>
-<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.71</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.78</span></span>
-<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.59</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.39</span></span></code></pre></div>
+<span><span class="co">#&gt; n1000 AIC        102        80         2    0.66</span></span>
+<span><span class="co">#&gt; n1000 BIC         20         0         4    0.63</span></span>
+<span><span class="co">#&gt; n1000 GIC6        19         0         5    0.62</span></span>
+<span><span class="co">#&gt; n1000 Boltzmann   26         7         5    0.76</span></span>
+<span><span class="co">#&gt; n1000 Lasso      129       106         1    2.48</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    21         2         5    5.35</span></span>
+<span><span class="co">#&gt; n2000 AIC         69        45         0    0.75</span></span>
+<span><span class="co">#&gt; n2000 BIC         20         0         4    0.68</span></span>
+<span><span class="co">#&gt; n2000 GIC6        19         0         5    0.67</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann   68        47         3    0.71</span></span>
+<span><span class="co">#&gt; n2000 Lasso      131       107         0    3.76</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso    41        17         0    8.48</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-multivariate-runtime.png" alt="Criteria, model size and run time, multivariate normal response"><div class="figcaption">Criteria, model size and run time, multivariate normal response</div>
 </div>
@@ -399,17 +401,17 @@ section and redraws the figures.
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
 <span><span class="co">#&gt; n1000 AIC         48        43         0    0.34</span></span>
-<span><span class="co">#&gt; n1000 BIC          9         4         0    0.14</span></span>
+<span><span class="co">#&gt; n1000 BIC          9         4         0    0.04</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.07</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.95</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.23</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        44         0    0.07</span></span>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.94</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso     5         0         0    2.13</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        44         0    0.06</span></span>
 <span><span class="co">#&gt; n2000 BIC         10         5         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.13</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 Lasso       51        46         0    1.48</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.02</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.22</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 Lasso       51        46         0    1.46</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.04</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, intercept first</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="reference/Beta_estimate.html">Beta_estimate</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span>, <span class="va">y_pois</span>, family <span class="op">=</span> <span class="st">"Poisson"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -427,18 +429,18 @@ section and redraws the figures.
 <span>                    family <span class="op">=</span> <span class="st">"Binomial"</span>, n_trials <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        46         2    0.16</span></span>
+<span><span class="co">#&gt; n1000 AIC         49        46         2    0.21</span></span>
 <span><span class="co">#&gt; n1000 BIC          7         2         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.39</span></span>
-<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.87</span></span>
-<span><span class="co">#&gt; n2000 AIC         48        46         3    0.11</span></span>
-<span><span class="co">#&gt; n2000 BIC          7         2         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.13</span></span>
-<span><span class="co">#&gt; n2000 Lasso       39        34         0    1.70</span></span>
-<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.87</span></span></code></pre></div>
+<span><span class="co">#&gt; n1000 Lasso       29        24         0    1.43</span></span>
+<span><span class="co">#&gt; n1000 AdaLasso    35        30         0    2.95</span></span>
+<span><span class="co">#&gt; n2000 AIC         48        46         3    0.06</span></span>
+<span><span class="co">#&gt; n2000 BIC          7         2         0    0.15</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.09</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 Lasso       39        34         0    1.73</span></span>
+<span><span class="co">#&gt; n2000 AdaLasso     5         0         0    4.93</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-binomial-runtime.png" alt="Criteria, model size and run time, binomial response"><div class="figcaption">Criteria, model size and run time, binomial response</div>
 </div>
@@ -456,12 +458,12 @@ section and redraws the figures.
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
 <span><span class="co">#&gt; n1000 AIC         49        47         3    0.13</span></span>
-<span><span class="co">#&gt; n1000 BIC          7         2         0    0.02</span></span>
+<span><span class="co">#&gt; n1000 BIC          7         2         0    0.03</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        45         1    0.12</span></span>
-<span><span class="co">#&gt; n2000 BIC          6         1         0    0.04</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        45         1    0.13</span></span>
+<span><span class="co">#&gt; n2000 BIC          6         1         0    0.13</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.04</span></span>
 <span><span class="co">#&gt; n2000 Boltzmann   13         8         0    0.05</span></span></code></pre></div>
 <div class="float">
 <img src="reference/figures/README-multinomial-runtime.png" alt="Criteria, model size and run time, multinomial response"><div class="figcaption">Criteria, model size and run time, multinomial response</div>
@@ -480,13 +482,13 @@ section and redraws the figures.
 <span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
 <span><span class="co">#&gt; n1000 AIC         49        47         3    0.62</span></span>
-<span><span class="co">#&gt; n1000 BIC          9         4         0    0.03</span></span>
+<span><span class="co">#&gt; n1000 BIC          9         4         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
 <span><span class="co">#&gt; n1000 Boltzmann    5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        46         2    0.13</span></span>
-<span><span class="co">#&gt; n2000 BIC         11         6         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 AIC         49        46         2    0.11</span></span>
+<span><span class="co">#&gt; n2000 BIC         11         6         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.04</span></span>
+<span><span class="co">#&gt; n2000 Boltzmann    5         0         0    0.05</span></span>
 <span></span>
 <span><span class="co"># Coefficients of the GIC6 model for n = 2000, from survival::coxph()</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="va">y_surv</span> <span class="op">~</span> <span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
