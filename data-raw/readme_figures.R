@@ -47,23 +47,12 @@ size_lty <- c(n1000 = 1, n2000 = 3)       # solid: n = 1000, dotted: n = 2000
 # Signed log scale, sign(y) log10(1 + |y|), for criteria that go negative
 slog <- function(y) sign(y) * log10(1 + abs(y))
 
-# Open a full-width figure, with a legend strip below the panel if `strip`
-open_figure <- function(file, strip = TRUE) {
-  png(file, width = 8, height = if (strip) 4.6 else 4, units = "in", res = 250)
-  if (strip) layout(matrix(1:2), heights = c(5, 1))
+# Open a full-width figure. There is no legend: the run-time figure labels
+# each method's colour, and the README says which line type is which n.
+open_figure <- function(file, height = 5.4) {
+  png(file, width = 8, height = height, units = "in", res = 250)
   par(mar = c(4.4, 5.6, 2.4, 1), las = 1, cex.axis = 1.1, cex.lab = 1.2,
       cex.main = 1.3)
-}
-
-# Legend strip: method colours, then the sample-size line types
-legend_strip <- function(cols) {
-  par(mar = c(0, 0, 0, 0))
-  plot.new()
-  legend("center", legend = c(names(cols), "n = 1000", "n = 2000"),
-         col = c(cols, "grey25", "grey25"),
-         lty = c(rep(1, length(cols)), size_lty), lwd = 3, seg.len = 2.5,
-         ncol = ceiling((length(cols) + 2) / 2), bty = "n", cex = 1.05,
-         x.intersp = 0.8, text.width = max(strwidth(c(names(cols), "n = 1000"))))
 }
 
 plot_criteria <- function(fits, p, true_size, stem, log_criterion = FALSE) {
@@ -95,7 +84,6 @@ plot_criteria <- function(fits, p, true_size, stem, log_criterion = FALSE) {
   matlines(steps, yv, type = "s", lwd = 2.6, col = cols, lty = ltys)
   title(ylab = if (log_criterion) "Criterion value (signed log scale)" else "Criterion value",
         line = 4.1)
-  legend_strip(palette)
   dev.off()
 
   # Model size along the search. Log scale when the search starts from all
@@ -123,11 +111,10 @@ plot_criteria <- function(fits, p, true_size, stem, log_criterion = FALSE) {
     abline(h = lasso_y[[i]], lwd = 2.6, col = lasso_col[i], lty = lasso_lty[i])
   title(ylab = if (log_y) "Number of predictors (log scale)" else "Number of predictors",
         line = 4.1)
-  legend_strip(shown)
   dev.off()
 
   # Run time of every method: light bars n = 1000, dark bars n = 2000
-  open_figure(paste0(stem, "-runtime.png"), strip = FALSE)
+  open_figure(paste0(stem, "-runtime.png"), height = 5)
   secs <- sapply(fits, function(by_method)
     sapply(by_method[names(shown)], function(fit) fit$seconds))
   secs <- pmax(secs, 0.005)                 # keep sub-millisecond times on the log axis
