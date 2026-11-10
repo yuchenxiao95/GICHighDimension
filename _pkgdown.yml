@@ -2,6 +2,7 @@ url: https://yuchenxiao95.github.io/IChop/
 
 template:
   bootstrap: 5
+  math-rendering: katex
 
 home:
   title: "Fast Variable Selection with Information Criteria"
