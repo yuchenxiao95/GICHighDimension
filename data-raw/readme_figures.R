@@ -71,7 +71,7 @@ plot_criteria <- function(fits, p, true_size, stem, log_criterion = FALSE) {
   # in the original units
   open_figure(paste0(stem, "-criterion.png"))
   yv <- if (log_criterion) slog(values) else values
-  matplot(steps, yv, type = "n", xlab = "Search step", ylab = "",
+  matplot(steps, yv, type = "n", xlab = "Search step (solid: n = 1000, dotted: n = 2000)", ylab = "",
           yaxt = if (log_criterion) "n" else "s", main = "Criterion along the search")
   if (log_criterion) {
     r <- range(values)
@@ -99,7 +99,7 @@ plot_criteria <- function(fits, p, true_size, stem, log_criterion = FALSE) {
   ylim <- range(c(sizes, unlist(lasso_y), true_size, if (log_y) range(log_ticks)), na.rm = TRUE)
   matplot(steps, sizes, type = "n", ylim = ylim,
           log = if (log_y) "y" else "", yaxt = if (log_y) "n" else "s",
-          xlab = "Search step", ylab = "",
+          xlab = "Search step (solid: n = 1000, dotted: n = 2000)", ylab = "",
           main = sprintf("Model size (true size = %d)", true_size))
   if (log_y) axis(2, at = log_ticks)
   abline(v = passes, col = "grey85", lwd = 0.8)
