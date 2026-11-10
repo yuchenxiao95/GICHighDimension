@@ -104,10 +104,19 @@ z_j(t+1) = \mathbf{1}\left\lbrace
   \frac{1}{n} \beta^\top X_t^\top H_d X_t \beta \right\rbrace ,
 ```
 
-where $`H_{d+1}`$ includes $`x_j`$. Under these updates the quantity
-never decreases, and it is bounded above by
-$`\frac{1}{n} \beta^\top X_t^\top X_t \beta`$. Replacing the unknown
-signal with the data gives the update rule for AIC,
+where $`H_{d+1}`$ includes $`x_j`$. Under these updates the energy term
+is nondecreasing and bounded above by
+$`\frac{1}{n} \beta^\top X_t^\top X_t \beta`$. The signal is unknown,
+but it is linked to the data through
+
+``` math
+\frac{1}{n} \beta^\top X^\top H_d X \beta
+= \mathbb{E}\left[ \frac{1}{n} y^\top H_d y \right] - d \frac{\sigma^2}{n}
+\xrightarrow{p} \mathbb{E}\left[ \beta^\top X^\top H_d X \beta \right] .
+```
+
+Replacing the unknown signal with the data gives the update rule for
+AIC,
 
 ``` math
 z_j(t+1) = \mathbf{1}\left\lbrace
