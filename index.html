@@ -212,7 +212,7 @@ z_j(t+1) = \mathbf{1}\left\lbrace
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <p>The examples below compare three IC on the same data. In increasing order of penalty per variable, they are AIC (<span class="math inline">c_n = 2</span>), BIC (<span class="math inline">\log n</span>) and GIC6 (<span class="math inline">\log n \log p</span>), where <span class="math inline">p</span> is the number of candidate predictors. Each example also runs the Boltzmann machine with GIC6, which uses probabilistic updates instead of the deterministic updates of a standard Hopfield network. The Boltzmann machine accepts a move that lowers the criterion by <span class="math inline">\Delta</span> with probability <span class="math inline">1/(1 + e^{\Delta/T})</span>, where the temperature <span class="math inline">T</span> is a tuning parameter. The Boltzmann machine can leave a local optimum and provide some uncertainty quantification. Every example uses the default <span class="math inline">T = 0.1</span>.</p>
-<p>For reference, the examples also fit the lasso and the adaptive lasso with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package (<a href="https://doi.org/10.18637/jss.v033.i01" class="external-link">Friedman, Hastie and Tibshirani, 2010</a>), using <code>cv.glmnet()</code> with 10-fold cross-validation and <code>lambda.1se</code> (glmnet’s default), and <code>family = "gaussian"</code>, <code>"mgaussian"</code>, <code>"poisson"</code> or <code>"binomial"</code> to match the response, as in glmnet’s own articles. The lasso and adaptive lasso are not fitted in the multinomial and Cox examples, because their cross-validation takes too long there.</p>
+<p>For reference, the examples also fit the lasso and the adaptive lasso with the <a href="https://CRAN.R-project.org/package=glmnet" class="external-link">glmnet</a> package (<a href="https://doi.org/10.18637/jss.v033.i01" class="external-link">Friedman, Hastie and Tibshirani, 2010</a>), using <code>cv.glmnet()</code> with 10-fold cross-validation and <code>lambda.1se</code> (glmnet’s default), and <code>family = "gaussian"</code>, <code>"mgaussian"</code>, <code>"poisson"</code> or <code>"binomial"</code> to match the response, as in glmnet’s own articles. The lasso and adaptive lasso are not fitted in the multinomial example, because their cross-validation takes too long there.</p>
 <p>Each table reports the size, false positives and false negatives of the selected model, and the wall-clock time of each method in seconds. Three figures follow each table: the criterion along the search, the model size along the search, with the number of predictors the lasso and the adaptive lasso select at the cross-validated <span class="math inline">\lambda</span> (<code>lambda.1se</code>) as horizontal lines, and the same run times as the table.</p>
 <!-- Helper functions used in the examples (hidden; run by data-raw/readme_figures.R)
 
@@ -487,37 +487,6 @@ section and redraws the figures.
 <p align="center">
 <img src="reference/figures/README-multinomial-runtime.png" alt="Run time, multinomial response" width="85%"></p>
 </div>
-<div class="section level4">
-<h4 id="cox-proportional-hazards">Cox proportional hazards<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards"></a>
-</h4>
-<p>The survival times follow a Cox model, <span class="math inline">h(t \mid x) = h_0(t)\, e^{x^\top\beta}</span>, with the same <span class="math inline">\beta</span>, an exponential baseline hazard <span class="math inline">h_0(t) = 1</span> and independent exponential censoring at rate 0.3, simulated by <code>LP_to_Y(family = "Cox")</code> (<a href="https://doi.org/10.1002/sim.2059" class="external-link">Bender, Augustin and Blettner, 2005</a>). For the searches, <code><a href="reference/Y_to_LP.html">Y_to_LP()</a></code> maps each (time, status) pair to the deviance residual of the null Cox model (<a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link">Therneau, Grambsch and Fleming, 1990</a>), which increases with the linear predictor. The selected model is then fitted with <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y_cox</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LP_to_Y.html">LP_to_Y</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">beta</span>, family <span class="op">=</span> <span class="st">"Cox"</span>, censor_rate <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y_cox</span><span class="op">[</span>, <span class="st">"status"</span><span class="op">]</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>       <span class="co"># share of censored observations</span></span>
-<span><span class="co">#&gt; [1] 0.3335</span></span>
-<span><span class="va">y_surv</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">y_cox</span><span class="op">[</span>, <span class="st">"time"</span><span class="op">]</span>, <span class="va">y_cox</span><span class="op">[</span>, <span class="st">"status"</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">compare_glm</span><span class="op">(</span><span class="va">y_cox</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>, family <span class="op">=</span> <span class="st">"Cox"</span><span class="op">)</span></span>
-<span><span class="fu">selection_table</span><span class="op">(</span><span class="va">fits</span>, <span class="va">true_cols</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                 size false_pos false_neg seconds</span></span>
-<span><span class="co">#&gt; n1000 AIC         49        45         1    0.68</span></span>
-<span><span class="co">#&gt; n1000 BIC         10         5         0    0.03</span></span>
-<span><span class="co">#&gt; n1000 GIC6         5         0         0    0.02</span></span>
-<span><span class="co">#&gt; n1000 Boltzmann   49        46         2    0.10</span></span>
-<span><span class="co">#&gt; n2000 AIC         49        47         3    0.06</span></span>
-<span><span class="co">#&gt; n2000 BIC         10         5         0    0.05</span></span>
-<span><span class="co">#&gt; n2000 GIC6         5         0         0    0.13</span></span>
-<span><span class="co">#&gt; n2000 Boltzmann   49        46         2    0.12</span></span>
-<span></span>
-<span><span class="co"># Coefficients of the GIC6 model for n = 2000, from survival::coxph()</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="va">y_surv</span> <span class="op">~</span> <span class="va">X</span><span class="op">[</span>, <span class="fu">last_model</span><span class="op">(</span><span class="va">fits</span><span class="op">$</span><span class="va">n2000</span><span class="op">$</span><span class="va">GIC6</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]  1.02 -1.00  0.78 -0.77  0.61</span></span></code></pre></div>
-<p align="center">
-<img src="reference/figures/README-cox-criterion.png" alt="Criterion along the search, Cox model" width="85%"></p>
-<p align="center">
-<img src="reference/figures/README-cox-size.png" alt="Model size along the search, Cox model" width="85%"></p>
-<p align="center">
-<img src="reference/figures/README-cox-runtime.png" alt="Run time, Cox model" width="85%"></p>
-</div>
 </div>
 </div>
 <div class="section level2">
@@ -535,7 +504,6 @@ section and redraws the figures.
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <p>Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE Transactions on Automatic Control</em>, 19(6), 716–723. <a href="https://doi.org/10.1109/TAC.1974.1100705" class="external-link uri">https://doi.org/10.1109/TAC.1974.1100705</a></p>
-<p>Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival times to simulate Cox proportional hazards models. <em>Statistics in Medicine</em>, 24(11), 1713–1723. <a href="https://doi.org/10.1002/sim.2059" class="external-link uri">https://doi.org/10.1002/sim.2059</a></p>
 <p>Bozdogan, H. (1987). Model selection and Akaike’s information criterion (AIC): The general theory and its analytical extensions. <em>Psychometrika</em>, 52(3), 345–370. <a href="https://doi.org/10.1007/BF02294361" class="external-link uri">https://doi.org/10.1007/BF02294361</a></p>
 <p>Bruck, J. (1990). On the convergence properties of the Hopfield model. <em>Proceedings of the IEEE</em>, 78(10), 1579–1585. <a href="https://doi.org/10.1109/5.58341" class="external-link uri">https://doi.org/10.1109/5.58341</a></p>
 <p>Chen, J. and Chen, Z. (2008). Extended Bayesian information criteria for model selection with large model spaces. <em>Biometrika</em>, 95(3), 759–771. <a href="https://doi.org/10.1093/biomet/asn034" class="external-link uri">https://doi.org/10.1093/biomet/asn034</a></p>
@@ -545,7 +513,6 @@ section and redraws the figures.
 <p>Kim, Y., Kwon, S. and Choi, H. (2012). Consistent model selection criteria on high dimensions. <em>Journal of Machine Learning Research</em>, 13, 1037–1057. <a href="https://jmlr.org/papers/v13/kim12a.html" class="external-link uri">https://jmlr.org/papers/v13/kim12a.html</a></p>
 <p>Schwarz, G. (1978). Estimating the dimension of a model. <em>The Annals of Statistics</em>, 6(2), 461–464. <a href="https://doi.org/10.1214/aos/1176344136" class="external-link uri">https://doi.org/10.1214/aos/1176344136</a></p>
 <p>Shao, J. (1997). An asymptotic theory for linear model selection. <em>Statistica Sinica</em>, 7(2), 221–264. <a href="https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm" class="external-link uri">https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm</a></p>
-<p>Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990). Martingale-based residuals for survival models. <em>Biometrika</em>, 77(1), 147–160. <a href="https://doi.org/10.1093/biomet/77.1.147" class="external-link uri">https://doi.org/10.1093/biomet/77.1.147</a></p>
 <p>Xiao, Y. and Walker, S. (2026). Fast variable selection under <span class="math inline">\ell_0</span> regularization in high-dimensions. <em>Statistics and Computing</em>, 36(3), 100. <a href="https://doi.org/10.1007/s11222-026-10853-5" class="external-link uri">https://doi.org/10.1007/s11222-026-10853-5</a></p>
 </div>
 </div>

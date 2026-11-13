@@ -156,7 +156,7 @@ with the [glmnet](https://CRAN.R-project.org/package=glmnet) package
 10-fold cross-validation and `lambda.1se` (glmnet’s default), and
 `family = "gaussian"`, `"mgaussian"`, `"poisson"` or `"binomial"` to
 match the response, as in glmnet’s own articles. The lasso and adaptive
-lasso are not fitted in the multinomial and Cox examples, because their
+lasso are not fitted in the multinomial example, because their
 cross-validation takes too long there.
 
 Each table reports the size, false positives and false negatives of the
@@ -399,51 +399,6 @@ response](reference/figures/README-multinomial-size.png)
 ![Run time, multinomial
 response](reference/figures/README-multinomial-runtime.png)
 
-#### Cox proportional hazards
-
-The survival times follow a Cox model, h(t \mid x) = h_0(t)\\
-e^{x^\top\beta}, with the same \beta, an exponential baseline hazard
-h_0(t) = 1 and independent exponential censoring at rate 0.3, simulated
-by `LP_to_Y(family = "Cox")` ([Bender, Augustin and Blettner,
-2005](https://doi.org/10.1002/sim.2059)). For the searches,
-[`Y_to_LP()`](https://yuchenxiao95.github.io/IChop/reference/Y_to_LP.md)
-maps each (time, status) pair to the deviance residual of the null Cox
-model ([Therneau, Grambsch and Fleming,
-1990](https://doi.org/10.1093/biomet/77.1.147)), which increases with
-the linear predictor. The selected model is then fitted with
-[`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html).
-
-``` r
-
-y_cox <- LP_to_Y(X, beta, family = "Cox", censor_rate = 0.3)
-mean(y_cox[, "status"] == 0)       # share of censored observations
-#> [1] 0.3335
-y_surv <- survival::Surv(y_cox[, "time"], y_cox[, "status"])
-fits <- compare_glm(y_cox, NULL, NULL, family = "Cox")
-selection_table(fits, true_cols)
-#>                 size false_pos false_neg seconds
-#> n1000 AIC         49        45         1    0.68
-#> n1000 BIC         10         5         0    0.03
-#> n1000 GIC6         5         0         0    0.02
-#> n1000 Boltzmann   49        46         2    0.10
-#> n2000 AIC         49        47         3    0.06
-#> n2000 BIC         10         5         0    0.05
-#> n2000 GIC6         5         0         0    0.13
-#> n2000 Boltzmann   49        46         2    0.12
-
-# Coefficients of the GIC6 model for n = 2000, from survival::coxph()
-round(unname(coef(survival::coxph(y_surv ~ X[, last_model(fits$n2000$GIC6)]))), 2)
-#> [1]  1.02 -1.00  0.78 -0.77  0.61
-```
-
-![Criterion along the search, Cox
-model](reference/figures/README-cox-criterion.png)
-
-![Model size along the search, Cox
-model](reference/figures/README-cox-size.png)
-
-![Run time, Cox model](reference/figures/README-cox-runtime.png)
-
 ## Performance
 
 Claude Code identified and fixed two slowdowns in the original,
@@ -476,10 +431,6 @@ n = 1000, p = 500, and from 101 s to 0.44 s at n = 5000, p = 500.
 Akaike, H. (1974). A new look at the statistical model identification.
 *IEEE Transactions on Automatic Control*, 19(6), 716–723.
 <https://doi.org/10.1109/TAC.1974.1100705>
-
-Bender, R., Augustin, T. and Blettner, M. (2005). Generating survival
-times to simulate Cox proportional hazards models. *Statistics in
-Medicine*, 24(11), 1713–1723. <https://doi.org/10.1002/sim.2059>
 
 Bozdogan, H. (1987). Model selection and Akaike’s information criterion
 (AIC): The general theory and its analytical extensions.
@@ -517,10 +468,6 @@ Statistics*, 6(2), 461–464. <https://doi.org/10.1214/aos/1176344136>
 Shao, J. (1997). An asymptotic theory for linear model selection.
 *Statistica Sinica*, 7(2), 221–264.
 <https://www3.stat.sinica.edu.tw/statistica/j7n2/j7n21/j7n21.htm>
-
-Therneau, T. M., Grambsch, P. M. and Fleming, T. R. (1990).
-Martingale-based residuals for survival models. *Biometrika*, 77(1),
-147–160. <https://doi.org/10.1093/biomet/77.1.147>
 
 Xiao, Y. and Walker, S. (2026). Fast variable selection under \ell_0
 regularization in high-dimensions. *Statistics and Computing*, 36(3),

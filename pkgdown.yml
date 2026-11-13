@@ -3,7 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   IChop: IChop.html
-last_built: 2026-11-12T23:52Z
+last_built: 2026-11-13T17:03Z
 urls:
   reference: https://yuchenxiao95.github.io/IChop/reference
   article: https://yuchenxiao95.github.io/IChop/articles
